@@ -1,0 +1,4 @@
+spikeSlabGAM 1.1-8 (2014-11-26) ----------------------------------------
+
+* changed license from CC BY-NC-SA 3.0 to GPL-3
+* updated parallelization code since package "parallel" is now part of the base distribution

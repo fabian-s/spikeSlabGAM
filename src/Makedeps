@@ -1,0 +1,20 @@
+sampler.o: sampler.c utils.h C:/Programme/R/R-2.7.1/include/R.h \
+  C:/Programme/R/R-2.7.1/include/Rconfig.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Arith.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/libextern.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Boolean.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Complex.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Constants.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Error.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Memory.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Print.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Random.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Utils.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/RS.h \
+  C:/Programme/R/R-2.7.1/include/Rinternals.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/PrtUtil.h \
+  C:/Programme/R/R-2.7.1/include/Rmath.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/BLAS.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Lapack.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Linpack.h \
+  C:/Programme/R/R-2.7.1/include/R_ext/Applic.h updaters.h
