@@ -478,7 +478,6 @@ plotTerm <- function(label, m, cumulative=TRUE,
 #' @export
 #' @importFrom grid unit
 #' @importFrom gridExtra marrangeGrob
-#' @importFrom utils packageDescription
 #' @return a list of \code{\link[ggplot2]{ggplot}}-objects (invisible)
 #' @author Fabian Scheipl
 #' @examples
@@ -592,14 +591,3 @@ plot.spikeSlabGAM <- function(x, labels=NULL, cumulative=TRUE, commonEtaScale = 
   print(marrangeGrob(plotList, nrow=nrow, ncol=ncol, ...))
   invisible(plotList)
 }
-
-
-.onAttach <- function(libname, pkgname) {
-  vers <- packageDescription("spikeSlabGAM")[["Version"]]
-  packageStartupMessage("This is spikeSlabGAM ", vers, ".\n\n",
-    "Please note that a recent update to gridExtra has made it necessary to change the interface for plot.spikeSlabGAM in version 1.1-9.\n",
-    " Instead of arguments 'rows', 'cols', 'widths', 'heights', 'maxPlotsPerPage', it now accepts only 'nrow' and 'ncol'.\n",
-    " Arguments 'widths' & 'heights' can still be defined and are handed over to gridExtra:::marrangeGrob.\n",
-    " Sorry for the inconvenience.")
-}
-

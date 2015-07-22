@@ -42,3 +42,4 @@ Collate:
     'plot.R'
     'predict.R'
     'summary.R'
+    'zzz.R'

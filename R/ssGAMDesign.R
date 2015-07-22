@@ -32,7 +32,6 @@
 #' \item{Design}{the design matrix of the model specified in formula}
 #' \item{groupIndicators}{a factor that maps the columns of \code{Design} to the different model terms}
 #' \item{H}{a matrix containing the hierarchy of the penalization groups (not used, included for backwards compatibility)}
-#' @import methods
 #' @export
 #' @author Fabian Scheipl
 ssGAMDesign <-  function(formula, data,
@@ -76,7 +75,7 @@ ssGAMDesign <-  function(formula, data,
 
 		replaceRawLabels <- function(x){
 			#step through parse tree unless at terminal node (which are always 'name's):
-			if (!is(x, "name")){
+			if (!is.name(x)){
 				#leave special terms (which are function 'call's, not 'name's) unchanged
 				if(as.character(x[[1]]) %in% specials){
 					return(x)
