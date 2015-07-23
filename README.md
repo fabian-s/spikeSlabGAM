@@ -6,7 +6,7 @@
 An R-package for Bayesian variable selection, model choice, and regularized estimation for (spatial) generalized additive mixed regression models via stochastic search variable selection with spike-and-slab priors.
 
 - Fits **additive models** for **Gaussian, Binary/Binomial and Poisson responses** 
-- (correlated) **random effects** 
+- (Correlated) **random effects** 
 - Automagically performs **variable selection** and **function selection** (i.e., do I need this effect at all, is it linear or is it non-linear?), also for interactions between multiple covariates. 
 - Yields **marginal posterior inclusion probabilities** for each term as well as **posterior model probabilities** and (model-averaged) effect estimates.
 - Convenient **formula-based model specification**
