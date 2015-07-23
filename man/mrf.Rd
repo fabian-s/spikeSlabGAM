@@ -9,35 +9,43 @@ mrf(x, N, decomposition = c("ortho", "MM"), tol = 1e-10, rankZ = 0.995)
 \arguments{
 \item{x}{a factor: which observation belongs to which region}
 
-\item{N}{the neighborhood (adjacency) matrix: a symmetric matrix with one column/row for every level of \code{x}, defining the
-   neighborhood structure (either 0-1 or with positive weights, e.g. based on shared boundary length or centroid distances).
-   Has to have rownames and column names that correspond to the levels of \code{x},
-the function checks whether the rows/columns are in the same order as the levels of \code{x}. Entries on the diagonal are ignored.}
+\item{N}{the neighborhood (adjacency) matrix: a symmetric matrix with one
+column/row for every level of \code{x}, defining the neighborhood structure
+(either 0-1 or with positive weights, e.g. based on shared boundary length
+or centroid distances). Has to have rownames and column names that
+correspond to the levels of \code{x}, the function checks whether the
+rows/columns are in the same order as the levels of \code{x}. Entries on
+the diagonal are ignored.}
 
-\item{decomposition}{use a (truncated) spectral decomposition of the implied prior covariance of \eqn{f(x)} for a low rank representation
-   with orthogonal  basis functions and i.i.d. coefficients (\code{"ortho"}), or use the mixed model reparameterization for
-non-orthogonal basis functions  and i.i.d. coefficients (\code{"MM"}). Defaults to \code{"MM"}.}
+\item{decomposition}{use a (truncated) spectral decomposition of the implied
+prior covariance of \eqn{f(x)} for a low rank representation with
+orthogonal  basis functions and i.i.d. coefficients (\code{"ortho"}), or
+use the mixed model reparameterization for non-orthogonal basis functions
+and i.i.d. coefficients (\code{"MM"}). Defaults to \code{"MM"}.}
 
 \item{tol}{count singular/eigenvalues smaller than this as zero}
 
-\item{rankZ}{how many eigenvectors to retain from the eigen decomposition: either a number > 3 or the proportion of
-the sum of eigenvalues the retained eigenvectors must represent at least. Defaults to .999.}
+\item{rankZ}{how many eigenvectors to retain from the eigen decomposition:
+either a number > 3 or the proportion of the sum of eigenvalues the
+retained eigenvectors must represent at least. Defaults to .999.}
 }
 \value{
 a transformed design matrix for the Markov Random Field
 }
 \description{
-The returned design is (a low-rank approximation to) the matrix square root of the implied covariance of the centered MRF.
-The function stops if 'islands', i.e. regions without any neighbors are found.
-Regions without observations have to be removed from the neighborhood matrix and there is currently no \code{predict}-functionality for regions
-without observations in the original data.
+The returned design is (a low-rank approximation to) the matrix square root
+of the implied covariance of the centered MRF. The function stops if
+'islands', i.e. regions without any neighbors are found. Regions without
+observations have to be removed from the neighborhood matrix and there is
+currently no \code{predict}-functionality for regions without observations in
+the original data.
 }
 \author{
 Fabian Scheipl
 }
 \references{
-Fahrmeir, L., Lang, S. (2001)
-	Bayesian inference for generalized additive mixed models based on Markov random field priors.
-	\emph{Applied Statistics}, \bold{50}(2):201--220.
+Fahrmeir, L., Lang, S. (2001) Bayesian inference for generalized
+  additive mixed models based on Markov random field priors. \emph{Applied
+  Statistics}, \bold{50}(2):201--220.
 }
 

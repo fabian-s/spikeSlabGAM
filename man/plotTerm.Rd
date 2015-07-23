@@ -12,42 +12,54 @@ plotTerm(label, m, cumulative = TRUE, aggregate = mean, quantiles = c(0.1,
 
 \item{m}{a fitted \code{spikeSlabGAM} model}
 
-\item{cumulative}{Defaults to TRUE, in which case the lower order terms that are associated with the covariates involved in \code{label} are cumulated and then plotted.
-(e.g, if \code{label} denotes a smoooth term, the sum of the linear and smooth effect is displayed if TRUE, if \code{label} is a factor-factor interaction,
-the sum of both main effects and their interaction is displayed etc.)
-If FALSE, only the marginal effect of \code{label} is displayed.}
+\item{cumulative}{Defaults to TRUE, in which case the lower order terms that
+are associated with the covariates involved in \code{label} are cumulated
+and then plotted. (e.g, if \code{label} denotes a smoooth term, the sum of
+the linear and smooth effect is displayed if TRUE, if \code{label} is a
+factor-factor interaction, the sum of both main effects and their
+interaction is displayed etc.) If FALSE, only the marginal effect of
+\code{label} is displayed.}
 
-\item{aggregate}{(function) which summary statistic to use for the posterior of the effect. Defaults to the mean.}
+\item{aggregate}{(function) which summary statistic to use for the posterior
+of the effect. Defaults to the mean.}
 
-\item{quantiles}{which quantiles to use for the borders of credible regions. Defaults to 10% and 90% percentiles.
-Set to NULL to omit plotting credible regions. Cannot deal with more than two quantiles.}
+\item{quantiles}{which quantiles to use for the borders of credible regions.
+Defaults to 10% and 90% percentiles. Set to NULL to omit plotting credible
+regions. Cannot deal with more than two quantiles.}
 
-\item{gridlength}{length of the (univariate) grids on which to evaluate the posterior.}
+\item{gridlength}{length of the (univariate) grids on which to evaluate the
+posterior.}
 
-\item{contours}{use how many contour lines for the joint effect of two numerical covariates. Defaults to 30.}
+\item{contours}{use how many contour lines for the joint effect of two
+numerical covariates. Defaults to 30.}
 
-\item{ggElems}{a list of plot elements to give to \code{\link[ggplot2]{ggplot}}. Use this to supply custom themes, colour schemes etc.
-Defaults to an empty list, which yields the standard settings.}
+\item{ggElems}{a list of plot elements to give to
+\code{\link[ggplot2]{ggplot}}. Use this to supply custom themes, colour
+schemes etc. Defaults to an empty list, which yields the standard settings.}
 }
 \value{
-an object of class \code{ggplot}. Use \code{print} or wrap the call to \code{plotTerm} in parentheses to directly render on a graphic device.
+an object of class \code{ggplot}. Use \code{print} or wrap the call
+  to \code{plotTerm} in parentheses to directly render on a graphic device.
 }
 \description{
-Plots the estimated linear predictor for a model term, i.e a main effect or a (2- or 3-way) interaction.
-Plots for the joint effect of two numerical covariates show an overlay if quantiles were specified:
-Regions where the pointwise credible intervals do not contain zero are plotted in muted red (\eqn{>0}) and blue (\eqn{< 0}), overlaid
-by coloured contour lines that show the \code{aggregate} values.  Contour lines are shown only inside the convex hull
-of the original observations.
-Plots for \code{\link{srf}}:\code{\link{lin}} terms
-show the spatially varying coefficient, i.e. the contour lines represent the change in the linear predictor when the \code{lin}-covariate
-increases by 1 standard deviation. For this reason, a cumulative plot makes no sense and the routine will
-set \code{cumulative=FALSE} with a warning.
+Plots the estimated linear predictor for a model term, i.e a main effect or a
+(2- or 3-way) interaction. Plots for the joint effect of two numerical
+covariates show an overlay if quantiles were specified: Regions where the
+pointwise credible intervals do not contain zero are plotted in muted red
+(\eqn{>0}) and blue (\eqn{< 0}), overlaid by coloured contour lines that show
+the \code{aggregate} values.  Contour lines are shown only inside the convex
+hull of the original observations. Plots for
+\code{\link{srf}}:\code{\link{lin}} terms show the spatially varying
+coefficient, i.e. the contour lines represent the change in the linear
+predictor when the \code{lin}-covariate increases by 1 standard deviation.
+For this reason, a cumulative plot makes no sense and the routine will set
+\code{cumulative=FALSE} with a warning.
 }
 \details{
-Limitations:
-Plots for 4-way (or higher) interactions are not implemented. Requesting such a plot will return the NULL object with a warning.
-Plots for \code{\link{mrf}} just treat the grouping variable as a conventional factor i.e. will not incorporate any neighborhood
-or map information.
+Limitations: Plots for 4-way (or higher) interactions are not implemented.
+Requesting such a plot will return the NULL object with a warning. Plots for
+\code{\link{mrf}} just treat the grouping variable as a conventional factor
+i.e. will not incorporate any neighborhood or map information.
 }
 \examples{
 #see help for spikeSlabGAM

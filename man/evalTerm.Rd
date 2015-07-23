@@ -2,7 +2,8 @@
 % Please edit documentation in R/predict.R
 \name{evalTerm}
 \alias{evalTerm}
-\title{Get summaries of the posterior (predictive) distribution of the linear predictor of a model term}
+\title{Get summaries of the posterior (predictive) distribution of the linear
+predictor of a model term}
 \usage{
 evalTerm(label, model, newdata = NULL, aggregate = mean,
   quantiles = c(0.1, 0.9), returnData = TRUE)
@@ -12,23 +13,27 @@ evalTerm(label, model, newdata = NULL, aggregate = mean,
 
 \item{model}{a \code{spikeSlabGAM} object}
 
-\item{newdata}{\code{data.frame} on which to evaluate \code{label}.
-Defaults to NULL, in which case the term is evaluated on the original data.}
+\item{newdata}{\code{data.frame} on which to evaluate \code{label}. Defaults
+to NULL, in which case the term is evaluated on the original data.}
 
-\item{aggregate}{(function) a summary statistic that is applied over the mcmc-samples of the linear predictor.
-Defaults to \code{mean}.}
+\item{aggregate}{(function) a summary statistic that is applied over the
+mcmc-samples of the linear predictor. Defaults to \code{mean}.}
 
-\item{quantiles}{(numeric) a vector of quantiles for borders of credible regions of the linear predictor.
-Defaults to 10 and 90 percent quantiles, i.e. a (point-wise) 80 percent credible region.}
+\item{quantiles}{(numeric) a vector of quantiles for borders of credible
+regions of the linear predictor. Defaults to 10 and 90 percent quantiles,
+i.e. a (point-wise) 80 percent credible region.}
 
-\item{returnData}{should the relevant original variables be included in the returned \code{data.frame}? Defaults to TRUE.}
+\item{returnData}{should the relevant original variables be included in the
+returned \code{data.frame}? Defaults to TRUE.}
 }
 \value{
-A \code{data.frame} that contains the relevant variables from newdata (if \code{returnData} is TRUE),
-			the \code{aggregate}-summary and the requested \code{quantiles}.
+A \code{data.frame} that contains the relevant variables from newdata
+  (if \code{returnData} is TRUE), the \code{aggregate}-summary and the
+  requested \code{quantiles}.
 }
 \description{
-Get summaries of the posterior (predictive) distribution of the linear predictor of a model term
+Get summaries of the posterior (predictive) distribution of the linear
+predictor of a model term
 }
 \author{
 Fabian Scheipl

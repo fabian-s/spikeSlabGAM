@@ -4,65 +4,84 @@
 
 #' Generate posterior samples for a GAMM with spike-and-slab priors
 #'
-#' This function fits structured additive regression models with spike-and-slab priors via MCMC.
-#' The spike-and-slab prior results in an SSVS-like term selection that can be used to aid model choice, e.g. to decide between linear
-#' and smooth modelling of numeric covariates or which interaction effects are relevant. Model terms can be factors (\code{\link{fct}}),
-#' linear/polynomial terms (\code{\link{lin}}),  uni- or bivariate splines (\code{\link{sm}}, \code{\link{srf}}), random intercepts (\code{\link{rnd}})
-#' or Markov random fields (\code{\link{mrf}}) and their interactions,
-#' i.e. an interaction between two smooth terms yields an effect surface, an interaction between a linear term and a random intercept yields random slopes,
-#' an interaction between a linear term and a smooth term yields a varying coefficient term etc.
+#' This function fits structured additive regression models with spike-and-slab
+#' priors via MCMC. The spike-and-slab prior results in an SSVS-like term
+#' selection that can be used to aid model choice, e.g. to decide between linear
+#' and smooth modelling of numeric covariates or which interaction effects are
+#' relevant. Model terms can be factors (\code{\link{fct}}), linear/polynomial
+#' terms (\code{\link{lin}}),  uni- or bivariate splines (\code{\link{sm}},
+#' \code{\link{srf}}), random intercepts (\code{\link{rnd}}) or Markov random
+#' fields (\code{\link{mrf}}) and their interactions, i.e. an interaction
+#' between two smooth terms yields an effect surface, an interaction between a
+#' linear term and a random intercept yields random slopes, an interaction
+#' between a linear term and a smooth term yields a varying coefficient term
+#' etc.
 #'
-#' Implemented types of terms: \describe{
-#' \item{\code{\link{u}}}{unpenalized model terms associated with a flat prior (no selection)}
+#' Implemented types of terms: \describe{ \item{\code{\link{u}}}{unpenalized
+#' model terms associated with a flat prior (no selection)}
 #' \item{\code{\link{lin}}}{linear/polynomial terms}
-#' \item{\code{\link{fct}}}{factors}
-#' \item{\code{\link{sm}}}{univariate smooth functions}
-#' \item{\code{\link{rnd}}}{random intercepts}
+#' \item{\code{\link{fct}}}{factors} \item{\code{\link{sm}}}{univariate smooth
+#' functions} \item{\code{\link{rnd}}}{random intercepts}
 #' \item{\code{\link{mrf}}}{Markov random fields}
-#' \item{\code{\link{srf}}}{surface estimation}
-#' }
-#' Terms in the formula that are not in the list of specials (i.e. the list of term types above) are automatically assigned
-#' an appropriate special wrapper, i.e. numerical covariates \code{x} are treated as \code{\link{lin}(x) + \link{sm}(x)}, factors \code{f}
-#' (and numerical covariates with very few distinct values, see \code{\link{ssGAMDesign}}) are treated as \code{\link{fct}(f)}.
-#' Valid model formulas have to satisfy the following conditions:
-#' \enumerate{
-#'      \item All variables that are involved in interactions have to be present as main effects as well, i.e. {\code{y ~ x1 + x1:x2}}
-#' 				 will produce an error because the main effect of \code{x2} is missing.
-#'      \item Interactions between unpenalized terms not under selection (i.e. terms of type \code{\link{u}}) and penalized terms are not allowed, i.e.
-#' 				\code{y ~ u(x1)*x2} will produce an error.
-#'      \item If main effects are specified as special terms, the interactions involving them have to be given as special terms as well, i.e.
-#' 				\code{y ~ lin(x1) + lin(x2) + x1:x2} will produce an error.
-#' 	}
+#' \item{\code{\link{srf}}}{surface estimation} } Terms in the formula that are
+#' not in the list of specials (i.e. the list of term types above) are
+#' automatically assigned an appropriate special wrapper, i.e. numerical
+#' covariates \code{x} are treated as \code{\link{lin}(x) + \link{sm}(x)},
+#' factors \code{f} (and numerical covariates with very few distinct values, see
+#' \code{\link{ssGAMDesign}}) are treated as \code{\link{fct}(f)}. Valid model
+#' formulas have to satisfy the following conditions: \enumerate{ \item All
+#' variables that are involved in interactions have to be present as main
+#' effects as well, i.e. {\code{y ~ x1 + x1:x2}} will produce an error because
+#' the main effect of \code{x2} is missing. \item Interactions between
+#' unpenalized terms not under selection (i.e. terms of type \code{\link{u}})
+#' and penalized terms are not allowed, i.e. \code{y ~ u(x1)*x2} will produce an
+#' error. \item If main effects are specified as special terms, the interactions
+#' involving them have to be given as special terms as well, i.e. \code{y ~
+#' lin(x1) + lin(x2) + x1:x2} will produce an error. }
 #'
-#' 	The default prior settings for Gaussian data work best for a response with unit variance. If your data is scaled very differently,
-#' 	either rescale the response (recommended) or adjust the hyperparameters accordingly.
+#' The default prior settings for Gaussian data work best for a response with
+#' unit variance. If your data is scaled very differently, either rescale the
+#' response (recommended) or adjust the hyperparameters accordingly.
 #'
-#' Sampling of the chains is done in parallel using package \code{multicore}
-#' if available. If not, a socket cluster set up with \code{snow} is used where available. Use \code{options(cores=foo)} to
-#' set the (maximal) number of processes spawned by the parallelization. If \code{options()$cores} is unspecified,
-#' snow uses 8.
+#' Sampling of the chains is done in parallel using package \code{multicore} if
+#' available. If not, a socket cluster set up with \code{snow} is used where
+#' available. Use \code{options(cores=foo)} to set the (maximal) number of
+#' processes spawned by the parallelization. If \code{options()$cores} is
+#' unspecified, snow uses 8.
 #'
-#' @param formula the model formula (see details below and \code{\link{ssGAMDesign}}).
+#' @param formula the model formula (see details below and
+#'   \code{\link{ssGAMDesign}}).
 #' @param data the data containing the variables in the function
 #' @param ... additional arguments for \code{\link{ssGAMDesign}}
-#' @param family (character) the family of the response, defaults to normal/Gaussian response, \code{"poisson"} and \code{"binomial"} are implemented as well.
-#' @param hyperparameters A list of arguments specifying the prior settings. See \code{\link{spikeAndSlab}}.
-#' @param model A list of arguments describing the model structure. See \code{\link{spikeAndSlab}}.
-#'  User-supplied \code{groupIndicators} and \code{H} entries will be overwritten by \code{\link{ssGAMDesign}}.
-#' @param mcmc A list of arguments specifying MCMC sampler options. See \code{\link{spikeAndSlab}}.
-#' @param start A list of starting values for the MCMC sampler. See \code{\link{spikeAndSlab}}.
-#'  Use \code{start=list(seed=<YOUR_SEED>)} to set the RNG seed for reproducible results.
+#' @param family (character) the family of the response, defaults to
+#'   normal/Gaussian response, \code{"poisson"} and \code{"binomial"} are
+#'   implemented as well.
+#' @param hyperparameters A list of arguments specifying the prior settings. See
+#'   \code{\link{spikeAndSlab}}.
+#' @param model A list of arguments describing the model structure. See
+#'   \code{\link{spikeAndSlab}}. User-supplied \code{groupIndicators} and
+#'   \code{H} entries will be overwritten by \code{\link{ssGAMDesign}}.
+#' @param mcmc A list of arguments specifying MCMC sampler options. See
+#'   \code{\link{spikeAndSlab}}.
+#' @param start A list of starting values for the MCMC sampler. See
+#'   \code{\link{spikeAndSlab}}. Use \code{start=list(seed=<YOUR_SEED>)} to set
+#'   the RNG seed for reproducible results.
 #' @return an object of class \code{spikeSlabGAM} with methods
-#' 	\code{\link{summary.spikeSlabGAM}}, \code{\link{predict.spikeSlabGAM}}, and \code{\link{plot.spikeSlabGAM}}.
-#' @seealso \code{\link{ssGAMDesign}} for details on model specification, \code{\link{spikeAndSlab}} for more details on the MCMC sampler and prior specification,
-#'  and \code{\link{ssGAM2Bugs}} for MCMC diagnostics. Check out the vignette for
-#'  theoretical background and code examples.
+#'   \code{\link{summary.spikeSlabGAM}}, \code{\link{predict.spikeSlabGAM}}, and
+#'   \code{\link{plot.spikeSlabGAM}}.
+#' @seealso \code{\link{ssGAMDesign}} for details on model specification,
+#'   \code{\link{spikeAndSlab}} for more details on the MCMC sampler and prior
+#'   specification, and \code{\link{ssGAM2Bugs}} for MCMC diagnostics. Check out
+#'   the vignette for theoretical background and code examples.
 #' @author Fabian Scheipl
-#' @references Fabian Scheipl (2011). \code{spikeSlabGAM}: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in R.
-#' \emph{Journal of Statistical Software}, \bold{43}(14), 1--24.
+#' @references Fabian Scheipl (2011). \code{spikeSlabGAM}: Bayesian Variable
+#'   Selection, Model Choice and Regularization for Generalized Additive Mixed
+#'   Models in R. \emph{Journal of Statistical Software}, \bold{43}(14), 1--24.
 #'
-#' Fabian Scheipl, Ludwig Fahrmeir, Thomas Kneib (2012). Spike-and-Slab Priors for Function Selection in Structured Additive Regression Models.
-#' \emph{Journal of the American Statistical Association}, \bold{107}(500), 1518--1532.
+#'   Fabian Scheipl, Ludwig Fahrmeir, Thomas Kneib (2012). Spike-and-Slab Priors
+#'   for Function Selection in Structured Additive Regression Models.
+#'   \emph{Journal of the American Statistical Association}, \bold{107}(500),
+#'   1518--1532.
 #' @import utils
 #' @export
 #' @examples
@@ -115,31 +134,31 @@
 #' plot(b)
 #' }
 spikeSlabGAM <- function(formula,
-		data,
-		...,
-		family="gaussian",
-		hyperparameters=list(),    # prior parameters
-		model=list(),              # model structure
-		mcmc=list(),               # Gibbs sampling options
-		start=list()               # start values for the Gibbs sampler
-	)
+  data,
+  ...,
+  family="gaussian",
+  hyperparameters=list(),    # prior parameters
+  model=list(),              # model structure
+  mcmc=list(),               # Gibbs sampling options
+  start=list()               # start values for the Gibbs sampler
+)
 {
-	#require(RegularBayes)
-	D <- ssGAMDesign(formula=formula, data=data, ...)
-	model$groupIndicators <- D$groupIndicators
-	model$H <- D$H
-	res <- spikeAndSlab(family= family,
-			y = D$response,           # response (n x 1)
-			X = D$Design,             # design matrix with covariates (n x q)
-			hyperparameters=hyperparameters,    # prior parameters
-			model=model,              # model structure
-			mcmc=mcmc,      	      # Gibbs sampling options
-			start=start)              # start values for the Gibbs sampler
-	res$formula <- D$formula
-	res$data <- data
-	res$predvars <- D$predvars
-	class(res) <- c("spikeSlabGAM")
-	return(res)
+  #require(RegularBayes)
+  D <- ssGAMDesign(formula=formula, data=data, ...)
+  model$groupIndicators <- D$groupIndicators
+  model$H <- D$H
+  res <- spikeAndSlab(family= family,
+    y = D$response,           # response (n x 1)
+    X = D$Design,             # design matrix with covariates (n x q)
+    hyperparameters=hyperparameters,    # prior parameters
+    model=model,              # model structure
+    mcmc=mcmc,      	      # Gibbs sampling options
+    start=start)              # start values for the Gibbs sampler
+  res$formula <- D$formula
+  res$data <- data
+  res$predvars <- D$predvars
+  class(res) <- c("spikeSlabGAM")
+  return(res)
 }
 
 

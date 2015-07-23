@@ -9,7 +9,8 @@ fct(x, contr = "contr.sum")
 \arguments{
 \item{x}{a covariate that can be treated as a factor}
 
-\item{contr}{(character) name of the \code{\link[stats]{contrasts}} associated with the factor. Defaults to \code{"contr.sum"}.}
+\item{contr}{(character) name of the \code{\link[stats]{contrasts}}
+associated with the factor. Defaults to \code{"contr.sum"}.}
 }
 \value{
 design matrix for a factor

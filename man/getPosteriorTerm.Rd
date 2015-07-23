@@ -11,11 +11,13 @@ getPosteriorTerm(label = NULL, model, betaInd = NULL)
 
 \item{model}{a \code{spikeSlabGAM} object}
 
-\item{betaInd}{(optional) the column indices of the part of the design matrix for which the linear predictor is to be evaluated.}
+\item{betaInd}{(optional) the column indices of the part of the design matrix
+for which the linear predictor is to be evaluated.}
 }
 \value{
-a matrix containing the samples of the linear predictor associated with \code{label}; with attribute \code{'coef'} that
-	contains the posterior samples of the associated coefficients.
+a matrix containing the samples of the linear predictor associated
+  with \code{label}; with attribute \code{'coef'} that contains the posterior
+  samples of the associated coefficients.
 }
 \description{
 Get the posterior distribution of the linear predictor of a model term

@@ -17,24 +17,31 @@
 an object of class \code{summary.spikeSlabGAM}
 }
 \description{
-Returns basic information about prior and model structure, posterior means
-of inclusion probablities, term inportance and the most probable models found by the SSVS.
+Returns basic information about prior and model structure, posterior means of
+inclusion probablities, term inportance and the most probable models found by
+the SSVS.
 }
 \details{
 Two scalar summaries of term importance are included: \describe{
-	\item{\code{P(gamma=1)}}{The posterior mean of \eqn{P(\gamma=1)}, i.e. the marginal posterior inclusion probability of the term.}
-	\item{\code{pi}}{The scaled dot products of the posterior mean of the linear predictor \eqn{\eta_i} associated with the \eqn{i}-th term
- 	 and the total linear predictor \eqn{\eta}: \eqn{\pi_i = \eta_i^T \eta/ \eta^T \eta}. They sum to one (but can be negative as well),
-  	 and (for mutually orthogonal \eqn{\eta_i}) provide a percentage decomposition of the sum of squares of \eqn{\eta}. See references for details.}}
- The summary also shows the dimensionality of the basis associated with a term.
+\item{\code{P(gamma=1)}}{The posterior mean of \eqn{P(\gamma=1)}, i.e. the
+marginal posterior inclusion probability of the term.} \item{\code{pi}}{The
+scaled dot products of the posterior mean of the linear predictor
+\eqn{\eta_i} associated with the \eqn{i}-th term and the total linear
+predictor \eqn{\eta}: \eqn{\pi_i = \eta_i^T \eta/ \eta^T \eta}. They sum to
+one (but can be negative as well), and (for mutually orthogonal \eqn{\eta_i})
+provide a percentage decomposition of the sum of squares of \eqn{\eta}. See
+references for details.}} The summary also shows the dimensionality of the
+basis associated with a term.
 
-The top row in the model table shows the relative frequency of the respective model, the bottom row shows cumulative relative frequencies
-for the models visited most often.
+The top row in the model table shows the relative frequency of the respective
+model, the bottom row shows cumulative relative frequencies for the models
+visited most often.
 }
 \author{
 Fabian Scheipl
 }
 \references{
-Gu, Chong (2002). Smoothing Spline ANOVA models. Springer. (see chapter 3.6)
+Gu, Chong (2002). Smoothing Spline ANOVA models. Springer. (see
+  chapter 3.6)
 }
 

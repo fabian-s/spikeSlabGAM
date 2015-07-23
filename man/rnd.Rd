@@ -9,7 +9,8 @@ rnd(x, C = NULL)
 \arguments{
 \item{x}{a covariate that can be treated as a factor}
 
-\item{C}{an optional known correlation structure of the random effects associated with x}
+\item{C}{an optional known correlation structure of the random effects
+associated with x}
 }
 \value{
 design matrix for a random intercept for x

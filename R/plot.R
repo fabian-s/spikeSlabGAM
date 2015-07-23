@@ -3,36 +3,48 @@
 
 #' Plot the estimated effect of a model term.
 #'
-#' Plots the estimated linear predictor for a model term, i.e a main effect or a (2- or 3-way) interaction.
-#' Plots for the joint effect of two numerical covariates show an overlay if quantiles were specified:
-#' Regions where the pointwise credible intervals do not contain zero are plotted in muted red (\eqn{>0}) and blue (\eqn{< 0}), overlaid
-#' by coloured contour lines that show the \code{aggregate} values.  Contour lines are shown only inside the convex hull
-#' of the original observations.
-#' Plots for \code{\link{srf}}:\code{\link{lin}} terms
-#' show the spatially varying coefficient, i.e. the contour lines represent the change in the linear predictor when the \code{lin}-covariate
-#' increases by 1 standard deviation. For this reason, a cumulative plot makes no sense and the routine will
-#' set \code{cumulative=FALSE} with a warning.
+#' Plots the estimated linear predictor for a model term, i.e a main effect or a
+#' (2- or 3-way) interaction. Plots for the joint effect of two numerical
+#' covariates show an overlay if quantiles were specified: Regions where the
+#' pointwise credible intervals do not contain zero are plotted in muted red
+#' (\eqn{>0}) and blue (\eqn{< 0}), overlaid by coloured contour lines that show
+#' the \code{aggregate} values.  Contour lines are shown only inside the convex
+#' hull of the original observations. Plots for
+#' \code{\link{srf}}:\code{\link{lin}} terms show the spatially varying
+#' coefficient, i.e. the contour lines represent the change in the linear
+#' predictor when the \code{lin}-covariate increases by 1 standard deviation.
+#' For this reason, a cumulative plot makes no sense and the routine will set
+#' \code{cumulative=FALSE} with a warning.
 #'
-#' Limitations:
-#' Plots for 4-way (or higher) interactions are not implemented. Requesting such a plot will return the NULL object with a warning.
-#' Plots for \code{\link{mrf}} just treat the grouping variable as a conventional factor i.e. will not incorporate any neighborhood
-#' or map information.
+#' Limitations: Plots for 4-way (or higher) interactions are not implemented.
+#' Requesting such a plot will return the NULL object with a warning. Plots for
+#' \code{\link{mrf}} just treat the grouping variable as a conventional factor
+#' i.e. will not incorporate any neighborhood or map information.
 #'
 #' @param label (character) the label of the effect to be plotted.
 #' @param m a fitted \code{spikeSlabGAM} model
-#' @param cumulative Defaults to TRUE, in which case the lower order terms that are associated with the covariates involved in \code{label} are cumulated and then plotted.
-#' 		(e.g, if \code{label} denotes a smoooth term, the sum of the linear and smooth effect is displayed if TRUE, if \code{label} is a factor-factor interaction,
-#' 		the sum of both main effects and their interaction is displayed etc.)
-#' 		If FALSE, only the marginal effect of \code{label} is displayed.
-#' @param aggregate (function) which summary statistic to use for the posterior of the effect. Defaults to the mean.
-#' @param quantiles which quantiles to use for the borders of credible regions. Defaults to 10% and 90% percentiles.
-#' 	Set to NULL to omit plotting credible regions. Cannot deal with more than two quantiles.
-#' @param gridlength length of the (univariate) grids on which to evaluate the posterior.
-#' @param contours use how many contour lines for the joint effect of two numerical covariates. Defaults to 30.
-#' @param ggElems a list of plot elements to give to \code{\link[ggplot2]{ggplot}}. Use this to supply custom themes, colour schemes etc.
-#' 	Defaults to an empty list, which yields the standard settings.
+#' @param cumulative Defaults to TRUE, in which case the lower order terms that
+#'   are associated with the covariates involved in \code{label} are cumulated
+#'   and then plotted. (e.g, if \code{label} denotes a smoooth term, the sum of
+#'   the linear and smooth effect is displayed if TRUE, if \code{label} is a
+#'   factor-factor interaction, the sum of both main effects and their
+#'   interaction is displayed etc.) If FALSE, only the marginal effect of
+#'   \code{label} is displayed.
+#' @param aggregate (function) which summary statistic to use for the posterior
+#'   of the effect. Defaults to the mean.
+#' @param quantiles which quantiles to use for the borders of credible regions.
+#'   Defaults to 10% and 90% percentiles. Set to NULL to omit plotting credible
+#'   regions. Cannot deal with more than two quantiles.
+#' @param gridlength length of the (univariate) grids on which to evaluate the
+#'   posterior.
+#' @param contours use how many contour lines for the joint effect of two
+#'   numerical covariates. Defaults to 30.
+#' @param ggElems a list of plot elements to give to
+#'   \code{\link[ggplot2]{ggplot}}. Use this to supply custom themes, colour
+#'   schemes etc. Defaults to an empty list, which yields the standard settings.
 #' @export
-#' @return an object of class \code{ggplot}. Use \code{print} or wrap the call to \code{plotTerm} in parentheses to directly render on a graphic device.
+#' @return an object of class \code{ggplot}. Use \code{print} or wrap the call
+#'   to \code{plotTerm} in parentheses to directly render on a graphic device.
 #' @author Fabian Scheipl
 #' @examples
 #' #see help for spikeSlabGAM
@@ -441,48 +453,64 @@ plotTerm <- function(label, m, cumulative=TRUE,
   return(p <- ret + plotElems + ggElems)
 }
 
-#' Generates graphical summaries of a fitted model
+#'Generates graphical summaries of a fitted model
 #'
-#' This function plots the estimated linear predictors of the terms in a model on a grid of values.
-#' By default displays all 3-way, 2-way interactions and main effects present in the model.
-#' Starting with ggplot-0.9.2 these are no longer aligned by their axes due to internal changes in grid and ggplot2.
-#' Uses \pkg{gridExtra}'s  \code{\link[gridExtra]{marrangeGrob}} to arrange the plots for the terms, also over multiple pages if necessary.
-#' This means the graphics device type is temporarily set to the value of \code{interactive.dev} in interactive use in RStudio if necessary
-#' since the \code{RStudioGD} graphical device does not support opening multiple pages.
+#'This function plots the estimated linear predictors of the terms in a model on
+#'a grid of values. By default displays all 3-way, 2-way interactions and main
+#'effects present in the model. Starting with ggplot-0.9.2 these are no longer
+#'aligned by their axes due to internal changes in grid and ggplot2. Uses
+#'\pkg{gridExtra}'s  \code{\link[gridExtra]{marrangeGrob}} to arrange the plots
+#'for the terms, also over multiple pages if necessary. This means the graphics
+#'device type is temporarily set to the value of \code{interactive.dev} in
+#'interactive use in RStudio if necessary since the \code{RStudioGD} graphical
+#'device does not support opening multiple pages.
 #'
-#' @param x a fitted \code{spikeSlabGAM} model
-#' @param labels a character vector of names of model terms to be plotted
-#' @param cumulative Defaults to TRUE, in which case all lower order terms that are involved in an interaction are cumulated
-#'	 and then plotted (e.g, if a model contains 2 smooth effects and their interaction, ONLY the sum of the marginal smooth
-#' 	 and linear terms and all their interactions are plotted.) If FALSE, a separate plot for every term in the model is produced.
-#' @param commonEtaScale use the same limits for all vertical axes of the different panels? Defaults to FALSE.
-#' 		Can be useful to compare effect sizes more easily between panels, but tends to mess up the scales.
-#' @param aggregate (function) which summary statistic to use for the posterior of the model terms. Defaults to the mean.
-#' @param quantiles which quantiles to use for the borders of credible regions. Defaults to 10\% and 90\% percentiles.
-#' 	Set to NULL to omit plotting credible regions.
-#' @param gridlength length of the (univariate) grids for the covariates on which to evaluate the posterior. Defaults to 20.
-#' @param base_size default base font size for plot (see e.g. \code{\link[ggplot2]{theme_gray}})
-#' @param ggElems a list of plot elements to give to \code{ggplot}. Use this to supply custom themes or colors,
-#' 	fortify the plot(s) with partial residuals etc.
-#' 	Defaults to an empty list. Unless specified differently here, the default ggplot-theme (\code{\link[ggplot2]{theme_gray}})
-#'  is changed to a white background with major gridlines in gray (\code{'grey95'}), no minor grid lines, and smaller text for the legends.
-#' @param nrow	number of rows per page, defaults to min(sqrt(no. of plots), 3). See \code{\link[gridExtra]{marrangeGrob}}.
-#' @param ncol  number of columns per page, defaults to min((no. of plots)/nrow, 3). See \code{\link[gridExtra]{marrangeGrob}}.
-#' @param interactive.dev alternative device to use in interactive mode in RStudio
-#'  if output needs to be spread on multiple pages, since the RStudio graphical device does not support opening multiple displays.
-#' @param ... 	arguments passed to \code{\link[gridExtra]{marrangeGrob}}.
+#'@param x a fitted \code{spikeSlabGAM} model
+#'@param labels a character vector of names of model terms to be plotted
+#'@param cumulative Defaults to TRUE, in which case all lower order terms that
+#'  are involved in an interaction are cumulated and then plotted (e.g, if a
+#'  model contains 2 smooth effects and their interaction, ONLY the sum of the
+#'  marginal smooth and linear terms and all their interactions are plotted.) If
+#'  FALSE, a separate plot for every term in the model is produced.
+#'@param commonEtaScale use the same limits for all vertical axes of the
+#'  different panels? Defaults to FALSE. Can be useful to compare effect sizes
+#'  more easily between panels, but tends to mess up the scales.
+#'@param aggregate (function) which summary statistic to use for the posterior
+#'  of the model terms. Defaults to the mean.
+#'@param quantiles which quantiles to use for the borders of credible regions.
+#'  Defaults to 10\% and 90\% percentiles. Set to NULL to omit plotting credible
+#'  regions.
+#'@param gridlength length of the (univariate) grids for the covariates on which
+#'  to evaluate the posterior. Defaults to 20.
+#'@param base_size default base font size for plot (see e.g.
+#'  \code{\link[ggplot2]{theme_gray}})
+#'@param ggElems a list of plot elements to give to \code{ggplot}. Use this to
+#'  supply custom themes or colors, fortify the plot(s) with partial residuals
+#'  etc. Defaults to an empty list. Unless specified differently here, the
+#'  default ggplot-theme (\code{\link[ggplot2]{theme_gray}}) is changed to a
+#'  white background with major gridlines in gray (\code{'grey95'}), no minor
+#'  grid lines, and smaller text for the legends.
+#'@param nrow	number of rows per page, defaults to min(sqrt(no. of plots), 3).
+#'  See \code{\link[gridExtra]{marrangeGrob}}.
+#'@param ncol  number of columns per page, defaults to min((no. of plots)/nrow,
+#'  3). See \code{\link[gridExtra]{marrangeGrob}}.
+#'@param interactive.dev alternative device to use in interactive mode in
+#'  RStudio if output needs to be spread on multiple pages, since the RStudio
+#'  graphical device does not support opening multiple displays.
+#'@param ... 	arguments passed to \code{\link[gridExtra]{marrangeGrob}}.
 #'
-#' @seealso \code{\link{plotTerm}} for more details on the specific plots
-#' @note Note that \code{cumulative=TRUE} will only find all relevant terms to accumulate if, for all numeric covariates
-#'  that have a smooth term, the smooth term is specified \emph{after} the linear term in the formula.
-#' @export
-#' @importFrom grid unit
-#' @importFrom gridExtra marrangeGrob
-#' @return a list of \code{\link[ggplot2]{ggplot}}-objects (invisible)
-#' @author Fabian Scheipl
+#'@seealso \code{\link{plotTerm}} for more details on the specific plots
+#'@note Note that \code{cumulative=TRUE} will only find all relevant terms to
+#'  accumulate if, for all numeric covariates that have a smooth term, the
+#'  smooth term is specified \emph{after} the linear term in the formula.
+#'@export
+#'@importFrom grid unit
+#'@importFrom gridExtra marrangeGrob
+#'@return a list of \code{\link[ggplot2]{ggplot}}-objects (invisible)
+#'@author Fabian Scheipl
 #' @examples
 #' #see ?spikeSlabGAM
-#FIXME: this only works if smooth terms are specified in the formula AFTER linear terms...
+#FIXME: only wrks if smooth trms are specified AFTER linear terms...
 plot.spikeSlabGAM <- function(x, labels=NULL, cumulative=TRUE, commonEtaScale = FALSE,
   aggregate=mean, quantiles=c(.1, .9), gridlength=20, base_size = 12, ggElems=list(),
   nrow=min(ceiling(sqrt(length(plotList))), 3), ncol=min(ceiling(length(plotList)/nrow), 3),
@@ -581,9 +609,12 @@ plot.spikeSlabGAM <- function(x, labels=NULL, cumulative=TRUE, commonEtaScale = 
     })
   }
   if(dev.interactive()){
+    # work around RStudio quirk,
+    # see https://github.com/baptiste/gridextra/issues/6
     rstudio <- options()$device == "RStudioGD"
     if(rstudio & nrow*ncol < length(plotList)) {
-      message("Temporarily setting <options(device='",interactive.dev,"')> to open multiple graphics displays since dispatch on multiple graphic devices is not supported in RStudio.")
+      message("Temporarily setting <options(device='",interactive.dev,
+        "')> to open multiple graphics displays since dispatch on multiple graphic devices is not supported in RStudio.")
       options(device=interactive.dev)
       on.exit(options(device="RStudioGD"))
     }

@@ -2,8 +2,7 @@
 % Please edit documentation in R/terms.R
 \name{lin}
 \alias{lin}
-\title{Generate orthogonal polynomial base for a numeric covariate
-without intercept}
+\title{Generate orthogonal polynomial base for a numeric covariate without intercept}
 \usage{
 lin(x, order = 1)
 }
@@ -16,8 +15,7 @@ lin(x, order = 1)
 an orthogonal basis for a centered polynomial function in x
 }
 \description{
-Generate orthogonal polynomial base for a numeric covariate
-without intercept
+Generate orthogonal polynomial base for a numeric covariate without intercept
 }
 \author{
 Fabian Scheipl
