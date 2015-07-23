@@ -42,6 +42,10 @@
    \endgroup%
   \fi}
 
+%decorations
+\newcommand{\prehrule}{\noindent{\hfil\rule{\textwidth}{.4pt}\hfil}\vspace{.5em}}
+\newcommand{\posthrule}{\vspace{.5em}\noindent{\hfil\rule{\textwidth}{.4pt}\hfil}}
+
 %symbols
 \newcommand{\ra}{\rightarrow}
 \newcommand{\Ra}{\Rightarrow}
@@ -74,7 +78,7 @@
 
 <<setup, echo=FALSE, results=hide>>=
 options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE,
-        digits=5, cores=2)
+        digits=5, mc.cores=2)
 clrs <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33",
         "#A65628", "#F781BF", "#999999")
 @
@@ -107,7 +111,7 @@ on coefficient groups associated with parametric and semi-parametric effects.\\
 
 \noindent \emph{Note 2}:  To respect resource limitations on the CRAN servers, this vignette uses only two processes for parallelized MCMC sampling.
 To increase the number of cores  and speed up computations significantly,
-change \code{cores=2} in the \code{options()} statement in the \code{setup} \proglang{R}-chunk at the very beginning of \texttt{UsingSpikeSlabGAM.Rnw} to a higher value.
+change \code{mc.cores=2} in the \code{options()} statement in the \code{setup} \proglang{R}-chunk at the very beginning of \texttt{UsingSpikeSlabGAM.Rnw} to a higher value.
 }
 
 \Keywords{MCMC, P-splines, spike-and-slab prior, normal-inverse-gamma}
@@ -178,26 +182,6 @@ distinguish between smooth nonlinear and linear effects.
 The approach scales reasonably well to datasets with thousands
 of observations and a few hundred coefficients and
 is available in documented open source software.
-%\begin{itemize}
-%\item is able to fit models for non-Gaussian responses from the exponential family (implemented for binomial and Poisson),
-%\item selects and estimates many types of regularized effects with a
-%(conditionally) Gaussian prior such as simple covariates (both
-%metric and categorical), penalized splines (uni- or multivariate),
-%random effects, spatial effects (kriging, IGMRF) and their interactions,
-%\item scales reasonably well to datasets with thousands
-%of observations and hundreds of covariates,
-%\item is available in publicly available and documented open source
-%software,
-%\item can select between smooth nonlinear and linear effects.
-%\end{itemize}
-%
-%Fitting the practical importance of the topic, a vast literature on Bayesian
-%approaches for selection of single coefficients based on mixture priors for the
-%coefficients exists. In a recent review paper, \citet{OHara:Sillanpaa:2009}
-%compare the spike-and-slab approach in \citet{Kuo:Mallick:1998}, the Gibbs
-%variable selection approach \citep{Carlin:Chib:1995, Dellaportas:Forster:2002},
-%and stochastic search variable selection (SSVS) approaches as in
-%\citet{George:McCulloch:1993}, among other methods.
 
 Bayesian function selection, similar to the frequentist COSSO procedure
 \citep{Lin:Zhang:2006}, is usually based on decomposing the additive
@@ -216,12 +200,6 @@ ANOVA framework and perform variable and function selection via SSVS
 for Gaussian responses. \citet{Fruehwirt:Wagner:2010} discuss various spike-and-slab
 prior variants for the selection of random intercepts for Gaussian and
 latent Gaussian models.
-
-%, but their \proglang{R} implementation is impractically slow.
-%To
-%the best of our knowledge, none of the above-mentioned approaches
-%was implemented in publicly available software in a useable form at
-%the time of writing.
 
 The remainder of this paper is structured as follows:
 Section \ref{background} gives some background on the two main ideas used in \pkg{spikeSlabGAM}.
@@ -267,14 +245,6 @@ f_j(\bm x) &= \sum_{k=1}^{d_j} \beta_{jk}B_{jk}(\bm x)= \bm B_j \bm \beta_j,  \t
 The peNMIG prior structure is explained in detail in Section \ref{spikeSlabSSVS}.
 
 Components $f_j(\bm x)$ of the additive predictor represent a wide variety of model terms, such as
-%\begin{itemize}
-%\item linear terms ($f(\bm x_j) = \beta_j \bm x_j$),
-%\item categorical variables ($f(\bm x_{ji}) = \beta_{x(k)}$ iff $\bm x_{ji} = k$, i.e., if entry $i$ in $\bm x_j$ is $k$),
-%\item smooth functions of (one or more) continuous covariates, i.e.,
-%    splines, kriging effects, tensor product splines or varying coefficient terms \citep[e.g.][]{Wood:2006},
-%\item intrinsic Gaussian Markov random fields for discrete spatial covariates \citep[e.g.][]{Rue:Held:2005},
-%\item random effects such as subject-specific intercepts or slope,
-%\end{itemize}
 (1) linear terms ($f_j(\bm x) = \beta_j \bm x_j$),
 (2) nominal or ordinal covariates ($f(x_{ji}) = \beta_{x(k)}$ iff $x_{ji} = k$, i.e., if entry $i$ in $\bm x_j$ is $k$),
 (3) smooth functions of (one or more) continuous covariates (splines, kriging effects, tensor product splines or varying coefficient terms, e.g., \citet{Wood:2006}),
@@ -284,14 +254,10 @@ Estimates for semiparametric model terms and random effects are regularized in o
 avoid overfitting and modeled with appropriate shrinkage priors.
 These shrinkage or regularization priors are usually Gaussian or can
 be parameterized as scale mixtures of Gaussians \citep[e.g.][]{Fahr:Kneib:Konrath:2010}.
-% (e.g., the Bayesian
-%Lasso with a Laplace prior on the coefficients is a
-%Normal-Exponential scale mixture \citep{Park:Casella:2008}), so that
-%they are conditionally Gaussian given their variance parameters.
 The peNMIG variable selection prior used in \pkg{spikeSlabGAM} can also be viewed as a scale mixture of Gaussians.
 
 \newpage
-\subsection{Stochastic search variable selection and spike-and-slab priors}\label{spikeSlabSSVS}%SSVS, Spike-Slab
+\subsection{Stochastic search variable selection and spike-and-slab priors}\label{spikeSlabSSVS}
 While analyses can benefit immensely from a flexible and versatile array of potential model terms,
 the large number of possible models in any given data situation calls for a principled procedure
 that is able to select the covariates that
@@ -397,7 +363,7 @@ $\phantom{bla}$\\
  parent/.style = {<-, shorten <=1pt, >=latex', semithick},
  child/.style = {->, shorten <=1pt, >=latex', semithick},
  determparent/.style = {<-, double, shorten <=1pt, >=latex', semithick},
- determchild/.style = {->, double, shorten <=1pt, >=latex', semithick}] %node distance=1.5cm and 2.7cm, scale = .5,
+ determchild/.style = {->, double, shorten <=1pt, >=latex', semithick}]
     \node[param](alpha)  {$\alpha_j \sim N(0, \gamma_j\tau_j^2)$};
     \node[param](gamma)  [above =4em of alpha] {$\begin{aligned}\gamma_j \sim &  w  I_1(\gamma_j) \\& {} + (1-w)I_{v_o}(\gamma_j)\end{aligned}$}
         edge[child] (alpha);
@@ -466,8 +432,6 @@ the ``importance'' of the $j$-th model term, while $\bm\xi_j$
 Setting the conditional expectation $\EW(\xi_{jk}|m_{jk}) = \pm 1$ shrinks $|\xi_{jk}|$ towards $1$, the
 multiplicative identity, so that the interpretation of $\alpha_j$ as
 the ``importance'' of the $j$-th coefficient batch can be maintained.
-%and yields a marginal prior for $\bm\beta_j$ that is less
-%concentrated on small absolute values than \mbox{$\xi \sim N(0,1)$}.
 
 The marginal peNMIG prior, i.e., the prior for $\bm\beta$ integrated over
 the intermediate quantities $\alpha$, $\bm \xi$, $\tau^2, \gamma$ and $w$,
@@ -514,35 +478,7 @@ Second, $\bm\delta$ has a (conditionally) multivariate Gaussian prior, i.e., $\b
 with a fixed scaled precision matrix $\bm P$ that is often positive \emph{semi}-definite.
 Table \ref{T:termtypes} gives an overview of the model terms available in \pkg{spikeSlabGAM} and how they fit into this
 framework.
-%\begin{sidewaystable}[!htbp]
-%\begin{small}
-%\begin{center}
-%\begin{tabular}{l|p{.18\textheight}|p{.18\textheight}|p{.18\textheight}|p{.18\textheight}}
-%\textbf{\proglang{R}-syntax} & \textbf{Type} & $\bm{\tilde{B}}$ & $\bm P$ & \textbf{Details} \\
-%\hline
-%\code{lin(x)} & linear/polynomial trend & \code{poly(x, degree)} & identity matrix
-%   & basis functions are orthogonal polynomials of degree 1 to \code{degree} evaluated in \code{x} \\
-%\hline
-%\code{fct(x)} & factor & depends on contrasts & identity matrix & default: sum-to-zero contrasts\\
-%\hline
-%\code{rnd(x, C)} & random intercept & indicator variables for each level of \code{x} & $\mathtt{C}^{-1}$ & default: $\iid$ random intercepts; i.e., $\mathtt{C} = \bm I$ \\
-%\hline
-%\code{sm(x)} & univariate penalized spline & B-spline basis functions  & ${\bm\Delta^{d}}^\top\bm\Delta^{d}$ with
-%   $\bm\Delta^{d}$ the $d^{th}$ diff. operator matrix & default: cubic B-splines with $d=2$;\\
-%\hline
-%\code{srf(xy)} & bivariate pen. spline for surface estimation; \code{xy} = 2-D coordinates & (radial) basis functions (thin plate / tensor product B-spline) & depends on basis function
-% & default: tensor product cubic B-spline with first order difference penalties\\
-%\hline
-%\code{mrf(x, N)} & Gauss-Markov random field & indicator variables for regions in \code{x} & precision matrix of MRF defined by (weighted) adjacency matrix \code{N} & factor \code{x} defines
-%regions observations belong to, \code{N} defines their neighborhood structure.\\
-%\end{tabular}
-%\end{center}
-%\caption[Term types]{Term types in \pkg{spikeSlabGAM}.
-%The semiparametric terms (\code{sm}, \code{srf}, \code{mrf}) only parameterize the proper part
-%of their respective regularization priors (see Section \ref{design}).}
-%\label{T:termtypes}
-%\end{small}
-%\end{sidewaystable}
+
 \begin{table}[!tbp]
 \begin{small}
 \begin{center}
@@ -774,16 +710,7 @@ these term type functions, the package will try to guess appropriate term types:
 into \code{y }$\ftilde$\code{ lin(x) + sm(x) + fct(f)} since the default is to model any numeric covariate
 as a smooth effect with a \code{lin()}-term parameterizing functions from the nullspace of its penalty
 and an \code{sm()}-term parameterizing the penalized part.
-%Valid model formulas for \pkg{spikeSlabGAM} have to satisfy the following conditions:
-%\begin{itemize}
-%\item All variables that are involved in interactions have to be present as main effects as well, i.e.,
-%\code{y }$\ftilde$\code{ x1 + x1:x2}
-% will produce an error because the main effect of \code{x2} is missing.
-%\item Interactions between unpenalized terms not under selection (i.e., terms of type \code{u()}) and penalized terms are not
-% allowed, i.e., \code{y }$\ftilde$\code{ u(x1)*x2} will produce an error.
-%\item If main effects are specified as special terms, the interactions involving them have to be given as special terms
-% as well, i.e., \code{y }$\ftilde$\code{ lin(x1) + lin(x2) + x1:x2} will produce an error.
-%\end{itemize}
+
 The model formula defines the candidate set of model terms that comprise the
 model of maximal complexity under consideration. As of now, indicators $\bm\gamma$ are sampled without hierarchical constraints,
 i.e., an interaction effect can be included in the model even if the associated main effects or lower order interactions are not.
@@ -833,7 +760,7 @@ We fit an additive model with all covariates as main effects and first-order int
 f1 <- y ~ (sm1 + sm2 + f + lin1)^2 + lin2 +lin3 + noise1 + noise2 + noise3 + noise4
 @
 The function \code{spikeSlabGAM} sets up the design matrices, calls the sampler and returns the results\footnote{Note that the number of available processes for
-the parallelized MCMC sampling is set to just 2 in this vignette in order to comply with CRAN policies on resource usage -- you can speed up the sampler by setting \code{options(cores = <how many processes you want>)} before calling \code{spikeSlabGAM}}:
+the parallelized MCMC sampling is set to just 2 in this vignette in order to comply with CRAN policies on resource usage -- you can speed up the sampler by setting \code{options(mc.cores = <how many processes you want>)} before calling \code{spikeSlabGAM}}:
 <<fit1, cache=T, results=hide>>=
 m <- spikeSlabGAM(formula = f1, data = d)
 @
@@ -921,7 +848,7 @@ By default, the posterior mean of the linear predictor associated with each cova
 (or combination of covariates if the model contains interactions) along with (pointwise) 80\%
 credible intervals is shown.
 \setkeys{Gin}{width=6in}
-\begin{figure}[!htbp]\begin{center}
+\begin{figure}[!htbp]\begin{center}\prehrule
 \tikzset{font=\scriptsize}
 <<plotm1Fake, echo=TRUE, eval=FALSE>>=
 plot(m)
@@ -959,7 +886,7 @@ pl <- plot(m, nrow=4, ncol=3,
 <<plotm1, echo=FALSE, fig=TRUE, width=6, cache=TRUE, external=TRUE>>=
 do.call(gridExtra:::grid.arrange, c(pl, nrow=4, ncol=3))
 @
-\caption{Posterior means and pointwise 80\% credible intervals for model \texttt{m}.
+\posthrule\caption{Posterior means and pointwise 80\% credible intervals for model \texttt{m}.
 Interaction surfaces of two numerical covariates
 are displayed as color coded contour plots, with regions in which the credible interval does not overlap zero marked
 in blue ($\eta < 0$) or red ($\eta > 0$). Each panel contains a marginal rug plot that shows where the observations are located.
@@ -980,7 +907,7 @@ Full disclosure: The code used to render Figures \ref{fig:m1Sm1} and \ref{fig:m1
 than the code snippets shown here, but the additional code only affects details (font and margin sizes and the arrangement of the
 panels).}.
 \setkeys{Gin}{width=6in}
-\begin{figure}[!htbp]\begin{center}
+\begin{figure}[!htbp]\begin{center}\prehrule
 \tikzset{font=\small}
 <<plotm1sm1Fake, echo=TRUE, eval=FALSE>>=
 plot(m, labels = c("lin(sm1)", "sm(sm1)"), cumulative = FALSE)
@@ -1005,14 +932,14 @@ pSm1Cum <- pSm11[[1]] + geom_line(data=trueFsm1, aes(x=sm1, y=truth), lty=2)  +
         axis.text.y = element_text(size=9, hjust=1))# + ylab("$\\eta$")
 gridExtra:::grid.arrange(pSm1Sep[[1]], pSm1Sep[[2]], pSm1Cum, nrow=1)
 @
-\caption{Posterior means and pointwise 80\% credible intervals for $f(\mathtt{sm1})$ in
+\posthrule\caption{Posterior means and pointwise 80\% credible intervals for $f(\mathtt{sm1})$ in
 \texttt{m1}. Left and middle panel show the separate \texttt{lin()}- and \texttt{sm()}-terms returned by the first call to \code{plot},
 right panel shows their sum. True shape of $f(\mathtt{sm1})$ added as a dashed line with the \texttt{ggElems} option of \texttt{plot.spikeSlabGAM}, see lines of code above the figure.}
 \label{fig:m1Sm1}
 \end{center}\end{figure}
 
 \setkeys{Gin}{width=6in}
-\begin{figure}[!htbp]\begin{center}
+\begin{figure}[!htbp]\begin{center}\prehrule
 \tikzset{font=\small}
 <<plotm1sm2fFake, echo=TRUE, eval=FALSE>>=
 trueFsm2f <-data.frame(truth = fsm2f - mean(fsm2f), sm2 = sm2, f = f)
@@ -1029,7 +956,7 @@ pl2 <- plot(m, labels="sm(sm2):fct(f)",
 <<plotm1sm2f, echo=FALSE, fig=TRUE, width=6, height=3, cache=TRUE, external=TRUE>>=
 pl2[[1]]
 @
-\caption{Posterior means and pointwise 80\% credible intervals for $f(\mathtt{sm2}, \mathtt{f})$ in
+\posthrule\caption{Posterior means and pointwise 80\% credible intervals for $f(\mathtt{sm2}, \mathtt{f})$ in
 \texttt{m1}. True shape of $f(\mathtt{sm2}|\mathtt{f})$ added as dashed line for each level of \texttt{f}, see lines of code above the figure.}
 \label{fig:m1Sm2f}
 \end{center}\end{figure}
