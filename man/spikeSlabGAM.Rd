@@ -82,8 +82,8 @@ response (recommended) or adjust the hyperparameters accordingly.
 
 Sampling of the chains is done in parallel using package \code{multicore} if
 available. If not, a socket cluster set up with \code{snow} is used where
-available. Use \code{options(cores = foo)} to set the (maximal) number of
-processes spawned by the parallelization. If \code{options()$cores} is
+available. Use \code{options(mc.cores = foo)} to set the (maximal) number of
+processes spawned by the parallelization. If \code{options()$mc.cores} is
 unspecified, snow uses 8.
 }
 \examples{
