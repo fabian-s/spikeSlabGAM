@@ -34,18 +34,18 @@ of the linear predictor. Defaults to \code{mean}.}
 credible regions of the returned values. Defaults to NULL.}
 
 \item{addIntercept}{include global intercept term in prediction/estimate?
-Defaults to TRUE if \code{terms=NULL}.}
+Defaults to TRUE if \code{terms = NULL}.}
 
 \item{...}{arguments passed from or to other methods (not used)}
 }
 \value{
-If \code{type="terms"}, a list of \code{data.frame}s containing the
+If \code{type ="terms"}, a list of \code{data.frame}s containing the
   requested pointwise summary statistics for the supplied terms (use e.g.
   \code{\link{Reduce}("+", ...)} to get row-wise sums of the list-entries).
   Otherwise, a \code{data.frame} containing the requested pointwise summary
   statistics of the posterior predictive of the linear predictor
-  (\code{type="link"}) or the conditional expectation of the response
-  (\code{type="response"}) is returned.
+  (\code{type ="link"}) or the conditional expectation of the response
+  (\code{type ="response"}) is returned.
 }
 \description{
 Obtain posterior predictive/credible intervals from a spike-and-slab model

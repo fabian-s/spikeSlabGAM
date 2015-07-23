@@ -73,7 +73,7 @@ interactive use in RStudio if necessary since the \code{RStudioGD} graphical
 device does not support opening multiple pages.
 }
 \note{
-Note that \code{cumulative=TRUE} will only find all relevant terms to
+Note that \code{cumulative = TRUE} will only find all relevant terms to
  accumulate if, for all numeric covariates that have a smooth term, the
  smooth term is specified \emph{after} the linear term in the formula.
 }

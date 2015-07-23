@@ -40,7 +40,7 @@ a list with components:\describe{ \item{\code{formula}}{see
   \item{\code{beta}}{the regression coefficients} \item{\code{alpha}}{}
   \item{\code{ksi}}{} \item{\code{tau}}{hypervariances of the penalized model
   terms} \item{\code{gamma}}{inclusion indicator variables of the model
-  terms} \item{\code{pV1}}{\eqn{P(\gamma=1)}} \item{\code{w}}{hyperparameter
+  terms} \item{\code{pV1}}{\eqn{P(\gamma = 1)}} \item{\code{w}}{hyperparameter
   for \code{gamma}} \item{\code{sigma2}}{error variance (for Gaussian data)}
   \item{\code{logLik}}{log likelihood} \item{\code{logPost}}{log of
   (unnormalized) posterior}}} \item{\code{samples}}{a list containing the
@@ -62,7 +62,7 @@ formula-based interface for specifying models and takes care of (most of) the
 housekeeping. Sampling of the chains is done in parallel using package
 \code{parallel}. A "SOCK" cluster is set up under Windows to do so (and
 closed after computations are done, I try to clean up after myself), see
-\code{\link[parallel]{makeCluster}} etc. Use \code{options(mc.cores=<foo>)}
+\code{\link[parallel]{makeCluster}} etc. Use \code{options(mc.cores =<foo>)}
 to set the (maximal) number of processes forked by the parallelization. If
 \code{options()$mc.cores} is unspecified, it is set to 2.
 }
@@ -70,13 +70,13 @@ to set the (maximal) number of processes forked by the parallelization. If
 Details for model specification: \describe{
 \item{\code{hyperparameters}}{\describe{\item{}{A list:}
 \item{\code{w}}{hyperparameters for the \eqn{Beta}-prior for \eqn{w};
-defaults to \code{c(alphaW=1, betaW=1)}, i.e. a uniform distribution.}
+defaults to \code{c(alphaW = 1, betaW = 1)}, i.e. a uniform distribution.}
 \item{\code{tau2}}{hyperparameters for the \eqn{\Gamma^{-1}}-prior of the
-hypervariances \eqn{\tau^2}; defaults to \code{c(a1=5, a2=25)}}
+hypervariances \eqn{\tau^2}; defaults to \code{c(a1 = 5, a2 = 25)}}
 \item{\code{gamma}}{sets \eqn{v_0}, the ratio between the spike and slab
-variances, defaults to \code{c(v0=0.00025)}}
+variances, defaults to \code{c(v0 = 0.00025)}}
 \item{\code{sigma2}}{hyperparameters for \eqn{\Gamma^{-1}}-prior for error
-variance; defaults to \code{c(b1=1e-4, b2=1e-4)}. Only relevant for Gaussian
+variance; defaults to \code{c(b1 = 1e-4, b2 = 1e-4)}. Only relevant for Gaussian
 response.} \item{\code{varKsi}}{variance for prior of \eqn{\xi}, defaults to
 1} \item{\code{ksiDF}}{defaults to 0 for a gaussian prior for \eqn{\xi}, else
 induces a t-prior for \eqn{\xi}} with \code{ksiDF} degrees of freedom.}}

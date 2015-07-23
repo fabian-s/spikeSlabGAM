@@ -12,17 +12,17 @@
 #'   samples of the associated coefficients.
 #' @author Fabian Scheipl
 #' @export
-getPosteriorTerm <- function(label=NULL, model, betaInd=NULL){
+getPosteriorTerm <- function(label = NULL, model, betaInd = NULL) {
   stopifnot(any(c(!is.null(label), !is.null(betaInd))),
     class(model)=="spikeSlabGAM")
-  if(is.null(betaInd)){
-    betaInd <- which(model$model$groupIndicatorsOrig==label)
+  if(is.null(betaInd)) {
+    betaInd <- which(model$model$groupIndicatorsOrig == label)
   }
 
   beta <- t(do.call(rbind,
     lapply(model$samples$beta, "[",
-      i=1:model$mcmc$chainLength, j=betaInd, drop=F)))
-  return(structure(model$X[, betaInd, drop=F] %*% beta, "coef"=beta))
+      i = 1:model$mcmc$chainLength, j = betaInd, drop = F)))
+  return(structure(model$X[, betaInd, drop = F] %*% beta, "coef"= beta))
 }
 
 #' Get summaries of the posterior (predictive) distribution of the linear
@@ -44,49 +44,50 @@ getPosteriorTerm <- function(label=NULL, model, betaInd=NULL){
 #'   requested \code{quantiles}.
 #' @author Fabian Scheipl
 #' @export
-evalTerm <- function(label, model, newdata=NULL, aggregate=mean,
-  quantiles=c(.1,.9), returnData=TRUE){
+evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
+  quantiles = c(.1,.9), returnData = TRUE) {
 
   stopifnot(is.null(aggregate)|is.function(aggregate),
-    is.null(quantiles)|all(quantiles>=0 & quantiles <=1),
+    is.null(quantiles)|all(quantiles >= 0 & quantiles <= 1),
     class(model)=="spikeSlabGAM")
 
   # find main effect(s) and beta
   trms <- strsplit(label, ":")[[1]]
   vars <- sapply(trms, function(x) gsub("\\)", "",
     gsub("([[:graph:]]+\\()","", x)))
-  betaInd <- which(names(model$model$groupIndicatorsOrig)==label)
+  betaInd <- which(names(model$model$groupIndicatorsOrig)== label)
 
   # get posterior samples of term
   fhat <-	getPosteriorTerm(label, model, betaInd)
-  if(!is.null(newdata)){
+  if(!is.null(newdata)) {
     # make (uncentered, high-rank) design(s) for newdata
-    newX <- vector(length(trms), mode="list")
+    newX <- vector(length(trms), mode ="list")
     names(newX) <- trms
-    for(trm in trms){
+    for(trm in trms) {
       newX[[trm]] <- do.call(model$predvars[[trm]]$makeNewX,
-        list(xnew=newdata[, vars[trm]]))
+        list(xnew = newdata[, vars[trm]]))
     }
-    if(length(newX)>1){
+    if(length(newX)>1) {
       #make interaction design
-      X <- matrix(1, nrow=nrow(newX[[1]]))
-      for(i in 1:length(newX)){
-        X <- matrix(apply(X, 2, function(x){
-          x*newX[[i]]}),
-          nrow=nrow(X), ncol=NCOL(X)*NCOL(newX[[i]]))
+      X <- matrix(1, nrow = nrow(newX[[1]]))
+      for(i in 1:length(newX)) {
+        X <- matrix(apply(X, 2, function(x) {
+          x * newX[[i]]}),
+          nrow = nrow(X), ncol = NCOL(X)* NCOL(newX[[i]]))
       }
     } else {
       X <- newX[[1]]
     }
-    coef <- if(!is.null(model$predvars[[label]]$qrB)){
+    coef <- if(!is.null(model$predvars[[label]]$qrB)) {
       # posterior of coefficients for un-orthogonalized interactions: idea: 1. B
       # is the design for the interaction BEFORE low-rank approx. (saved in
-      # predvars) 2. fhat is the posterior distribution of B%*%coef (sampled via
+      # predvars) 2. fhat is the posterior distribution of B %*% coef (sampled via
       # B_loRank %*% coef_loRank) --> get coefs for original design matrix B via
       # qr(B) : R beta = Q' fhat
       tmp <- try(qr.coef(model$predvars[[label]]$qrB, fhat), silent = TRUE)
-      if(class(tmp)=="try-error"){
-        tmp <- (ginv(qr.R(model$predvars[[label]]$qrB))%*%t(qr.Q(model$predvars[[label]]$qrB)))%*%fhat
+      if(class(tmp)=="try-error") {
+        tmp <- (ginv(qr.R(model$predvars[[label]]$qrB)) %*%
+            t(qr.Q(model$predvars[[label]]$qrB)))%*% fhat
       }
       tmp
     } else {
@@ -96,19 +97,19 @@ evalTerm <- function(label, model, newdata=NULL, aggregate=mean,
       ##FIXME
       warning("Recalculating original coefficients for ", label,
         " seems to be problematic. Predictions may be unstable." )
-      rm <- is.na(coef[,1])
-      #coef <- coef[!rm, , drop=F]
-      #X <- X[, !rm, drop=F]
+      rm <- is.na(coef[, 1])
+      #coef <- coef[!rm, , drop = F]
+      #X <- X[, !rm, drop = F]
       coef[rm, ] <- 0
     }
     #posterior of term evaluated on newdata:
     fhat <- X %*% coef
-    data <- newdata[, vars, drop=F]
+    data <- newdata[, vars, drop = F]
   } else {
-    data <- model$data[, vars, drop=F]
+    data <- model$data[, vars, drop = F]
   }
   pred <- summarizeF(fhat, aggregate, quantiles)
-  if(returnData){
+  if(returnData) {
     return(cbind(data, pred))
   } else {
     return(pred)
@@ -136,96 +137,96 @@ evalTerm <- function(label, model, newdata=NULL, aggregate=mean,
 #' @param quantiles (numeric) an optional vector of quantiles for borders of
 #'   credible regions of the returned values. Defaults to NULL.
 #' @param addIntercept include global intercept term in prediction/estimate?
-#'   Defaults to TRUE if \code{terms=NULL}.
+#'   Defaults to TRUE if \code{terms = NULL}.
 #' @param ... 	arguments passed from or to other methods (not used)
-#' @return  If \code{type="terms"}, a list of \code{data.frame}s containing the
+#' @return  If \code{type ="terms"}, a list of \code{data.frame}s containing the
 #'   requested pointwise summary statistics for the supplied terms (use e.g.
 #'   \code{\link{Reduce}("+", ...)} to get row-wise sums of the list-entries).
 #'   Otherwise, a \code{data.frame} containing the requested pointwise summary
 #'   statistics of the posterior predictive of the linear predictor
-#'   (\code{type="link"}) or the conditional expectation of the response
-#'   (\code{type="response"}) is returned.
+#'   (\code{type ="link"}) or the conditional expectation of the response
+#'   (\code{type ="response"}) is returned.
 #' @export
 #' @author Fabian Scheipl
-predict.spikeSlabGAM <- function(object, newdata=NULL,
-  type=c("response", "link", "terms"), terms=NULL,
-  aggregate=mean, quantiles=NULL, addIntercept=is.null(terms), ...){
+predict.spikeSlabGAM <- function(object, newdata = NULL,
+  type = c("response", "link", "terms"), terms = NULL,
+  aggregate = mean, quantiles = NULL, addIntercept = is.null(terms), ...) {
 
   addIntercept <- eval(addIntercept)
   type <- match.arg(type)
 
   if(!is.null(terms)) type <- "terms"
   linkinv <- switch(as.character(object$family),
-    "0"=I,
-    "1"=plogis,
-    "2"=exp)
+    "0"= I,
+    "1"= plogis,
+    "2"= exp)
 
-  if(is.null(newdata)){
-    if(type!="terms"){
-      fhat <- getPosteriorTerm(model=object, betaInd=1:object$model$q)
+  if(is.null(newdata)) {
+    if(type!="terms") {
+      fhat <- getPosteriorTerm(model = object, betaInd = 1:object$model$q)
       res <- summarizeF(fhat, aggregate, quantiles)
-      if(type=="response"){
+      if(type =="response") {
         res <- linkinv(res)
       }
       return(res)
     } else {
-      terms <- if(is.null(terms)){
+      terms <- if(is.null(terms)) {
         names(object$predvars)
       } else {
         #check for special terms
         specials <- sapply(terms,
-          function(x) any(mapply(grepl, x=x,
-            pattern=environment(object$formula)$specials)))
+          function(x) any(mapply(grepl, x = x,
+            pattern = environment(object$formula)$specials)))
         #find out terms that involve variables mentioned in non-special "terms"
         which <- unique(unlist(sapply(terms[!specials], grep,
-          x=names(object$predvars), fixed=TRUE)))
+          x = names(object$predvars), fixed = TRUE)))
         unique(c(terms[specials], names(object$predvars)[sort(which)]))
       }
-      res <- lapply(terms, function(x){
-        tmp <- getPosteriorTerm(label=x, model=object)
-        summarizeF(tmp, aggregate=aggregate, quantiles=quantiles)
+      res <- lapply(terms, function(x) {
+        tmp <- getPosteriorTerm(label = x, model = object)
+        summarizeF(tmp, aggregate = aggregate, quantiles = quantiles)
       })
       names(res) <- terms
-      if(attr(terms(object$formula),"intercept")!=0 & addIntercept){
-        int <- getPosteriorTerm(model=object, betaInd=1)
-        int <- summarizeF(int, aggregate=aggregate, quantiles=quantiles)
+      if(attr(terms(object$formula),"intercept")!= 0 & addIntercept) {
+        int <- getPosteriorTerm(model = object, betaInd = 1)
+        int <- summarizeF(int, aggregate = aggregate, quantiles = quantiles)
         res[["(Intercept)"]] <- int
       }
       return(res)
     }
   } else {
-    terms <- if(type != "terms" | is.null(terms)){
+    terms <- if(type != "terms" | is.null(terms)) {
       names(object$predvars)
     } else {
       #check for special terms
       specials <- sapply(terms,
-        function(x) any(mapply(grepl, x=x,
-          pattern=environment(object$formula)$specials)))
+        function(x) any(mapply(grepl, x = x,
+          pattern = environment(object$formula)$specials)))
       #find out terms that involve variables mentioned in non-special "terms"
       which <- unique(unlist(sapply(terms, grep,
-        x=names(object$predvars), fixed=TRUE)))
+        x = names(object$predvars), fixed = TRUE)))
       names(object$predvars)[sort(which)]
     }
-    res <- lapply(terms, evalTerm, model=object, newdata=newdata,
-      aggregate=aggregate, quantiles=quantiles, returnData=FALSE)
-    if(type=="terms"){
+    res <- lapply(terms, evalTerm, model = object, newdata = newdata,
+      aggregate = aggregate, quantiles = quantiles, returnData = FALSE)
+    if(type =="terms") {
       names(res) <- terms
-      if(attr(terms(object$formula),"intercept")!=0 & addIntercept){
-        int <- getPosteriorTerm(model=object, betaInd=1)
-        int <- summarizeF(int, aggregate=aggregate, quantiles=quantiles)
-        res[["(Intercept)"]] <- suppressWarnings(matrix(int, nrow=nrow(newdata),
-          ncol=ncol(int), byrow=T))
+      if(attr(terms(object$formula),"intercept")!= 0 & addIntercept) {
+        int <- getPosteriorTerm(model = object, betaInd = 1)
+        int <- summarizeF(int, aggregate = aggregate, quantiles = quantiles)
+        res[["(Intercept)"]] <- suppressWarnings(matrix(int, nrow = nrow(newdata),
+          ncol = ncol(int), byrow = T))
       }
       return(res)
     } else {
-      if(attr(terms(object$formula),"intercept")!=0 & addIntercept){
-        int <- getPosteriorTerm(model=object, betaInd=1)
-        int <- summarizeF(int, aggregate=aggregate, quantiles=quantiles)
-        res[["(Intercept)"]] <- suppressWarnings(matrix(int, nrow=nrow(newdata),
-          ncol=ncol(int), byrow=T))
+      if(attr(terms(object$formula),"intercept")!= 0 & addIntercept) {
+        int <- getPosteriorTerm(model = object, betaInd = 1)
+        int <- summarizeF(int, aggregate = aggregate, quantiles = quantiles)
+        res[["(Intercept)"]] <- suppressWarnings(matrix(int, nrow = nrow(newdata),
+          ncol = ncol(int), byrow = T))
       }
       res <- Reduce("+", res)
-      if(type=="response"){
+      if(type =="response") {
         res <- linkinv(res)
       }
       return(res)

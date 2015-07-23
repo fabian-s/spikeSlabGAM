@@ -23,7 +23,7 @@ the SSVS.
 }
 \details{
 Two scalar summaries of term importance are included: \describe{
-\item{\code{P(gamma=1)}}{The posterior mean of \eqn{P(\gamma=1)}, i.e. the
+\item{\code{P(gamma = 1)}}{The posterior mean of \eqn{P(\gamma = 1)}, i.e. the
 marginal posterior inclusion probability of the term.} \item{\code{pi}}{The
 scaled dot products of the posterior mean of the linear predictor
 \eqn{\eta_i} associated with the \eqn{i}-th term and the total linear

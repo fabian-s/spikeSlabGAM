@@ -53,7 +53,7 @@ hull of the original observations. Plots for
 coefficient, i.e. the contour lines represent the change in the linear
 predictor when the \code{lin}-covariate increases by 1 standard deviation.
 For this reason, a cumulative plot makes no sense and the routine will set
-\code{cumulative=FALSE} with a warning.
+\code{cumulative = FALSE} with a warning.
 }
 \details{
 Limitations: Plots for 4-way (or higher) interactions are not implemented.

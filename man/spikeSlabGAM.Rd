@@ -31,7 +31,7 @@ implemented as well.}
 \code{\link{spikeAndSlab}}.}
 
 \item{start}{A list of starting values for the MCMC sampler. See
-\code{\link{spikeAndSlab}}. Use \code{start=list(seed=<YOUR_SEED>)} to set
+\code{\link{spikeAndSlab}}. Use \code{start = list(seed =<YOUR_SEED>)} to set
 the RNG seed for reproducible results.}
 }
 \value{
@@ -71,7 +71,7 @@ variables that are involved in interactions have to be present as main
 effects as well, i.e. {\code{y ~ x1 + x1:x2}} will produce an error because
 the main effect of \code{x2} is missing. \item Interactions between
 unpenalized terms not under selection (i.e. terms of type \code{\link{u}})
-and penalized terms are not allowed, i.e. \code{y ~ u(x1)*x2} will produce an
+and penalized terms are not allowed, i.e. \code{y ~ u(x1)* x2} will produce an
 error. \item If main effects are specified as special terms, the interactions
 involving them have to be given as special terms as well, i.e. \code{y ~
 lin(x1) + lin(x2) + x1:x2} will produce an error. }
@@ -82,7 +82,7 @@ response (recommended) or adjust the hyperparameters accordingly.
 
 Sampling of the chains is done in parallel using package \code{multicore} if
 available. If not, a socket cluster set up with \code{snow} is used where
-available. Use \code{options(cores=foo)} to set the (maximal) number of
+available. Use \code{options(cores = foo)} to set the (maximal) number of
 processes spawned by the parallelization. If \code{options()$cores} is
 unspecified, snow uses 8.
 }

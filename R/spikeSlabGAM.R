@@ -34,7 +34,7 @@
 #' effects as well, i.e. {\code{y ~ x1 + x1:x2}} will produce an error because
 #' the main effect of \code{x2} is missing. \item Interactions between
 #' unpenalized terms not under selection (i.e. terms of type \code{\link{u}})
-#' and penalized terms are not allowed, i.e. \code{y ~ u(x1)*x2} will produce an
+#' and penalized terms are not allowed, i.e. \code{y ~ u(x1)* x2} will produce an
 #' error. \item If main effects are specified as special terms, the interactions
 #' involving them have to be given as special terms as well, i.e. \code{y ~
 #' lin(x1) + lin(x2) + x1:x2} will produce an error. }
@@ -45,7 +45,7 @@
 #'
 #' Sampling of the chains is done in parallel using package \code{multicore} if
 #' available. If not, a socket cluster set up with \code{snow} is used where
-#' available. Use \code{options(cores=foo)} to set the (maximal) number of
+#' available. Use \code{options(cores = foo)} to set the (maximal) number of
 #' processes spawned by the parallelization. If \code{options()$cores} is
 #' unspecified, snow uses 8.
 #'
@@ -64,7 +64,7 @@
 #' @param mcmc A list of arguments specifying MCMC sampler options. See
 #'   \code{\link{spikeAndSlab}}.
 #' @param start A list of starting values for the MCMC sampler. See
-#'   \code{\link{spikeAndSlab}}. Use \code{start=list(seed=<YOUR_SEED>)} to set
+#'   \code{\link{spikeAndSlab}}. Use \code{start = list(seed =<YOUR_SEED>)} to set
 #'   the RNG seed for reproducible results.
 #' @return an object of class \code{spikeSlabGAM} with methods
 #'   \code{\link{summary.spikeSlabGAM}}, \code{\link{predict.spikeSlabGAM}}, and
@@ -136,24 +136,24 @@
 spikeSlabGAM <- function(formula,
   data,
   ...,
-  family="gaussian",
-  hyperparameters=list(),    # prior parameters
-  model=list(),              # model structure
-  mcmc=list(),               # Gibbs sampling options
-  start=list()               # start values for the Gibbs sampler
+  family ="gaussian",
+  hyperparameters = list(),    # prior parameters
+  model = list(),              # model structure
+  mcmc = list(),               # Gibbs sampling options
+  start = list()               # start values for the Gibbs sampler
 )
 {
   #require(RegularBayes)
-  D <- ssGAMDesign(formula=formula, data=data, ...)
+  D <- ssGAMDesign(formula = formula, data = data, ...)
   model$groupIndicators <- D$groupIndicators
   model$H <- D$H
-  res <- spikeAndSlab(family= family,
+  res <- spikeAndSlab(family = family,
     y = D$response,           # response (n x 1)
     X = D$Design,             # design matrix with covariates (n x q)
-    hyperparameters=hyperparameters,    # prior parameters
-    model=model,              # model structure
-    mcmc=mcmc,      	      # Gibbs sampling options
-    start=start)              # start values for the Gibbs sampler
+    hyperparameters = hyperparameters,    # prior parameters
+    model = model,              # model structure
+    mcmc = mcmc,      	      # Gibbs sampling options
+    start = start)              # start values for the Gibbs sampler
   res$formula <- D$formula
   res$data <- data
   res$predvars <- D$predvars

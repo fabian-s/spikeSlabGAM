@@ -12,7 +12,7 @@ srf(coords, K = min(50, sum(nd)/4), rankZ = 0.999, centerBase = TRUE,
 \item{coords}{a \code{data.frame} with two columns containing the coordinates}
 
 \item{K}{(approximate) number of basis functions in the original basis
-(defaults to 50). If \code{baseType="B"} you can specify a vector giving
+(defaults to 50). If \code{baseType ="B"} you can specify a vector giving
 the number of marginal basis functions in each direction.}
 
 \item{rankZ}{how many eigenvectors to retain from the eigen decomposition:
@@ -28,7 +28,7 @@ from the constant). Set to \code{"thinPlate"} if cubic thin plate splines
 are desired, see note below.}
 
 \item{decomposition}{use a (truncated) spectral decomposition of the implied
-prior covariance of \eqn{f(x,y)} for a low rank representation with
+prior covariance of \eqn{f(x, y)} for a low rank representation with
 orthogonal    basis functions and i.i.d. coefficients (\code{"ortho"}), or use
 the mixed model reparameterization for non-orthogonal basis functions and
 i.i.d. coefficients (\code{"MM"}) or use basis functions as they are with
@@ -59,7 +59,7 @@ spline basis are chosen via a space-filling algorithm (i.e. medoids returned
 by \code{\link[cluster]{clara}}) as suggested in Ruppert/Wand/Carroll, ch.
 13.5. Since the thin plate penalty term penalizes deviations from a linear
 trend, it is recommended to add marginal linear trends and their interaction
-to the model if \code{baseType="thinPlate"} to improve the fit.
+to the model if \code{baseType ="thinPlate"} to improve the fit.
 }
 \note{
 TODO: prediction seems very unstable when extrapolating outside the
