@@ -1,5 +1,6 @@
 # copied from https://github.com/hadley/dplyr/blob/master/.travis.yml @ 2014/08/12
 language: c
+sudo: required
 
 before_install:
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
