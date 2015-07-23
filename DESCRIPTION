@@ -32,6 +32,7 @@ Description: Bayesian variable selection, model choice, and regularized
     estimation for (spatial) generalized additive mixed regression models
     via stochastic search variable selection with spike-and-slab priors.
 License: CC BY-NC-SA 4.0
+URL: https://github.com/fabian-s/spikeSlabGAM
 Collate:
     'utils.R'
     'terms.R'
