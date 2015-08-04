@@ -7,8 +7,8 @@ An R-package for Bayesian variable selection, model choice, and regularized esti
 
 - Fits **additive models** for **Gaussian, Binary/Binomial and Poisson responses** 
 - (Correlated) **random effects** 
-- Automagically performs **variable selection** and **function selection** (i.e., do I need this effect at all, is it linear or is it non-linear?), also for interactions between multiple covariates. 
-- Yields **marginal posterior inclusion probabilities** for each term as well as **posterior model probabilities** and (model-averaged) effect estimates.
+- Automagically performs **variable selection** and **function selection** (i.e., do I need this model term at all, is it linear or is it non-linear?), also for interactions between multiple covariates. 
+- Yields **marginal posterior inclusion probabilities** for each term as well as **posterior model probabilities** and model-averaged effect estimates.
 - Convenient **formula-based model specification**
 - Fully Bayesian via MCMC, multiple parallelized chains for diagnostics and faster mixing, sampler implemented in `C`. 
 
