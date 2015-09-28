@@ -1,3 +1,7 @@
+spikeSlabGAM 1.1-10 (2015-09-28) ----------------------------------------
+
+* fixed parallelization for Windows (thx, Hairong Gu!)
+
 spikeSlabGAM 1.1-9 (2015-07-22) ----------------------------------------
 
 * updated plot functions for gridExtra 2.0-0

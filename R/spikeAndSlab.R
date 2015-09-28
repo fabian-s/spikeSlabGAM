@@ -535,11 +535,12 @@ spikeAndSlab <- function(
     nrow = mcmc$chainLength, ncol = 1)
 
 
-  parallel <- if(Sys.info()["sysname"]!="windows") {
+  parallel <- if(.Platform$OS.type != "windows") {
     "parallel"
   } else {
     "snow"
   }
+
 
   if((is.null(options()$mc.cores) || is.na(options()$mc.cores))) {
     if(interactive()) {
@@ -549,7 +550,7 @@ spikeAndSlab <- function(
       stopifnot(!is.null(options()$mc.cores), !is.na(options()$mc.cores),
         options()$mc.cores>0)
     } else {
-      message("Setting up SOCK cluster with 2 local slaves.\n",
+      message("Using 2 parallel processes.\n",
         "Use 'options(mc.cores = <YourNumberHere>)' to override next time.")
       options(mc.cores = 2)
     }
@@ -565,7 +566,7 @@ spikeAndSlab <- function(
         paste(rep("-", mcmc$nChains * 10-2), collapse =""),
         "100%\n", sep ="", collapse =""))
     }
-    if(parallel =="snow") {
+    if(parallel == "snow") {
       cat("using <parallel> in SOCKET mode -- no progress info available.\n")
     }
   }
@@ -720,7 +721,7 @@ spikeAndSlab <- function(
   if(parallel =="parallel") {
     res <- mclapply(1:mcmc$nChains, do1Chain)
   }
-  if(parallel =="snow") {
+  if(parallel == "snow") {
     clusterExportLocal <-  function (cl, list) {
       for (name in list) {
         clusterCall(cl, assign, name, get(name, pos = -1))
