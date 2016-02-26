@@ -88,6 +88,7 @@ evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
       if(class(tmp)=="try-error") {
         tmp <- (ginv(qr.R(model$predvars[[label]]$qrB)) %*%
             t(qr.Q(model$predvars[[label]]$qrB)))%*% fhat
+        ## FIXME: use backsolve? or do we need ginv for stability
       }
       tmp
     } else {

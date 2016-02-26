@@ -2,3 +2,7 @@
 ^\.Rproj\.user$
 README.md
 .travis.yml
+.git
+.gitignore
+src/.gitignore
+vignettes/.gitignore

@@ -1,3 +1,7 @@
+spikeSlabGAM 1.1-11 (2016-02-26) ----------------------------------------
+
+* maintenance update for keeping up with ggplot2 2.0
+
 spikeSlabGAM 1.1-10 (2015-09-28) ----------------------------------------
 
 * fixed parallelization for Windows (thx, Hairong Gu!)
@@ -5,6 +9,7 @@ spikeSlabGAM 1.1-10 (2015-09-28) ----------------------------------------
 spikeSlabGAM 1.1-9 (2015-07-22) ----------------------------------------
 
 * updated plot functions for gridExtra 2.0-0
+* changed license to CC BY-NC-SA 4.0
 
 spikeSlabGAM 1.1-8 (2014-11-26) ----------------------------------------
 

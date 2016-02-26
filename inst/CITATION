@@ -25,7 +25,7 @@
  			  volume = "107",
  			  number = "500",
  			  pages  = "1518--1532",
- 			  url = "http://dx.doi.org/10.1080/01621459.2012.737742",
+ 			  doi = "http://dx.doi.org/10.1080/01621459.2012.737742",
               textVersion = paste("Fabian Scheipl, Ludwig Fahrmeir, Thomas Kneib (2012).",
                "Spike-and-Slab Priors for Function Selection in Structured Additive Regression Models.",
                "Journal of the American Statistical Association, 107(500), 1518--1532."),

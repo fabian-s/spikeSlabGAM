@@ -50,7 +50,7 @@
 #' #see help for spikeSlabGAM
 #' @import ggplot2
 #' @import reshape
-#' @import scales
+#' @importFrom scales muted
 #' @import grDevices
 plotTerm <- function(label, m, cumulative = TRUE,
   aggregate = mean, quantiles = c(.1, .9), gridlength = 40, contours = 30,
@@ -576,7 +576,6 @@ plotTerm <- function(label, m, cumulative = TRUE,
 #'  accumulate if, for all numeric covariates that have a smooth term, the
 #'  smooth term is specified \emph{after} the linear term in the formula.
 #'@export
-#'@importFrom grid unit
 #'@importFrom gridExtra marrangeGrob
 #'@return a list of \code{\link[ggplot2]{ggplot}}-objects (invisible)
 #'@author Fabian Scheipl

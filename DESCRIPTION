@@ -1,6 +1,6 @@
 Package: spikeSlabGAM
-Version: 1.1-10
-Date: 2015-07-10
+Version: 1.1-11
+Date: 2016-02-26
 Title: Bayesian Variable Selection and Model Choice for
     Generalized Additive Mixed Models
 Author: Fabian Scheipl
@@ -8,13 +8,12 @@ Author: Fabian Scheipl
 Maintainer: Fabian Scheipl
     <fabian.scheipl@stat.uni-muenchen.de>
 Depends:
-    R (>= 2.15.1),
-    ggplot2
+    R (>= 2.15.1)
 Imports:
     akima,
     coda,
     cluster,
-    grid,
+    ggplot2 (>= 2.0.0),
     gridExtra (>= 2.0.0),
     MASS,
     MCMCpack,
@@ -35,12 +34,13 @@ License: CC BY-NC-SA 4.0
 URL: https://github.com/fabian-s/spikeSlabGAM
 Collate:
     'utils.R'
+    'spikeAndSlab.R'
     'terms.R'
     'ssGAMDesign.R'
-    'spikeAndSlab.R'
     'spikeSlabGAM.R'
     'bugs.R'
     'plot.R'
     'predict.R'
     'summary.R'
     'zzz.R'
+RoxygenNote: 5.0.1

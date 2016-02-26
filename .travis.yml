@@ -1,37 +1,16 @@
-# copied from https://github.com/hadley/dplyr/blob/master/.travis.yml @ 2014/08/12
-language: c
-sudo: required
-
-before_install:
-  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-  - chmod 755 ./travis-tool.sh
-  - ./travis-tool.sh bootstrap
-install:
-  - mkdir ~/.R
-  - ./travis-tool.sh r_binary_install akima
-  - ./travis-tool.sh r_binary_install coda
-  - ./travis-tool.sh r_binary_install cluster
-  - ./travis-tool.sh r_binary_install gridExtra
-  - ./travis-tool.sh r_binary_install MCMCpack
-  - ./travis-tool.sh r_binary_install R2WinBugs
-  - ./travis-tool.sh r_binary_install reshape
-  - ./travis-tool.sh r_binary_install ggplot2
-  - ./travis-tool.sh r_binary_install scales
-  - ./travis-tool.sh install_deps
-
-before_script:
-# Install package
-#- R CMD INSTALL .
-script: ./travis-tool.sh run_tests
+language: r
+r:
+  - oldrel
+  - release
+  - devel
+cache: packages
 
 after_failure:
   - ./travis-tool.sh dump_logs
 
-branches:
-  except:
-  - /-expt$/
-  - solaris
 notifications:
   email:
+    recipients:
+      - fabian.scheipl@stat.uni-muenchen.de
     on_success: change
-    on_failure: change
+    on_failure: always
