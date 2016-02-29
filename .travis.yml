@@ -6,6 +6,8 @@ r:
   - release
   - devel
 cache: packages
+r_build_args: "--compact-vignettes='gs+qpdf'"
+r_check_args: "--as-cran --run-donttest --no-vignettes --no-build-vignettes"
 
 #before_install:
     #- sudo apt-get -qq install gcc-4.8
