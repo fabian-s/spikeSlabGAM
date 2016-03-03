@@ -689,7 +689,7 @@ plot.spikeSlabGAM <- function(x, labels = NULL, cumulative = TRUE,
   if(dev.interactive()) {
     # work around RStudio quirk,
     # see https://github.com/baptiste/gridextra/issues/6
-    rstudio <- options()$device == "RStudioGD"
+    rstudio <- identical(options()$device, "RStudioGD")
     if(rstudio & nrow * ncol < length(plotList)) {
       message("Temporarily setting <options(device ='", interactive.dev,
         "')> to open multiple graphics displays since dispatch on multiple graphic devices is not supported in RStudio.")
