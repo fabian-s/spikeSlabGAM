@@ -52,12 +52,11 @@ improves the separability between the linear and smooth parts of the
 influence of \code{x} and centers the resulting function estimates s.t
 \eqn{\sum_i f(x_i) = 0}.
 }
-\author{
-Fabian Scheipl
-}
 \references{
 Kneib, T. (2006). Mixed model based inference in structured
   additive regression. Dr. Hut.
   \url{http://edoc.ub.uni-muenchen.de/archive/00005011/}
 }
-
+\author{
+Fabian Scheipl
+}

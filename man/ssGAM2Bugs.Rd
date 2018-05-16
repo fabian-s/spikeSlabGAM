@@ -30,4 +30,3 @@ sampler has not converged for \eqn{\beta}.
 \author{
 Fabian Scheipl
 }
-

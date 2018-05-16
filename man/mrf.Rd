@@ -40,12 +40,11 @@ observations have to be removed from the neighborhood matrix and there is
 currently no \code{predict}-functionality for regions without observations in
 the original data.
 }
-\author{
-Fabian Scheipl
-}
 \references{
 Fahrmeir, L., Lang, S. (2001) Bayesian inference for generalized
   additive mixed models based on Markov random field priors. \emph{Applied
   Statistics}, \bold{50}(2):201--220.
 }
-
+\author{
+Fabian Scheipl
+}

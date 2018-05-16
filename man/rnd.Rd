@@ -21,4 +21,3 @@ Generate design for a random intercept
 \author{
 Fabian Scheipl
 }
-

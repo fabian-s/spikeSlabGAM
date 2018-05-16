@@ -66,11 +66,10 @@ TODO: prediction seems very unstable when extrapolating outside the
   convex hull, sometimes even nonsensical values inside conv.hull close to
   border - problem in akima::interp?
 }
-\author{
-Fabian Scheipl
-}
 \references{
 Ruppert, D., Wand, M.P., Carroll, R.J. (2003). Semiparametric
   Regression. Cambridge University Press
 }
-
+\author{
+Fabian Scheipl
+}

@@ -31,10 +31,9 @@ The model table shows at least the 10 and at most the 20 most probable models
 as found by SSVS, or enough models to account for 90\% of the probability
 mass in the model space as found by SSVS by default.
 }
-\author{
-Fabian Scheipl
-}
 \seealso{
 \code{\link{summary.spikeSlabGAM}}
 }
-
+\author{
+Fabian Scheipl
+}

@@ -21,4 +21,3 @@ Generate design for a factor covariate
 \author{
 Fabian Scheipl
 }
-

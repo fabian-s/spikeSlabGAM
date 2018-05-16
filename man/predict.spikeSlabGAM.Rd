@@ -53,4 +53,3 @@ Obtain posterior predictive/credible intervals from a spike-and-slab model
 \author{
 Fabian Scheipl
 }
-

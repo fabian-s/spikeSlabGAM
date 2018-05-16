@@ -67,4 +67,3 @@ This function is not meant to be called directly by the user,
 \author{
 Fabian Scheipl
 }
-

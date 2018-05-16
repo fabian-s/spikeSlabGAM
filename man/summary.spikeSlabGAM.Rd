@@ -37,11 +37,10 @@ The top row in the model table shows the relative frequency of the respective
 model, the bottom row shows cumulative relative frequencies for the models
 visited most often.
 }
-\author{
-Fabian Scheipl
-}
 \references{
 Gu, Chong (2002). Smoothing Spline ANOVA models. Springer. (see
   chapter 3.6)
 }
-
+\author{
+Fabian Scheipl
+}

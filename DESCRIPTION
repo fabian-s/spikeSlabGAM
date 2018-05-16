@@ -1,6 +1,6 @@
 Package: spikeSlabGAM
-Version: 1.1-12
-Date: 2016-02-26
+Version: 1.1-13
+Date: 2018-05-16
 Title: Bayesian Variable Selection and Model Choice for
     Generalized Additive Mixed Models
 Author: Fabian Scheipl
@@ -32,7 +32,7 @@ Description: Bayesian variable selection, model choice, and regularized
     via stochastic search variable selection with spike-and-slab priors.
 License: CC BY-NC-SA 4.0
 URL: https://github.com/fabian-s/spikeSlabGAM
-Collate:
+Collate: 
     'utils.R'
     'spikeAndSlab.R'
     'terms.R'
@@ -42,5 +42,4 @@ Collate:
     'plot.R'
     'predict.R'
     'summary.R'
-    'zzz.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

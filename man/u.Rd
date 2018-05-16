@@ -20,4 +20,3 @@ Basically a wrapper for \code{model.matrix(~ x, ...)}.
 \author{
 Fabian Scheipl
 }
-

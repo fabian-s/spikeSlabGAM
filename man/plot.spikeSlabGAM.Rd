@@ -80,10 +80,9 @@ Note that \code{cumulative = TRUE} will only find all relevant terms to
 \examples{
 #see ?spikeSlabGAM
 }
-\author{
-Fabian Scheipl
-}
 \seealso{
 \code{\link{plotTerm}} for more details on the specific plots
 }
-
+\author{
+Fabian Scheipl
+}

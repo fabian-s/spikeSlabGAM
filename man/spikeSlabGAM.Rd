@@ -136,9 +136,6 @@ print(b <- ssGAM2Bugs(m2))
 plot(b)
 }
 }
-\author{
-Fabian Scheipl
-}
 \references{
 Fabian Scheipl (2011). \code{spikeSlabGAM}: Bayesian Variable
   Selection, Model Choice and Regularization for Generalized Additive Mixed
@@ -155,4 +152,6 @@ Fabian Scheipl (2011). \code{spikeSlabGAM}: Bayesian Variable
   specification, and \code{\link{ssGAM2Bugs}} for MCMC diagnostics. Check out
   the vignette for theoretical background and code examples.
 }
-
+\author{
+Fabian Scheipl
+}

@@ -1,3 +1,7 @@
+spikeSlabGAM 1.1-13 (2018-05-15) ----------------------------------------
+
+* maintenance update for keeping up with increasingly finicky CRAN checks
+
 spikeSlabGAM 1.1-11 (2016-02-26) ----------------------------------------
 
 * maintenance update for keeping up with ggplot2 2.0

@@ -20,4 +20,3 @@ Generate orthogonal polynomial base for a numeric covariate without intercept
 \author{
 Fabian Scheipl
 }
-

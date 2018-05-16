@@ -38,4 +38,3 @@ predictor of a model term
 \author{
 Fabian Scheipl
 }
-

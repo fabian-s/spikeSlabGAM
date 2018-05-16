@@ -67,4 +67,3 @@ i.e. will not incorporate any neighborhood or map information.
 \author{
 Fabian Scheipl
 }
-
