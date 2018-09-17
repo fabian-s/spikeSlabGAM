@@ -41,4 +41,4 @@ Collate:
     'plot.R'
     'predict.R'
     'summary.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0

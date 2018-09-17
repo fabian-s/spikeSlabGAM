@@ -4,8 +4,8 @@
 \alias{ssGAMDesign}
 \title{Generate design and model information for \code{spikeSlabGAM}}
 \usage{
-ssGAMDesign(formula, data, specials = c("u", "lin", "fct", "sm", "rnd", "mrf",
-  "srf"), minUniqueValues = 6, lowRankInteractions = TRUE,
+ssGAMDesign(formula, data, specials = c("u", "lin", "fct", "sm", "rnd",
+  "mrf", "srf"), minUniqueValues = 6, lowRankInteractions = TRUE,
   orthogonalizeInteractions = TRUE, decomposition = NULL)
 }
 \arguments{

@@ -4,7 +4,8 @@
 \alias{mrf}
 \title{Generate design for a 2-D Gaussian Markov Random Field}
 \usage{
-mrf(x, N, decomposition = c("ortho", "MM"), tol = 1e-10, rankZ = 0.995)
+mrf(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
+  rankZ = 0.995)
 }
 \arguments{
 \item{x}{a factor: which observation belongs to which region}

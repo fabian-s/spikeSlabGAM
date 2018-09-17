@@ -4,9 +4,9 @@
 \alias{sm}
 \title{Generate a reparameterized P-spline base}
 \usage{
-sm(x, K = min(length(unique(x)), 20), spline.degree = 3, diff.ord = 2,
-  rankZ = 0.999, centerBase = T, centerx = x, decomposition = c("ortho",
-  "MM", "asIs"), tol = 1e-10)
+sm(x, K = min(length(unique(x)), 20), spline.degree = 3,
+  diff.ord = 2, rankZ = 0.999, centerBase = T, centerx = x,
+  decomposition = c("ortho", "MM", "asIs"), tol = 1e-10)
 }
 \arguments{
 \item{x}{covariate}
