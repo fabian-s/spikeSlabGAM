@@ -1,7 +1,7 @@
 #' @include utils.R
 {}
 
-#for R CMD CHECK
+# for R CMD CHECK
 utils::globalVariables(c("nc", "xu"))
 
 #' Generate a reparameterized P-spline base
@@ -45,20 +45,24 @@ utils::globalVariables(c("nc", "xu"))
 #' @importFrom MASS ginv
 #' @export
 sm <- function(x,
-  K = min(length(unique(x)), 20),
-  spline.degree = 3, diff.ord = 2, rankZ =.999,
-  centerBase = T, centerx = x, decomposition = c("ortho","MM", "asIs"),
-  tol = 1e-10) {
-  base <- psBasis(x = x, K = K, spline.degree = spline.degree,
-    diff.ord = diff.ord)
-  if(centerBase) {
-    base$X <- centerBase(base$X, x = centerx, degree = diff.ord-1)
+               K = min(length(unique(x)), 20),
+               spline.degree = 3, diff.ord = 2, rankZ = .999,
+               centerBase = T, centerx = x, decomposition = c("ortho", "MM", "asIs"),
+               tol = 1e-10) {
+  base <- psBasis(
+    x = x, K = K, spline.degree = spline.degree,
+    diff.ord = diff.ord
+  )
+  if (centerBase) {
+    base$X <- centerBase(base$X, x = centerx, degree = diff.ord - 1)
   }
 
   B <- switch(match.arg(decomposition),
     ortho = {
-      tmp <- orthoDesign(B = base$X, Cov = ginv(base$P), tol = tol,
-        rankZ = rankZ)
+      tmp <- orthoDesign(
+        B = base$X, Cov = ginv(base$P), tol = tol,
+        rankZ = rankZ
+      )
       scaleMat(tmp)
     },
     MM = {
@@ -68,25 +72,28 @@ sm <- function(x,
     asIs = {
       tmp <- base$X
       scaleMat(tmp)
-    })
-  label <- paste("sm(", deparse(match.call()$x),")", sep ="")
-  colnames(B) <- paste(label,".", 1:NCOL(B), sep ="")
+    }
+  )
+  label <- paste("sm(", deparse(match.call()$x), ")", sep = "")
+  colnames(B) <- paste(label, ".", 1:NCOL(B), sep = "")
 
   rng <- range(x)
   nd <- !duplicated(x)
-  Bu <- B[nd,]
+  Bu <- B[nd, ]
   xu <- x[nd]
   makeNewX <- function(xnew) {
-    if(any(xnew<rng[1] | xnew>rng[2])) {
-      warning("predictions outside fitted range for ", label,".")
+    if (any(xnew < rng[1] | xnew > rng[2])) {
+      warning("predictions outside fitted range for ", label, ".")
     }
     X <- apply(Bu, 2, function(y) {
-      splinefun(x = xu, y = y, 'natural')(xnew)
+      splinefun(x = xu, y = y, "natural")(xnew)
     })
     return(X)
   }
-  makeNewX <- customFunctionEnv(makeNewX, xu = xu, Bu = Bu, rng = rng,
-    label = label)
+  makeNewX <- customFunctionEnv(makeNewX,
+    xu = xu, Bu = Bu, rng = rng,
+    label = label
+  )
   ret <- structure(B, label = label, predvars = list(makeNewX = makeNewX))
   return(ret)
 }
@@ -99,13 +106,13 @@ sm <- function(x,
 #' @export
 lin <- function(x, order = 1) {
   B <- poly(x, degree = order)
-  label <- paste("lin(", match.call()$x,")", sep ="")
-  colnames(B) <- if(order>1) {
-    paste(label,".", 1:NCOL(B), sep ="")
+  label <- paste("lin(", match.call()$x, ")", sep = "")
+  colnames(B) <- if (order > 1) {
+    paste(label, ".", 1:NCOL(B), sep = "")
   } else {
     label
   }
-  scale <- 1/(2 * frob(B))
+  scale <- 1 / (2 * frob(B))
   B <- scale * B
 
   rng <- range(x)
@@ -113,13 +120,15 @@ lin <- function(x, order = 1) {
   nd <- !duplicated(x)
   xu <- x[nd]
   makeNewX <- function(xnew) {
-    if(any(xnew < rng[1] | xnew > rng[2])) {
-      warning("predictions outside fitted range for ", label,".")
+    if (any(xnew < rng[1] | xnew > rng[2])) {
+      warning("predictions outside fitted range for ", label, ".")
     }
     t(scale * t(poly(xnew, degree = order, coefs = coefs)))
   }
-  makeNewX <- customFunctionEnv(makeNewX, coefs = coefs, scale = scale,
-    order = order, rng = rng, label = label, xu = xu)
+  makeNewX <- customFunctionEnv(makeNewX,
+    coefs = coefs, scale = scale,
+    order = order, rng = rng, label = label, xu = xu
+  )
 
   ret <- structure(B, label = label, predvars = list(makeNewX = makeNewX))
   return(ret)
@@ -133,27 +142,29 @@ lin <- function(x, order = 1) {
 #' @author Fabian Scheipl
 #' @return design matrix for a factor
 #' @export
-fct <- function(x, contr ="contr.sum") {
+fct <- function(x, contr = "contr.sum") {
   x <- factor(x, exclude = NULL)
   contrasts(x) <- do.call(contr, list(n = nlevels(x)))
-  B <- model.matrix(~x)[,-1, drop = FALSE]
-  scale <- 1/(2 * frob(B))
+  B <- model.matrix(~x)[, -1, drop = FALSE]
+  scale <- 1 / (2 * frob(B))
   B <- scale * B
 
-  label <- paste("fct(", match.call()$x,")", sep ="")
-  colnames(B) <- paste(label,".", 1:NCOL(B), sep ="")
+  label <- paste("fct(", match.call()$x, ")", sep = "")
+  colnames(B) <- paste(label, ".", 1:NCOL(B), sep = "")
 
   lvls <- levels(x)
   xu <- unique(x)
   makeNewX <- function(xnew) {
-    if(!all(xnew %in% lvls)) stop("unknown levels for ", label, ".")
-    if(!is.factor(xnew)) xnew <- factor(xnew, levels = lvls)
+    if (!all(xnew %in% lvls)) stop("unknown levels for ", label, ".")
+    if (!is.factor(xnew)) xnew <- factor(xnew, levels = lvls)
     contrasts(xnew) <- do.call(contr, list(n = length(lvls)))
-    X <- scale * model.matrix(~xnew)[,-1, drop = FALSE]
+    X <- scale * model.matrix(~xnew)[, -1, drop = FALSE]
     return(X)
   }
-  makeNewX <- customFunctionEnv(makeNewX, lvls = lvls, contr = contr,
-    scale = scale, label = label, xu = xu)
+  makeNewX <- customFunctionEnv(makeNewX,
+    lvls = lvls, contr = contr,
+    scale = scale, label = label, xu = xu
+  )
   return(structure(B, label = label, predvars = list(makeNewX = makeNewX)))
 }
 
@@ -168,31 +179,35 @@ fct <- function(x, contr ="contr.sum") {
 rnd <- function(x, C = NULL) {
   x <- factor(x, exclude = NULL)
   contrasts(x) <- contr.treatment(n = nlevels(x))
-  B <- model.matrix(~ -1 + x)[, , drop = FALSE]
-  if(!is.null(C)) {
+  B <- model.matrix(~-1 + x)[, , drop = FALSE]
+  if (!is.null(C)) {
     cC <- chol(C)
     B <- B %*% t(cC)
-  } else cC <- NULL
-  scale <- 1/(2 * frob(B))
+  } else {
+    cC <- NULL
+  }
+  scale <- 1 / (2 * frob(B))
   B <- scale * B
 
-  label <- paste("rnd(", match.call()$x,")", sep ="")
-  colnames(B) <- paste(label,".", 1:NCOL(B), sep ="")
+  label <- paste("rnd(", match.call()$x, ")", sep = "")
+  colnames(B) <- paste(label, ".", 1:NCOL(B), sep = "")
 
   lvls <- levels(x)
   nd <- !duplicated(x)
-  lvlMap <- data.frame(lvl = x[nd], B[nd,])
+  lvlMap <- data.frame(lvl = x[nd], B[nd, ])
   makeNewX <- function(xnew) {
-    if(!all(xnew %in% lvls)) stop("unknown levels for random effect ", label, ".")
-    B <- model.matrix(~ -1 + xnew)[,, drop = FALSE]
-    if(!is.null(cC)) {
+    if (!all(xnew %in% lvls)) stop("unknown levels for random effect ", label, ".")
+    B <- model.matrix(~-1 + xnew)[, , drop = FALSE]
+    if (!is.null(cC)) {
       B <- B %*% t(cC)
     }
     B <- scale * B
     return(B)
   }
-  makeNewX <- customFunctionEnv(makeNewX, lvls = lvls, cC = cC, xu = lvlMap$lvl,
-    scale = scale, label = label)
+  makeNewX <- customFunctionEnv(makeNewX,
+    lvls = lvls, cC = cC, xu = lvlMap$lvl,
+    scale = scale, label = label
+  )
   return(structure(B, label = label, predvars = list(makeNewX = makeNewX)))
 }
 
@@ -206,15 +221,15 @@ rnd <- function(x, C = NULL) {
 #' @return a design matrix for x
 #' @export
 u <- function(x, ...) {
-  B <- model.matrix(~ x, ...)[, -1, drop = FALSE]
-  label <- paste("u(", match.call()$x,")", sep ="")
-  colnames(B) <- if(NCOL(B)>1) {
-    paste(label,".", 1:NCOL(B), sep ="")
+  B <- model.matrix(~x, ...)[, -1, drop = FALSE]
+  label <- paste("u(", match.call()$x, ")", sep = "")
+  colnames(B) <- if (NCOL(B) > 1) {
+    paste(label, ".", 1:NCOL(B), sep = "")
   } else {
     label
   }
   isFctr <- is.factor(x)
-  rng <- if(!isFctr) {
+  rng <- if (!isFctr) {
     range(x)
   } else {
     levels(x)
@@ -222,18 +237,21 @@ u <- function(x, ...) {
 
   xu <- unique(x)
   makeNewX <- function(xnew) {
-    if(isFctr) {
-      if(!all(xnew %in% rng)) stop("unknown levels for ", label, ".")
+    if (isFctr) {
+      if (!all(xnew %in% rng)) stop("unknown levels for ", label, ".")
       xnew <- factor(xnew, levels = rng)
     } else {
-      if(any(xnew<rng[1] | xnew>rng[2]))
+      if (any(xnew < rng[1] | xnew > rng[2])) {
         warning("predictions outside fitted range for ", label, ".")
+      }
     }
 
-    return(model.matrix(~ xnew)[, -1, drop = FALSE])
+    return(model.matrix(~xnew)[, -1, drop = FALSE])
   }
-  makeNewX <- customFunctionEnv(makeNewX, rng = rng, isFctr = isFctr,
-    label = label, xu = xu)
+  makeNewX <- customFunctionEnv(makeNewX,
+    rng = rng, isFctr = isFctr,
+    label = label, xu = xu
+  )
   return(structure(B, label = label, predvars = list(makeNewX = makeNewX)))
 }
 #' Generate design for a 2-D Gaussian Markov Random Field
@@ -270,13 +288,14 @@ u <- function(x, ...) {
 #'   Statistics}, \bold{50}(2):201--220.
 #' @export
 mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
-  rankZ =.995) {
+                rankZ = .995) {
+  stopifnot(
+    is.factor(x), all(N >= 0), isSymmetric(N), nlevels(x) == ncol(N),
+    colnames(N) == rownames(N),
+    all(levels(x) == colnames(N))
+  )
 
-  stopifnot(is.factor(x), all(N >= 0), isSymmetric(N), nlevels(x) == ncol(N),
-    colnames(N)== rownames(N),
-    all(levels(x) == colnames(N)))
-
-  label <- paste("mrf(", match.call()$x,")", sep ="")
+  label <- paste("mrf(", match.call()$x, ")", sep = "")
 
   n <- nlevels(x)
   contrasts(x) <- contr.treatment(n = n)
@@ -285,13 +304,15 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
   K <- -N
   diag(K) <- 0
   diag(K) <- -rowSums(K)
-  if(any(diag(K)== 0)) {
-    warning("region(s) without neighbors found in ", label,
-      ", with names: ", paste(colnames(N)[which(diag(K)<1)], collapse =", "),".")
-    diag(K)[diag(K)== 0] <- .1
+  if (any(diag(K) == 0)) {
+    warning(
+      "region(s) without neighbors found in ", label,
+      ", with names: ", paste(colnames(N)[which(diag(K) < 1)], collapse = ", "), "."
+    )
+    diag(K)[diag(K) == 0] <- .1
   }
 
-  B <- model.matrix(~ -1 + x)
+  B <- model.matrix(~-1 + x)
 
   B <- switch(match.arg(decomposition),
     ortho = {
@@ -301,27 +322,30 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
     MM = {
       tmp <- mmDesign(B = B, K = K, tol = tol, rankZ = rankZ)
       scaleMat(tmp)
-    })
+    }
+  )
 
-  colnames(B) <- paste(label, ".", 1:NCOL(B), sep ="")
+  colnames(B) <- paste(label, ".", 1:NCOL(B), sep = "")
 
   lvls <- levels(x)
   nd <- !duplicated(x)
-  lvlMap <- data.frame(lvl = x[nd], B[nd,])
+  lvlMap <- data.frame(lvl = x[nd], B[nd, ])
   attributes(lvlMap$lvl)$contrasts <- NULL
   makeNewX <- function(xnew) {
-    if(!all(xnew %in% lvls)) stop("unknown regions for ", label,".")
+    if (!all(xnew %in% lvls)) stop("unknown regions for ", label, ".")
     B <- matrix(0, nrow = length(xnew), ncol = nc)
-    for(i in 1:length(lvls)) {
+    for (i in 1:length(lvls)) {
       ind <- which(xnew == lvlMap$lvl[i])
-      if(length(ind)) {
+      if (length(ind)) {
         B[ind, ] <- rep(as.numeric(lvlMap[i, -1]), each = length(ind))
       }
     }
     return(B)
   }
-  makeNewX <- customFunctionEnv(makeNewX, lvls = lvls, lvlMap = lvlMap,
-    xu = lvlMap$lvl, label = label, nc = NCOL(B))
+  makeNewX <- customFunctionEnv(makeNewX,
+    lvls = lvls, lvlMap = lvlMap,
+    xu = lvlMap$lvl, label = label, nc = NCOL(B)
+  )
   return(structure(B, label = label, predvars = list(makeNewX = makeNewX)))
 }
 
@@ -378,68 +402,79 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
 #' @importFrom cluster clara
 #' @importFrom akima interpp
 #' @export
-srf <- function(coords, K = min(50, sum(nd)/4), rankZ =.999, centerBase = TRUE,
-  baseType = c("B", "thinPlate"), decomposition = c("ortho","MM", "asIs"),
-  tol = 1e-10) {
-
-  stopifnot(is.data.frame(coords), ncol(coords)== 2)
+srf <- function(coords, K = min(50, sum(nd) / 4), rankZ = .999, centerBase = TRUE,
+                baseType = c("B", "thinPlate"), decomposition = c("ortho", "MM", "asIs"),
+                tol = 1e-10) {
+  stopifnot(is.data.frame(coords), ncol(coords) == 2)
 
   nd <- !duplicated(coords)
   baseType <- match.arg(baseType)
 
-  if(baseType == "thinPlate") {
-    if(length(K) > 1) {
+  if (baseType == "thinPlate") {
+    if (length(K) > 1) {
       warning("Only using first element of K for thin plate basis.")
     }
     base <- tp2DBasis(coords, K[1], nd)
   }
-  if(baseType == "B") {
-    if(length(K)== 1) K <- c(floor(sqrt(K)), ceiling(sqrt(K)))
+  if (baseType == "B") {
+    if (length(K) == 1) K <- c(floor(sqrt(K)), ceiling(sqrt(K)))
     B1 <- psBasis(coords[, 1], K = K[1], spline.degree = 3, diff.ord = 0)$X
     B2 <- psBasis(coords[, 2], K = K[2], spline.degree = 3, diff.ord = 0)$X
-    base <- list(X = NULL, P = diag(ncol(B1)* ncol(B2)))
+    base <- list(X = NULL, P = diag(ncol(B1) * ncol(B2)))
     base$X <- matrix(apply(B1, 2, function(x) {
       x * B2
     }),
-      nrow = nrow(B1), ncol = NCOL(B1)* NCOL(B2))
+    nrow = nrow(B1), ncol = NCOL(B1) * NCOL(B2)
+    )
   }
-  if(centerBase) {
-    base$X <- centerBase(base$X, x = coords[1,], degree = 0)
+  if (centerBase) {
+    base$X <- centerBase(base$X, x = coords[1, ], degree = 0)
   }
 
 
   B <- switch(match.arg(decomposition),
     ortho = {
-      tmp <- orthoDesign(B = base$X, Cov = ginv(base$P), tol = tol,
-        rankZ = rankZ)
+      tmp <- orthoDesign(
+        B = base$X, Cov = ginv(base$P), tol = tol,
+        rankZ = rankZ
+      )
       scaleMat(tmp)
     },
     MM = {
       tmp <- mmDesign(B = base$X, K = base$P, tol = tol, rankZ = rankZ)
       scaleMat(tmp)
     },
-    asIs = base$X)
-  label <- paste("srf(", deparse(match.call()$coords),")", sep ="")
-  colnames(B) <- paste(label,".", 1:NCOL(B), sep ="")
+    asIs = base$X
+  )
+  label <- paste("srf(", deparse(match.call()$coords), ")", sep = "")
+  colnames(B) <- paste(label, ".", 1:NCOL(B), sep = "")
 
-  rng <- (coords[nd,])[chull(coords[nd,]),]
-  Bu <- B[nd,]
-  coordsu <- coords[nd,]
+  rng <- (coords[nd, ])[chull(coords[nd, ]), ]
+  Bu <- B[nd, ]
+  coordsu <- coords[nd, ]
   makeNewX <- function(xnew) {
-    if(any(!insidePoly(xnew, rng))) {
-      warning("Prediction locations outside of convex hull of original observations for ",
-        label, ".")
+    if (any(!insidePoly(xnew, rng))) {
+      warning(
+        "Prediction locations outside of convex hull of original observations for ",
+        label, "."
+      )
     }
 
     X <- apply(Bu, 2, function(b) {
-      interpp(x = xu[, 1], y = xu[, 2], z = b, xo = xnew[, 1], yo = xnew[, 2],
-        extrap = FALSE, linear = FALSE)$z
+      interpp(
+        x = xu[, 1], y = xu[, 2], z = b, xo = xnew[, 1], yo = xnew[, 2],
+        extrap = FALSE, linear = FALSE
+      )$z
     })
     return(X)
   }
-  makeNewX <- customFunctionEnv(makeNewX, xu = coordsu,  Bu = Bu, rng = rng,
-    label = label, insidePoly = insidePoly)
-  ret <- structure(B, label = label, rng = rng,
-    predvars = list(makeNewX = makeNewX))
+  makeNewX <- customFunctionEnv(makeNewX,
+    xu = coordsu, Bu = Bu, rng = rng,
+    label = label, insidePoly = insidePoly
+  )
+  ret <- structure(B,
+    label = label, rng = rng,
+    predvars = list(makeNewX = makeNewX)
+  )
   return(ret)
 }

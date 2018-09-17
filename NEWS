@@ -1,7 +1,7 @@
 spikeSlabGAM 1.1-14 (2018-09-17) ----------------------------------------
 
 * major bug fix to correct computation of DIC and fitted values
-* update for keeping up with CRAN checks
+* update for keeping up with CRAN checks: registerRoutines
 
 spikeSlabGAM 1.1-13 (2018-05-15) ----------------------------------------
 

@@ -134,32 +134,30 @@
 #' plot(b)
 #' }
 spikeSlabGAM <- function(formula,
-  data,
-  ...,
-  family ="gaussian",
-  hyperparameters = list(),    # prior parameters
-  model = list(),              # model structure
-  mcmc = list(),               # Gibbs sampling options
-  start = list()               # start values for the Gibbs sampler
-)
-{
-  #require(RegularBayes)
+                         data,
+                         ...,
+                         family = "gaussian",
+                         hyperparameters = list(), # prior parameters
+                         model = list(), # model structure
+                         mcmc = list(), # Gibbs sampling options
+                         start = list() # start values for the Gibbs sampler
+) {
+  # require(RegularBayes)
   D <- ssGAMDesign(formula = formula, data = data, ...)
   model$groupIndicators <- D$groupIndicators
   model$H <- D$H
-  res <- spikeAndSlab(family = family,
-    y = D$response,           # response (n x 1)
-    X = D$Design,             # design matrix with covariates (n x q)
-    hyperparameters = hyperparameters,    # prior parameters
-    model = model,              # model structure
-    mcmc = mcmc,      	      # Gibbs sampling options
-    start = start)              # start values for the Gibbs sampler
+  res <- spikeAndSlab(
+    family = family,
+    y = D$response, # response (n x 1)
+    X = D$Design, # design matrix with covariates (n x q)
+    hyperparameters = hyperparameters, # prior parameters
+    model = model, # model structure
+    mcmc = mcmc, # Gibbs sampling options
+    start = start
+  ) # start values for the Gibbs sampler
   res$formula <- D$formula
   res$data <- data
   res$predvars <- D$predvars
   class(res) <- c("spikeSlabGAM")
   return(res)
 }
-
-
-

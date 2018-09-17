@@ -1,6 +1,6 @@
 Package: spikeSlabGAM
 Version: 1.1-14
-Date: 2018-05-16
+Date: 2018-09-17
 Title: Bayesian Variable Selection and Model Choice for
     Generalized Additive Mixed Models
 Authors@R: c(person("Fabian", "Scheipl", role = c("aut", "cre"),

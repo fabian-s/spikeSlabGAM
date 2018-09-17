@@ -20,16 +20,18 @@
 #' @author Fabian Scheipl
 #' @examples
 #' #see help for spikeSlabGAM
-ssGAM2Bugs <- function(m, rm = c("alpha", "ksi","gamma")) {
-  stopifnot(class(m)=="spikeSlabGAM")
+ssGAM2Bugs <- function(m, rm = c("alpha", "ksi", "gamma")) {
+  stopifnot(class(m) == "spikeSlabGAM")
 
   list2array <- function(x) {
-    a <- array(0, dim = c(nrow(x[[1]]), length(x), ncol(x[[1]])),
-      dimnames = list(n.keep = NULL, n.chains = 1:length(x), colnames(x[[1]])))
-    for(i in 1:length(x)) a[, i,] <- x[[i]]
+    a <- array(0,
+      dim = c(nrow(x[[1]]), length(x), ncol(x[[1]])),
+      dimnames = list(n.keep = NULL, n.chains = 1:length(x), colnames(x[[1]]))
+    )
+    for (i in 1:length(x)) a[, i, ] <- x[[i]]
     return(a)
   }
-  smpls <- if(is.null(rm)) {
+  smpls <- if (is.null(rm)) {
     m$samples
   } else {
     m$samples[!(names(m$samples) %in% rm)]
@@ -37,24 +39,25 @@ ssGAM2Bugs <- function(m, rm = c("alpha", "ksi","gamma")) {
 
   arrs <- lapply(smpls, list2array)
 
-  #replace .digit at the end of a parameter name by [digit] so bugs recognizes
+  # replace .digit at the end of a parameter name by [digit] so bugs recognizes
   # the grouping of the parameters:
-  bugsnms <- gsub("\\[\\.", "\\[", gsub("(\\.[0-9]+$)","\\[\\1\\]",
-    unlist(sapply(arrs, function(x) dimnames(x)[[3]]))))
+  bugsnms <- gsub("\\[\\.", "\\[", gsub(
+    "(\\.[0-9]+$)", "\\[\\1\\]",
+    unlist(sapply(arrs, function(x) dimnames(x)[[3]]))
+  ))
 
-  arr <-  array(0, dim = c(dim(arrs[[1]])[1:2],
-    sum(sapply(arrs, function(x) dim(x)[3]))),
-    dimnames = list(n.keep = NULL, n.chains = 1:m$mcmc$nChains, bugsnms))
+  arr <- array(0,
+    dim = c(
+      dim(arrs[[1]])[1:2],
+      sum(sapply(arrs, function(x) dim(x)[3]))
+    ),
+    dimnames = list(n.keep = NULL, n.chains = 1:m$mcmc$nChains, bugsnms)
+  )
   start <- 1
-  for(i in 1:length(arrs)) {
-    arr[,, start:(start + dim(arrs[[i]])[3]-1)] <- arrs[[i]]
+  for (i in 1:length(arrs)) {
+    arr[, , start:(start + dim(arrs[[i]])[3] - 1)] <- arrs[[i]]
     start <- start + dim(arrs[[i]])[3]
   }
   b <- as.bugs.array(arr, n.burnin = m$mcmc$burnin, n.thin = m$mcmc$thin)
   return(b)
 }
-
-
-
-
-
