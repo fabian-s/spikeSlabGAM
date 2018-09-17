@@ -120,7 +120,7 @@
 #' @importFrom coda mcmc
 #' @importFrom coda mcmc.list
 #' @importFrom mvtnorm rmvnorm
-#' @useDynLib spikeSlabGAM sampler
+#' @useDynLib spikeSlabGAM sampler, .registration = TRUE
 spikeAndSlab <- function(
   y,    # response (n x 1)
   X,    # design matrix with covariates (n x q)
