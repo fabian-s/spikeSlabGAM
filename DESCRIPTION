@@ -1,12 +1,11 @@
 Package: spikeSlabGAM
-Version: 1.1-13
+Version: 1.1-14
 Date: 2018-05-16
 Title: Bayesian Variable Selection and Model Choice for
     Generalized Additive Mixed Models
-Author: Fabian Scheipl
-    <fabian.scheipl@stat.uni-muenchen.de>
-Maintainer: Fabian Scheipl
-    <fabian.scheipl@stat.uni-muenchen.de>
+Authors@R: c(person("Fabian", "Scheipl", role = c("aut", "cre"),
+                     email = "fabian.scheipl@stat.uni-muenchen.de"),
+              person("Bettina", "Gruen", role = "ctb"))
 Depends:
     R (>= 2.15.1)
 Imports:
