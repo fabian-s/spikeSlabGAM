@@ -803,6 +803,7 @@ spikeAndSlab <- function(
     })
   }
 
+  ret$X <- ret$X[, model$reverseOrder]
 
   ret$fitted <- cbind(eta = ret$X %*% ret$postMeans$beta)
   ret$fitted <- cbind(eta = ret$fitted, mu = switch(familystr,
@@ -810,21 +811,18 @@ spikeAndSlab <- function(
     binomial = plogis(ret$fitted),
     poisson =  exp(ret$fitted)))
 
-
   ret$DIC <- {
     Dbar <- -2 * mean(unlist(ret$samples$logLik), na.rm = T)
     Dhat <- -2 * switch(familystr,
-      gaussian = sum(dnorm(y - X %*% ret$postMeans$beta, mean = 0,
+      gaussian = sum(dnorm(y - ret$X %*% ret$postMeans$beta, mean = 0,
         sd = sqrt(ret$postMeans$sigma2), log = T)),
       binomial = sum(dbinom(y * model$scale, model$scale,
-        plogis(X %*% ret$postMeans$beta), log = T)),
-      poisson =  sum(dpois(y, exp(X %*% ret$postMeans$beta), log = T)))
+        plogis(ret$X %*% ret$postMeans$beta), log = T)),
+      poisson =  sum(dpois(y, exp(ret$X %*% ret$postMeans$beta), log = T)))
     pD <- Dbar - Dhat
     DIC <- pD + Dbar
     c(DIC = DIC, pD = pD, Dbar = Dbar, Dhat = Dhat)
   }
-
-  ret$X <- ret$X[, model$reverseOrder]
 
   if(mcmc$reduceRet) {
     ret$data <- NULL
