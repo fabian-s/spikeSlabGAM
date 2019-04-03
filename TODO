@@ -1,0 +1,44 @@
+hi prio, little wrk:
+- C: organize .h/.c -files like you're supposed to
+- quantile based knots for P-splines
+- discard chains that got stuck (?)
+- use rlecuyer for parallel RNG
+- plotting for fct:num interaction fails if original data frame has fct's that are saved as numerics...
+ since geom_rug uses the original data and then the check in ScaleDiscrete fails ::
+ convert data frame used for plotting purposes accordingly
+- use proper dependence on irlba now that it's on CRAN
+- improve u() to use proper formula terms, multiple covs (see Hairong Gu mail 1.10.15)
+
+hi prio, much wrk:
+- vignette:  add more examples on popular datasets?
+- clean up weights/scales confusion for gaussian to allow for weighted regression
+- plot mrf with igraph/Rgraphviz? can we do it in ggplot2?
+- implement semiparametric terms that are "always included" (i.e. setting w=1 for some terms)
+- intercept in every update block / update intercept with each block
+
+lo prio, little wrk:
+- restartChains
+- implement missing value handling
+- cyclic splines
+
+lo prio, much wrk:
+- hierarchical constraints on gamma:
+	sample gamma with constraints (ising prior?)?
+	allow gammas of main effects to influence interactions as well?  (what if main effect has many interactions - dimensionality problem i.e. same gamma applies for >5 alphas?)
+- predict for mrfs in regions w/o observations in original data
+- center higher order interactions not only against main effects but also against lower order interactions?
+- don't update iwls weights in every iteration?
+- improve plots for lin (just plot estimated beta, not eta) and its interactions
+
+eventually:
+- redo ssGAMdesign completely formula/parser based (NO fucking grep)
+- use Rcpp for updaters
+- sparse matrix updates for rnd/mrf ?
+- do updates cycling over terms instead of over parameter blocks?
+	(i.e. update (gamma_1, tau_1, beta_1)-->...-->(gamma_p, tau_p, beta_p) instead of (gamma_1,..,p)-->(tau_1,..,p)-->(beta_1,..,p) )
+	if we do this, use compressed designs with unique values only as in bayesX/mboost?
+	will probably mean more autocorr since we take smaller steps on the posterior
+- improve mixing by switching parameter blocks between chains?
+	(i.e. every 500 iterations, exchange parts of parameter vector between chains...)
+- implement http://arxiv.org/pdf/1506.04778v1.pdf for p >> n (with compressed designs like mboost/BayesX )?
+
