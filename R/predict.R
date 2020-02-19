@@ -15,7 +15,7 @@
 getPosteriorTerm <- function(label = NULL, model, betaInd = NULL) {
   stopifnot(
     any(c(!is.null(label), !is.null(betaInd))),
-    class(model) == "spikeSlabGAM"
+    inherits(model, "spikeSlabGAM")
   )
   if (is.null(betaInd)) {
     betaInd <- which(model$model$groupIndicatorsOrig == label)
@@ -97,7 +97,7 @@ evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
       # B_loRank %*% coef_loRank) --> get coefs for original design matrix B via
       # qr(B) : R beta = Q' fhat
       tmp <- try(qr.coef(model$predvars[[label]]$qrB, fhat), silent = TRUE)
-      if (class(tmp) == "try-error") {
+      if (inherits(tmp, "try-error")) {
         tmp <- (ginv(qr.R(model$predvars[[label]]$qrB)) %*%
           t(qr.Q(model$predvars[[label]]$qrB))) %*% fhat
         ## FIXME: use backsolve? or do we need ginv for stability

@@ -191,7 +191,7 @@ orthoDesign <- function(B = NULL, Cov = diag(NCOL(B)),
     if (is.null(rank)) rank <- qr(C)$rank
     try(irlba(C, rank, rank))
   }
-  if (class(eC) == "try-error") {
+  if (inherits(eC, "try-error")) {
     sv <- svd(C, rank, 0)
     eC <- list(values = sv$d, vectors = sv$u)
   }

@@ -217,7 +217,7 @@ ssGAMDesign <- function(formula, data,
           sv <- svd(B, nv = 0)
           eC <- list(vectors = sv$u, values = sv$d)
         }
-        if (class(eC) == "try-error") {
+        if (inherits(eC, "try-error")) {
           sv <- svd(B, nv = 0)
           eC <- list(vectors = sv$u, values = sv$d)
         }
