@@ -815,9 +815,7 @@ print(modelTable)
 \end{small}
 \caption{Excerpt of the second part of the output returned by \texttt{summary.spikeSlabGAM}, which tabulates the
 configurations of $P(\gamma_j=1)>.5$ with highest posterior probability. In the example,
-the posterior is very concentrated in the true model without \code{lin1}, which has a posterior
-probability of \Sexpr{round(summ[[1]]["111110010100000000000000000010010000"],2)}. The correct model
-that additionally includes \code{lin1} (column \Sexpr{which(names(summ[[1]])=="111111010100000000000000000010010000")})
+the correct model (column \Sexpr{which(names(summ[[1]])=="111111010100000000000000000010010000")})
 has a posterior probability of about \Sexpr{round(summ[[1]]["111111010100000000000000000010010000"],3)}.}
 \label{sum12}
 \end{figure}
@@ -926,7 +924,7 @@ pSm1Sep <-  plot(m, labels=c("lin(sm1)", "sm(sm1)"), cumulative=FALSE,
 # JSS version only:        ggElems=list(list(ylab("$\\eta$"))))
 @
 <<plotm1sm1, echo=FALSE, fig=TRUE, width=6, height=2, cache=TRUE, external=TRUE>>=
-trueFsm1 <-data.frame(truth=fsm1-mean(fsm1), sm1=sm1)
+trueFsm1 <- data.frame(truth=fsm1-mean(fsm1), sm1=sm1)
 pSm1Cum <- pSm11[[1]] + geom_line(data=trueFsm1, aes(x=sm1, y=truth), lty=2)  +
   theme(axis.text.x = element_text(size=9),
         axis.text.y = element_text(size=9, hjust=1))# + ylab("$\\eta$")
