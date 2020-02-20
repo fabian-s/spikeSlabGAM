@@ -6,4 +6,5 @@ README.md
 .gitignore
 src/.gitignore
 vignettes/.gitignore
+vignettes/cache
 TODO

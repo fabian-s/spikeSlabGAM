@@ -7,3 +7,6 @@ UsingSpikeSlabGAM-plotm1sm2fprep.pdf
 UsingSpikeSlabGAM.bbl
 UsingSpikeSlabGAM.log
 UsingSpikeSlabGAM.synctex.gz
+*.html
+*.R
+/cache/*.*

@@ -24,7 +24,9 @@ Imports:
 Suggests:
     mboost,
     mlbench,
-    gtable
+    gtable,
+    knitr,
+    rmarkdown
 Description: Bayesian variable selection, model choice, and regularized
     estimation for (spatial) generalized additive mixed regression models
     via stochastic search variable selection with spike-and-slab priors.
@@ -41,3 +43,4 @@ Collate:
     'predict.R'
     'summary.R'
 RoxygenNote: 6.1.0
+VignetteBuilder: knitr
