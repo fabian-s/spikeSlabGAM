@@ -289,7 +289,9 @@ spikeAndSlab <- function(
   model$d <- table(model$groupIndicators)
   model$nGroups <- length(model$d) # p length(alpha)
   model$G <- if (nlevels(model$groupIndicators) > 1) {
-    model.matrix(~0 + model$groupIndicators, contrasts.arg = list(contr.treatment))
+    with(model, 
+         model.matrix(~0 + groupIndicators, 
+                      contrasts.arg = list(groupIndicators = contr.treatment)))
   } else {
     matrix(1, nrow = length(model$groupIndicators), ncol = 1)
   }
