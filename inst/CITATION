@@ -11,7 +11,7 @@
  			  volume = "43",
  			  number = "14",
  			  pages = "1--24",
- 			  url = "http://www.jstatsoft.org/v43/i14/",
+ 			  doi = "10.18637/jss.v043.i14",
               textVersion = paste("Fabian Scheipl (2011).",
                "spikeSlabGAM: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in R.",
                "Journal of Statistical Software, 43(14), 1--24."),
