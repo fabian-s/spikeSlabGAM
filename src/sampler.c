@@ -14,6 +14,7 @@
  *
  *
  * ****************************************** */
+#define USE_FC_LEN_T
 #include "utils.h"
 #include "updaters.h"
 
@@ -101,7 +102,7 @@ SEXP sampler(
 	penAlphaSq	= Calloc(*pPen, double);
 	for(int i=*p-*pPen; i<*p; i++) penAlphaSq[i- *p + *pPen] = R_pow(alpha[i], 2.0);
 	alphaLong = Calloc(*q, double);
-	F77_CALL(dgemm)("N","N", q, &oneInt, p, one, G, q, alpha, p, zero, alphaLong, q);
+	F77_CALL(dgemm)("N","N", q, &oneInt, p, one, G, q, alpha, p, zero, alphaLong, q FCONE FCONE);
 	varAlpha = Calloc(*p, double);
 	for(int i=0; i<startPen; i++) varAlpha[i] = *inf; /*unpenalized*/
 	for(int i=startPen; i<*p; i++) varAlpha[i] = tau2[i-startPen]*gamma[i-startPen]; /*penalized*/
@@ -129,13 +130,13 @@ SEXP sampler(
 	F77_CALL(dcopy)(n, offset, &oneInt, offsetKsi, &oneInt);
 	if(qKsiNoUpdate < *q){
 		if(qKsiNoUpdate > 0){
-			F77_CALL(dgemm)("N","N", n, &oneInt, &qKsiNoUpdate, one, X, n, alpha, &qKsiNoUpdate, one, offsetKsi, n);
+			F77_CALL(dgemm)("N","N", n, &oneInt, &qKsiNoUpdate, one, X, n, alpha, &qKsiNoUpdate, one, offsetKsi, n FCONE FCONE);
 		}
 	}
 
 	double	*eta, *resid, rss, *XAlpha, *XKsiUpdate, *etaOffset;
 	eta	= Calloc(*n, double);
-	F77_CALL(dgemm)("N","N", n, &oneInt, q, one, X, n, beta, q, zero, eta, n);
+	F77_CALL(dgemm)("N","N", n, &oneInt, q, one, X, n, beta, q, zero, eta, n FCONE FCONE);
 	resid = Calloc(*n, double);
 	rss = 0;
 	for(int i=0; i<*n; i++) {
@@ -261,7 +262,7 @@ SEXP sampler(
 		if(qKsiNoUpdate < *q){
 
 			//update alphaLong = G %*% alpha
-			F77_CALL(dgemm)("N","N", q, &oneInt, p, one, G, q, alpha, p, zero, alphaLong, q);
+			F77_CALL(dgemm)("N","N", q, &oneInt, p, one, G, q, alpha, p, zero, alphaLong, q FCONE FCONE);
 
 			//update design for ksi
 			updateXKsi(XKsiUpdate, X, alphaLong, q, &qKsiNoUpdate, n);
@@ -269,7 +270,7 @@ SEXP sampler(
 			//update offsetKsi
 			if(qKsiNoUpdate > 0){
 				F77_CALL(dcopy)(n, offset, &oneInt, offsetKsi, &oneInt);
-				F77_CALL(dgemm)("N","N", n, &oneInt, &qKsiNoUpdate, one, X, n, alpha, &qKsiNoUpdate, one, offsetKsi, n);
+				F77_CALL(dgemm)("N","N", n, &oneInt, &qKsiNoUpdate, one, X, n, alpha, &qKsiNoUpdate, one, offsetKsi, n FCONE FCONE);
 			}
 
 			for(j = 0; j < *qKsiUpdate; j++){
@@ -302,7 +303,7 @@ SEXP sampler(
 			updateXAlpha(XAlpha, X, G, ksi, q, qKsiUpdate, p, n);
 
 			//update alphaLong = G %*% alpha
-			F77_CALL(dgemm)("N","N", q, &oneInt, p, one, G, q, alpha, p, zero, alphaLong, q);
+			F77_CALL(dgemm)("N","N", q, &oneInt, p, one, G, q, alpha, p, zero, alphaLong, q FCONE FCONE);
 
 		} else {
 			F77_CALL(dcopy)(q, alpha, &oneInt, alphaLong, &oneInt);
@@ -323,7 +324,7 @@ SEXP sampler(
 		}
 
 		//update eta, eta+offset
-		F77_CALL(dgemm)("N", "N", n, &oneInt, q, one, X, n, beta, q, zero, eta, n);
+		F77_CALL(dgemm)("N", "N", n, &oneInt, q, one, X, n, beta, q, zero, eta, n FCONE FCONE);
 		for(int i=0; i<*n; i++) etaOffset[i] = eta[i] + offset[i];
 
 		//update sigma_eps

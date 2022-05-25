@@ -1,5 +1,9 @@
+#define USE_FC_LEN_T
 #include <stdlib.h> // for NULL
 #include <R_ext/Rdynload.h>
+#ifndef FCONE
+# define FCONE
+#endif
 
 /* FIXME:
    Check these declarations against the C/Fortran source code.

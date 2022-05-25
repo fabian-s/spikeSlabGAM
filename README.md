@@ -1,7 +1,9 @@
 `spikeSlabGAM`
 ===================
 
-[ ![](https://travis-ci.org/fabian-s/spikeSlabGAM.svg?branch=master) ](https://travis-ci.org/fabian-s/spikeSlabGAM)
+<!-- badges: start -->
+  [![R-CMD-check](https://github.com/fabian-s/spikeSlabGAM/workflows/R-CMD-check/badge.svg)](https://github.com/fabian-s/spikeSlabGAM/actions)
+  <!-- badges: end -->
 
 An R-package for Bayesian variable selection, model choice, and regularized estimation for (spatial) generalized additive mixed regression models via stochastic search variable selection with spike-and-slab priors.
 

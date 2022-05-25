@@ -4,10 +4,16 @@
 \alias{predict.spikeSlabGAM}
 \title{Obtain posterior predictive/credible intervals from a spike-and-slab model}
 \usage{
-\method{predict}{spikeSlabGAM}(object, newdata = NULL,
-  type = c("response", "link", "terms"), terms = NULL,
-  aggregate = mean, quantiles = NULL, addIntercept = is.null(terms),
-  ...)
+\method{predict}{spikeSlabGAM}(
+  object,
+  newdata = NULL,
+  type = c("response", "link", "terms"),
+  terms = NULL,
+  aggregate = mean,
+  quantiles = NULL,
+  addIntercept = is.null(terms),
+  ...
+)
 }
 \arguments{
 \item{object}{a \code{spikeSlabGAM} model}

@@ -17,7 +17,7 @@
 #' \code{options()$mc.cores} is unspecified, it is set to 2.
 #'
 #' Details for model specification: \describe{
-#' \item{\code{hyperparameters}}{\describe{\item{}{A list:}
+#' \item{\code{hyperparameters}}{\describe{
 #' \item{\code{w}}{hyperparameters for the \eqn{Beta}-prior for \eqn{w};
 #' defaults to \code{c(alphaW = 1, betaW = 1)}, i.e. a uniform distribution.}
 #' \item{\code{tau2}}{hyperparameters for the \eqn{\Gamma^{-1}}-prior of the
@@ -29,14 +29,15 @@
 #' response.} \item{\code{varKsi}}{variance for prior of \eqn{\xi}, defaults to
 #' 1} \item{\code{ksiDF}}{defaults to 0 for a gaussian prior for \eqn{\xi}, else
 #' induces a t-prior for \eqn{\xi}} with \code{ksiDF} degrees of freedom.}}
-#' \item{\code{model}}{\describe{\item{}{A list:}
+#' \item{\code{model}}{\describe{
 #' \item{\code{groupIndicators}}{a factor that maps the columns of X to the
 #' different model terms} \item{\code{H}}{a matrix containing the hierarchy of
 #' the penalized model terms} \item{\code{n}}{number of observations}
 #' \item{\code{q}}{length of \eqn{\beta}} \item{\code{scale}}{scale/weights of
 #' the response, defaults to \code{rep(1, n)}, use this to specify number of
 #' trials for binomial data} \item{\code{offset}}{defaults to \code{rep(0,
-#' n)}}}} \item{\code{mcmc}}{\describe{\item{}{A list:}
+#' n)}}}} 
+#' \item{\code{mcmc}}{\describe{
 #' \item{\code{nChains}}{how many parallel chains to run: defaults to 3}
 #' \item{\code{chainLength}}{how many samples should be generated per chain,
 #' defaults to 500} \item{\code{burnin}}{how many initial iterations should be
@@ -54,10 +55,10 @@
 #' rescaling s.t. each mean\eqn{(|\xi_g|) = 1},  2 means rescaling s.t. each
 #' max\eqn{(|\xi_g|) = 1}} \item{\code{modeSwitching}}{probability to do P-IWLS
 #' with the mode of the proposal set to the current value, which is useful if
-#' the chain gets stuck. Defaults to \eqn{0.05}. Increase if accceptance rates
+#' the chain gets stuck. Defaults to \eqn{0.05}. Increase this if accceptance rates
 #' are too low.} \item{\code{reduceRet}}{don't return data and samples for
 #' \eqn{\alpha, \xi, \tau^2}? defaults to FALSE}}}
-#' \item{\code{start}}{\describe{\item{}{A list:} \item{\code{beta}}{starting
+#' \item{\code{start}}{\describe{\item{\code{beta}}{starting
 #' values for \eqn{\beta}. Defaults to a modified approximate ridge-penalized ML
 #' estimate. See vignette for details on default specification.}
 #' \item{\code{gamma}}{starting values for \eqn{\gamma}. Defaults to a vector of

@@ -4,9 +4,17 @@
 \alias{sm}
 \title{Generate a reparameterized P-spline base}
 \usage{
-sm(x, K = min(length(unique(x)), 20), spline.degree = 3,
-  diff.ord = 2, rankZ = 0.999, centerBase = T, centerx = x,
-  decomposition = c("ortho", "MM", "asIs"), tol = 1e-10)
+sm(
+  x,
+  K = min(length(unique(x)), 20),
+  spline.degree = 3,
+  diff.ord = 2,
+  rankZ = 0.999,
+  centerBase = T,
+  centerx = x,
+  decomposition = c("ortho", "MM", "asIs"),
+  tol = 1e-10
+)
 }
 \arguments{
 \item{x}{covariate}
@@ -55,7 +63,7 @@ influence of \code{x} and centers the resulting function estimates s.t
 \references{
 Kneib, T. (2006). Mixed model based inference in structured
   additive regression. Dr. Hut.
-  \url{http://edoc.ub.uni-muenchen.de/archive/00005011/}
+  \url{https://edoc.ub.uni-muenchen.de/archive/00005011/}
 }
 \author{
 Fabian Scheipl

@@ -8,3 +8,4 @@ src/.gitignore
 vignettes/.gitignore
 vignettes/cache
 TODO
+^\.github$

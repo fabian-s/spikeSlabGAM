@@ -82,6 +82,7 @@ clrs <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33",
           "#A65628", "#F781BF", "#999999")
 knitr::opts_chunk$set(cache = TRUE)
 @
+
 <<loadLibs, echo=FALSE, results='hide'>>=
 library("spikeSlabGAM")
 library("mboost")
@@ -89,13 +90,14 @@ library("ggplot2")
 library("gtable")
 @
 
-\title{\pkg{spikeSlabGAM}: Bayesian Variable Selection, Model Choice and Regularization for Generalized
-Additive Mixed Models in \proglang{R}}
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{spikeSlabGAM: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in R}
+
+\title{\pkg{spikeSlabGAM}: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in \proglang{R}}
 \author{Fabian Scheipl \\ Ludwig-Maximilians-Universit\"at M\"unchen}
 
 \Plainauthor{Fabian Scheipl}
-\Plaintitle{spikeSlabGAM: Bayesian Variable Selection, Model Choice and Regularization for Generalized
-Additive Mixed Models in R}
+\Plaintitle{spikeSlabGAM: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in R}
 \Shorttitle{spikeSlabGAM: Variable Selection and Model Choice for GAMMs}
 
 \Abstract{
@@ -133,14 +135,7 @@ URL: \url{http:/www.stat.uni-muenchen.de/~scheipl/}
 <<include=FALSE>>=
 library(knitr)
 opts_chunk$set(
-  concordance=TRUE
-)
-@
-
-
-<<include=FALSE>>=
-library(knitr)
-opts_chunk$set(
+  concordance=TRUE,
   fig.path='UsingSpikeSlabGAM',dev='pdf'
 )
 @
@@ -768,7 +763,6 @@ eta <- drop(fsm1 + fsm2f + lin %*% c(.1, .2, .3))
 y <- eta + sd(eta)/snr * rt(n, df = 5)
 d <- data.frame(y, sm1, sm2, f, lin, noise1, noise2, noise3, noise4)
 @
-
 We fit an additive model with all covariates as main effects and first-order interactions between the first 4 as potential model terms:
 <<defForm1>>=
 f1 <- y ~ (sm1 + sm2 + f + lin1)^2 + lin2 +lin3 + noise1 + noise2 + noise3 + noise4
@@ -791,10 +785,12 @@ log-likelihood of an intercept model without covariates.
 <<summary1.1Fake, echo=T, eval=FALSE>>=
 summary(m)
 @
+
 \begin{small}
 <<summary1.1Prep, echo=FALSE, results='hide'>>=
 summ <- summary(m)
 @
+
 <<summary1.1, echo=FALSE>>=
 print(summ, printModels=F)
 @
@@ -864,27 +860,8 @@ credible intervals is shown.
 <<plotm1Fake, echo=TRUE, eval=FALSE>>=
 plot(m)
 @
-% <<plotm1Prep, echo=FALSE, cache=TRUE>>=
-% #tweak legend size:
-% p1 <- plot(m, maxPlotsPerPage=12,
-%            ggElems=list(theme(legend.key.size = grid:::unit(0.01, "npc"),
-%                               legend.text = element_text(size = 7),
-%                         legend.title=element_text(size=8, hjust = 0),
-%                         axis.text.x = element_text(size=8),
-% 						axis.text.y = element_text(size=8, hjust=1),
-% 						plot.margin=grid:::unit(c(0.5, 0, 0, 0), "lines"))))
-% # # replace expression(eta) with latex for tikz-rendering: (JSS-version only)
-% #scGr <- scale_colour_gradient2(name="$\\eta$", low =  muted('darkblue'),
-% #                               mid = 'grey80', high = muted('darkred'))
-% #p1[[2]] <- p1[[2]] + scGr
-% #p1[[4]] <- p1[[4]] + scGr
-% #p1[[6]] <- p1[[6]] + scGr
-% #for(i in (1:12)[-c(2,4,6)]) p1[[i]] <- p1[[i]] + ylab("$\\eta$")
-% @
-% <<plotm1, echo=FALSE, fig=TRUE, width=6, cache=TRUE, external=TRUE>>=
-% arrangeHere <- function(...) gridExtra:::grid.arrange(..., nrow=4, ncol=3)
-% do.call(arrangeHere, p1)
-% @
+
+
 <<plotm1prep, echo=FALSE, cache=TRUE, results='hide', fig.show='hide'>>=
 pl <- plot(m, nrow=4, ncol=3,
            ggElems=list(theme(legend.key.size = grid:::unit(0.01, "npc"),
@@ -894,6 +871,7 @@ pl <- plot(m, nrow=4, ncol=3,
                               axis.text.y = element_text(size=8, hjust=1),
                               plot.margin=grid:::unit(c(0.5, 0, 0, 0), "lines"))))
 @
+
 <<plotm1, echo=FALSE, fig.width=6, cache=TRUE, external=TRUE>>=
 do.call(gridExtra:::grid.arrange, c(pl, nrow=4, ncol=3))
 @
@@ -925,7 +903,6 @@ plot(m, labels = c("lin(sm1)", "sm(sm1)"), cumulative = FALSE)
 trueFsm1 <- data.frame(truth = fsm1 - mean(fsm1), sm1 = sm1)
 plot(m, labels = "sm(sm1)", ggElems = list(geom_line(aes(x = sm1, y = truth),
                                                      data = trueFsm1, linetype = 2)))
-@
 <<plotm1sm1Prep, echo=FALSE, cache=TRUE, results='hide', fig.show='hide'>>=
 pSm11 <- plot(m, labels="sm(sm1)",
               ggElems=list(theme(axis.text.x = element_text(size=9),
@@ -936,6 +913,7 @@ pSm1Sep <-  plot(m, labels=c("lin(sm1)", "sm(sm1)"), cumulative=FALSE,
                  nrow=1, ncol=2) #,
 # JSS version only:        ggElems=list(list(ylab("$\\eta$"))))
 @
+
 <<plotm1sm1, echo=FALSE, fig.width=6, fig.height=2, cache=TRUE, external=TRUE>>=
 trueFsm1 <- data.frame(truth=fsm1-mean(fsm1), sm1=sm1)
 pSm1Cum <- pSm11[[1]] + geom_line(data=trueFsm1, aes(x=sm1, y=truth), lty=2)  +
@@ -943,6 +921,7 @@ pSm1Cum <- pSm11[[1]] + geom_line(data=trueFsm1, aes(x=sm1, y=truth), lty=2)  +
         axis.text.y = element_text(size=9, hjust=1))# + ylab("$\\eta$")
 gridExtra:::grid.arrange(pSm1Sep[[1]], pSm1Sep[[2]], pSm1Cum, nrow=1)
 @
+
 \posthrule\caption{Posterior means and pointwise 80\% credible intervals for $f(\mathtt{sm1})$ in
 \texttt{m1}. Left and middle panel show the separate \texttt{lin()}- and \texttt{sm()}-terms returned by the first call to \code{plot},
 right panel shows their sum. True shape of $f(\mathtt{sm1})$ added as a dashed line with the \texttt{ggElems} option of \texttt{plot.spikeSlabGAM}, see lines of code above the figure.}
@@ -958,15 +937,19 @@ plot(m, labels = "sm(sm2):fct(f)",
      ggElems = list(geom_line(aes(x = sm2, y = truth, colour = f),
                               data = trueFsm2f, linetype = 2)))
 @
+
 <<plotm1sm2fprep, echo=FALSE, cache=TRUE, results='hide', fig.show='hide'>>=
 trueFsm2f <-data.frame(truth=fsm2f-mean(fsm2f), sm2=sm2, f=f)
 #JSS only: plot(m, labels="sm(sm2):fct(f)", ggElems=list(list(ylab("$\\eta$")), geom_line(aes(x=sm2, y=truth, colour=f), data=trueFsm2f, linetype=2)))
 pl2 <- plot(m, labels="sm(sm2):fct(f)",
             ggElems=list(geom_line(aes(x=sm2, y=truth, colour=f), data=trueFsm2f,
                                    linetype=2)))
+@
+
 <<plotm1sm2f, echo=FALSE, fig.width=6, fig.height=3, cache=TRUE, external=TRUE>>=
 pl2[[1]]
 @
+
 \posthrule\caption{Posterior means and pointwise 80\% credible intervals for $f(\mathtt{sm2}, \mathtt{f})$ in
 \texttt{m1}. True shape of $f(\mathtt{sm2}|\mathtt{f})$ added as dashed line for each level of \texttt{f}, see lines of code above the figure.}
 \label{fig:m1Sm2f}
@@ -998,6 +981,7 @@ set.seed(1109712439)
 testInd <- sample(1:nrow(pimaDiab), 200)
 pimaDiabTrain <- pimaDiab[-testInd,]
 @
+
 Note that \code{spikeSlabGAM()} always expects a dataset without any missing values and responses between 0 and 1 for binomial models.
 
 We increase the length of the burn-in phase for each chain from 100 to 500 iterations and
@@ -1009,11 +993,13 @@ m0 <- spikeSlabGAM(
   diabetes ~ pregnant + glucose + pressure + mass + pedigree + age,
   family = "binomial", data = pimaDiabTrain, mcmc = mcmc)
 @
+
 We compute the posterior predictive means for the test set, and request a summary of the fitted model:
 <<pimaM0Summary, echo=TRUE>>=
 pr0 <- predict(m0, newdata = pimaDiab[testInd,])
 print(summary(m0), printModels = FALSE)
 @
+
 \code{spikeSlabGAM} selects nonlinear effects for \code{age} and \code{mass} and a linear trend in \code{glucose}
 (and with fairly weak support for a nonlinear effect of \code{pedigree}).
 \pkg{mboost}\code{::gamboost} ranks the variables very similarly, based on the relative selection frequencies of the associated baselearners:
@@ -1024,10 +1010,12 @@ b <- gamboost(
 aic <- AIC(b, method = "classical")
 prB <- predict(b[mstop(aic)], newdata = pimaDiab[testInd,])
 @
+
 <<pimaB0Sum, echo=TRUE>>=
 summary(b[mstop(aic)])$selprob
 @
-Finally, we compare the deviance on the test set for the two fitted models:
+
+Finally, we compare the deviance (i.e., twice negative log-likelihood) on the test set for the two fitted models:
 <<pimaM0Pred>>=
 dev <- function(y, p){
   -2*sum(dbinom(x = y, size = 1, prob = p, log = T))
@@ -1035,11 +1023,13 @@ dev <- function(y, p){
 c(spikeSlabGAM = dev(pimaDiab[testInd, "diabetes"], pr0),
   gamboost   = dev(pimaDiab[testInd, "diabetes"], plogis(prB)))
 @
+
 So it seems like \code{spikeSlabGAM}'s model averaged predictions are a little more accurate
 than the predictions returned by \code{gamboost} in this case.
 
 We can check the sensitivity of the results to the hyperparameters and refit the
 model with a larger $v_0$ to see if/how the results change:
+
 <<pimaM1, echo=TRUE, cache=TRUE, results='hide'>>=
 hyper1 <- list(gamma = c(v0 = 0.005))
 m1 <- spikeSlabGAM(
@@ -1047,10 +1037,13 @@ m1 <- spikeSlabGAM(
   family = "binomial", data = pimaDiabTrain, mcmc = mcmc,
   hyperparameters = hyper1)
 pr1 <- predict(m1, newdata = pimaDiab[testInd, ])
+@
+
 <<pimaM1Sum, echo=T>>=
 print(summary(m1), printModels = FALSE)
 (dev(pimaDiab[testInd, "diabetes"], pr1))
 @
+
 The selected terms are very similar, and the prediction is slightly more accurate
 (predictive deviance for \code{m0} was \Sexpr{round(dev(pimaDiab[testInd,"diabetes"], pr0),2)}).
 Note that, due to the multi-modality of the target posterior, stable estimation of precise posterior inclusion and
@@ -1074,7 +1067,6 @@ This vignette was created with:
 <<sessionInfo>>=
 sessionInfo()
 @
-
 
 \section*{Acknowledgements}
 Discussions with and feedback from Thomas Kneib, Ludwig

@@ -4,9 +4,15 @@
 \alias{srf}
 \title{Generate design for penalized surface estimation.}
 \usage{
-srf(coords, K = min(50, sum(nd)/4), rankZ = 0.999, centerBase = TRUE,
-  baseType = c("B", "thinPlate"), decomposition = c("ortho", "MM",
-  "asIs"), tol = 1e-10)
+srf(
+  coords,
+  K = min(50, sum(nd)/4),
+  rankZ = 0.999,
+  centerBase = TRUE,
+  baseType = c("B", "thinPlate"),
+  decomposition = c("ortho", "MM", "asIs"),
+  tol = 1e-10
+)
 }
 \arguments{
 \item{coords}{a \code{data.frame} with two columns containing the coordinates}

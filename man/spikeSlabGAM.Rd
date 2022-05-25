@@ -4,9 +4,16 @@
 \alias{spikeSlabGAM}
 \title{Generate posterior samples for a GAMM with spike-and-slab priors}
 \usage{
-spikeSlabGAM(formula, data, ..., family = "gaussian",
-  hyperparameters = list(), model = list(), mcmc = list(),
-  start = list())
+spikeSlabGAM(
+  formula,
+  data,
+  ...,
+  family = "gaussian",
+  hyperparameters = list(),
+  model = list(),
+  mcmc = list(),
+  start = list()
+)
 }
 \arguments{
 \item{formula}{the model formula (see details below and

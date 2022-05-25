@@ -4,12 +4,21 @@
 \alias{plot.spikeSlabGAM}
 \title{Generates graphical summaries of a fitted model}
 \usage{
-\method{plot}{spikeSlabGAM}(x, labels = NULL, cumulative = TRUE,
-  commonEtaScale = FALSE, aggregate = mean, quantiles = c(0.1, 0.9),
-  gridlength = 20, base_size = 12, ggElems = list(),
+\method{plot}{spikeSlabGAM}(
+  x,
+  labels = NULL,
+  cumulative = TRUE,
+  commonEtaScale = FALSE,
+  aggregate = mean,
+  quantiles = c(0.1, 0.9),
+  gridlength = 20,
+  base_size = 12,
+  ggElems = list(),
   nrow = min(ceiling(sqrt(length(plotList))), 3),
   ncol = min(ceiling(length(plotList)/nrow), 3),
-  interactive.dev = c("x11", "quartz", "windows"), ...)
+  interactive.dev = c("x11", "quartz", "windows"),
+  ...
+)
 }
 \arguments{
 \item{x}{a fitted \code{spikeSlabGAM} model}

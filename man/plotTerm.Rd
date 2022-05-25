@@ -4,9 +4,16 @@
 \alias{plotTerm}
 \title{Plot the estimated effect of a model term.}
 \usage{
-plotTerm(label, m, cumulative = TRUE, aggregate = mean,
-  quantiles = c(0.1, 0.9), gridlength = 40, contours = 30,
-  ggElems = list())
+plotTerm(
+  label,
+  m,
+  cumulative = TRUE,
+  aggregate = mean,
+  quantiles = c(0.1, 0.9),
+  gridlength = 40,
+  contours = 30,
+  ggElems = list()
+)
 }
 \arguments{
 \item{label}{(character) the label of the effect to be plotted.}

@@ -28,7 +28,7 @@ static void updateXAlpha(double *XAlpha, double *X, double *G, double *ksi, int 
 		}
 	}
 	//XAlpha = temp %*%G = (X*ksi) %*% G
-	F77_CALL(dgemm)("N","N", n, p, q, &one, temp, n, G, q, &zero, XAlpha, n);
+	F77_CALL(dgemm)("N","N", n, p, q, &one, temp, n, G, q, &zero, XAlpha, n FCONE FCONE);
 	Free(temp);
 }
 
@@ -155,7 +155,7 @@ static void  updateCoefBlockQR(int j, int n, double *X, double *y,
 			l++;
 		}
 		//ya = (y - X_i * beta_i)/sqrt(sigma2)
-		F77_CALL(dgemm)("N", "N", &n, &oneInt, &qI, &minusOne,  (Xblocks[j]).Xi, &n, (Xblocks[j]).coefI, &qI, &one, (Xblocks[j]).ya, &n);
+		F77_CALL(dgemm)("N", "N", &n, &oneInt, &qI, &minusOne,  (Xblocks[j]).Xi, &n, (Xblocks[j]).coefI, &qI, &one, (Xblocks[j]).ya, &n FCONE FCONE);
 	}
 	F77_CALL(dscal)(&n, &sqrtInvSigma2, (Xblocks[j]).ya, &oneInt);
 
@@ -174,7 +174,7 @@ static void  updateCoefBlockQR(int j, int n, double *X, double *y,
 	 for(k = 0; k < qA; k++)
 	        (Xblocks[j]).err[k] = rnorm(0, 1);
   	//solve R' * err = (Xblocks[j]).err for err (<=> err  = R'^-1 (Xblocks[j]).err => (Xblocks[j]).err ~ N(0, R^-1 R'^-1) = N(0, (R' R)^-1 )
-	F77_CALL(dtrtrs)("U", "T", "N", &qA, &oneInt, (Xblocks[j]).Xa, &rows, (Xblocks[j]).err, &qA, &info);
+	F77_CALL(dtrtrs)("U", "T", "N", &qA, &oneInt, (Xblocks[j]).Xa, &rows, (Xblocks[j]).err, &qA, &info FCONE FCONE FCONE);
 
 	// un-permute draw and write to coef
 	for(k = 0; k < qA; k++){
@@ -248,7 +248,7 @@ static void  updateCoefBlockQR_IWLS(int j, int n, double *X, double *y,
 	//update etaMode= eta -X_a(coefC - modeCoef)
 	F77_CALL(dcopy)(&n, eta, &oneInt, etaMode, &oneInt);
 	F77_CALL(dgemm)("N", "N", &n, &oneInt, &qA, &minusOne,
-			&(X[(Xblocks[j]).indA1*n]), &n, coefChange, &qA, &one, etaMode, &n);
+			&(X[(Xblocks[j]).indA1*n]), &n, coefChange, &qA, &one, etaMode, &n FCONE FCONE);
 	//printDouble("etaMode", etaMode, n);
 	//compute mu, var, w = sqrt(var)
 	if(family==1) { //binomial
@@ -283,7 +283,7 @@ static void  updateCoefBlockQR_IWLS(int j, int n, double *X, double *y,
 				l++;
 			}
 			//ya = (ya - X_i * beta_i)
-			F77_CALL(dgemm)("N", "N", &n, &oneInt, &qI, &minusOne,  (Xblocks[j]).Xi, &n, (Xblocks[j]).coefI, &qI, &one, (Xblocks[j]).ya, &n);
+			F77_CALL(dgemm)("N", "N", &n, &oneInt, &qI, &minusOne,  (Xblocks[j]).Xi, &n, (Xblocks[j]).coefI, &qI, &one, (Xblocks[j]).ya, &n FCONE FCONE);
 			//ya = (ya - X_i * beta_i)*w
 			for(k=0; k<n; k++){
 					(Xblocks[j]).ya[k] = (Xblocks[j]).ya[k] * w[k];
@@ -332,7 +332,7 @@ static void  updateCoefBlockQR_IWLS(int j, int n, double *X, double *y,
 	for(k = 0; k < qA; k++) (Xblocks[j]).err[k] = rnorm(0, 1);
 
 	//solve R * err = (Xblocks[j]).err for err (<=> err  = R^-1 (Xblocks[j]).err => (Xblocks[j]).err ~ N(0, R^-1 (R^-1)') = N(0, (R' R)^-1 )
-	F77_CALL(dtrtrs)("U", "N", "N", &qA, &oneInt, (Xblocks[j]).Xa, &rows, (Xblocks[j]).err, &qA, &info);
+	F77_CALL(dtrtrs)("U", "N", "N", &qA, &oneInt, (Xblocks[j]).Xa, &rows, (Xblocks[j]).err, &qA, &info FCONE FCONE FCONE);
 	if(info != 0) //FIXME
 
 	//4. exchange coef with prop
@@ -362,7 +362,7 @@ static void  updateCoefBlockQR_IWLS(int j, int n, double *X, double *y,
 	//update etaOffset = offset + X*coefP:
 	F77_CALL(dcopy)(&n, offset, &oneInt, etaOffset, &oneInt);
 	F77_CALL(dgemm)("N", "N", &n, &oneInt, &lengthCoef, &one,
-						X, &n, coef, &lengthCoef, &one, etaOffset, &n);
+						X, &n, coef, &lengthCoef, &one, etaOffset, &n FCONE FCONE);
 	// log(acc prob) = likP - likC  ...
 	logAccProb = logLik(y, etaOffset, family, scale, n) - likC;
 	//printDouble("likP - likC", &logAccProb, 1);
@@ -514,7 +514,7 @@ static  void  rescaleKsiAlpha(double *ksi, double *alpha, double *varKsi, double
 		}
 
 
-		F77_CALL(dgemm)("N","N", &q, &oneInt, &p, &one, G, &q, scale, &p, &zero, scaleLong, &q);
+		F77_CALL(dgemm)("N","N", &q, &oneInt, &p, &one, G, &q, scale, &p, &zero, scaleLong, &q FCONE FCONE);
 
 		for(j = qKsiNoUpdate; j < q; j++) {
 			//add change to mode s.t. "mode" stays reasonably close to current coefficent otherwise chain gets stuck

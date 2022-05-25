@@ -40,7 +40,7 @@ utils::globalVariables(c("nc", "xu"))
 #' @return a basis for a smooth function in x
 #' @references Kneib, T. (2006). Mixed model based inference in structured
 #'   additive regression. Dr. Hut.
-#'   \url{http://edoc.ub.uni-muenchen.de/archive/00005011/}
+#'   \url{https://edoc.ub.uni-muenchen.de/archive/00005011/}
 #' @importFrom splines  spline.des
 #' @importFrom MASS ginv
 #' @export

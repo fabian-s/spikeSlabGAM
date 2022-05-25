@@ -5,8 +5,14 @@
 \title{Get summaries of the posterior (predictive) distribution of the linear
 predictor of a model term}
 \usage{
-evalTerm(label, model, newdata = NULL, aggregate = mean,
-  quantiles = c(0.1, 0.9), returnData = TRUE)
+evalTerm(
+  label,
+  model,
+  newdata = NULL,
+  aggregate = mean,
+  quantiles = c(0.1, 0.9),
+  returnData = TRUE
+)
 }
 \arguments{
 \item{label}{(character) the label of one of the terms in \code{model}.}

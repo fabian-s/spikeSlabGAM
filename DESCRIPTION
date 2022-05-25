@@ -1,5 +1,5 @@
 Package: spikeSlabGAM
-Version: 1.1-15
+Version: 1.1-17
 Title: Bayesian Variable Selection and Model Choice for
     Generalized Additive Mixed Models
 Authors@R: c(person("Fabian", "Scheipl", role = c("aut", "cre"),
@@ -42,5 +42,5 @@ Collate:
     'plot.R'
     'predict.R'
     'summary.R'
-RoxygenNote: 6.1.0
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
