@@ -58,5 +58,6 @@ jobs:
           extra-packages: rcmdcheck
 
       - uses: r-lib/actions/check-r-package@v2
-        args: 'c("--as-cran", "-compact-vignettes=both")'
-        error-on: '"error"'
+        with: 
+          args: 'c("--as-cran", "-compact-vignettes=both")'
+          error-on: '"error"'
