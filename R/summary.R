@@ -4,7 +4,7 @@
 #' Summary for posterior of a \code{spikeSlabGAM} fit
 #'
 #' Returns basic information about prior and model structure, posterior means of
-#' inclusion probablities, term inportance and the most probable models found by
+#' inclusion probabilities, term importance and the most probable models found by
 #' the SSVS.
 #'
 #' Two scalar summaries of term importance are included: \describe{

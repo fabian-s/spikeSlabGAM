@@ -18,7 +18,7 @@ an object of class \code{summary.spikeSlabGAM}
 }
 \description{
 Returns basic information about prior and model structure, posterior means of
-inclusion probablities, term inportance and the most probable models found by
+inclusion probabilities, term importance and the most probable models found by
 the SSVS.
 }
 \details{

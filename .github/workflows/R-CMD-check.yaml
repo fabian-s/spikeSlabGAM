@@ -44,7 +44,8 @@ jobs:
       - name: Install LATEX dependencies
         run: |
           install.packages("tinytex")
-          try(tinytex::tlmgr_install(pkgs = c("ae", "bm", "thumbpdf", "rotating", "algorithmic", "algorithm", "caption", "comment", "fancyvrb", "upquote")))
+          try(tinytex::tlmgr_install(pkgs = c("ae", "bm", "thumbpdf", "rotating", "algorithmic", "algorithm", "caption", "comment", "fancyvrb", "upquote", "pgf")))
+          try(tinytex::parse_install(text = "File `framed.sty' not found"))
         shell: Rscript {0}
 
       - uses: r-lib/actions/setup-r-dependencies@v1

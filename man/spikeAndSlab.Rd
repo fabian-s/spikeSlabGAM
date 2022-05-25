@@ -112,7 +112,7 @@ subvectors of \eqn{\xi} in each iteration:  0 means no rescaling, 1 means
 rescaling s.t. each mean\eqn{(|\xi_g|) = 1},  2 means rescaling s.t. each
 max\eqn{(|\xi_g|) = 1}} \item{\code{modeSwitching}}{probability to do P-IWLS
 with the mode of the proposal set to the current value, which is useful if
-the chain gets stuck. Defaults to \eqn{0.05}. Increase this if accceptance rates
+the chain gets stuck. Defaults to \eqn{0.05}. Increase this if acceptance rates
 are too low.} \item{\code{reduceRet}}{don't return data and samples for
 \eqn{\alpha, \xi, \tau^2}? defaults to FALSE}}}
 \item{\code{start}}{\describe{\item{\code{beta}}{starting
