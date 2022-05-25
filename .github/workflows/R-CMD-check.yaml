@@ -43,6 +43,7 @@ jobs:
       
       - name: Install LATEX dependencies
         run: |
+          install.packages("tinytex")
           try(tinytex::tlmgr_install(pkgs = c("ae", "bm", "thumbpdf", "rotating", "algorithmic", "algorithm", "caption", "comment", "fancyvrb", "upquote")))
         shell: Rscript {0}
 
