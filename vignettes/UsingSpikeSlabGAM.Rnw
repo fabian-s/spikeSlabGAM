@@ -121,7 +121,7 @@ on coefficient groups associated with parametric and semi-parametric effects.\\
 
 \noindent \emph{Note 1}: An earlier version of this introduction to \pkg{spikeSlabGAM} has been published as \\
 \noindent Fabian Scheipl (2011). \pkg{spikeSlabGAM}: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in \proglang{R}. \emph{Journal of Statistical Software}, \textbf{43}(14), 1--24.
-
+}
 
 \Keywords{MCMC, P-splines, spike-and-slab prior, normal-inverse-gamma}
 \Plainkeywords{MCMC, P-splines, spike-and-slab prior, normal-inverse-gamma}
