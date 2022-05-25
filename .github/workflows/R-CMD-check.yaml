@@ -40,6 +40,11 @@ jobs:
           use-public-rspm: true
           
       - uses: r-lib/actions/setup-tinytex@master
+      
+      - name: Install LATEX dependencies
+        run: |
+          try(tinytex::tlmgr_install(pkgs = c("ae", "bm", "thumbpdf", "rotating", "algorithmic", "algorithm", "caption", "comment", "fancyvrb", "upquote")))
+        shell: Rscript {0}
 
       - uses: r-lib/actions/setup-r-dependencies@v1
         with:

@@ -112,7 +112,7 @@
 #' @references Scheipl, F. (2010) Normal-Mixture-of-Inverse-Gamma Priors for
 #'   Bayesian Regularization and Model Selection in Structured Additive
 #'   Regression Models. \emph{LMU Munich, Department of Statistics}: Technical
-#'   Reports, No.84 (\url{http://epub.ub.uni-muenchen.de/11785/})
+#'   Reports, No.84 (\url{https://epub.ub.uni-muenchen.de/11785/})
 #' @export
 #' @import parallel
 #' @importFrom MASS ginv
