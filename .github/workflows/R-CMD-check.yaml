@@ -44,8 +44,12 @@ jobs:
       - name: Install LATEX dependencies
         run: |
           install.packages("tinytex")
-          try(tinytex::tlmgr_install(pkgs = c("ae", "bm", "thumbpdf", "rotating", "algorithmic", "algorithm", "caption", "comment", "fancyvrb", "upquote", "pgf")))
-          try(tinytex::parse_install(text = "File `framed.sty' not found"))
+          try(tinytex::tlmgr_install(pkgs = c("ae", "thumbpdf", "caption", "comment", "fancyvrb", "upquote", "pgf")))
+          try(tinytex::parse_install(text = "! LaTeX Error: File `framed.sty' not found"))
+          try(tinytex::parse_install(text = "! LaTeX Error: File `algorithmic.sty' not found"))
+          try(tinytex::parse_install(text = "! LaTeX Error: File `algorithm.sty' not found"))
+          try(tinytex::parse_install(text = "! LaTeX Error: File `bm.sty' not found"))
+          try(tinytex::parse_install(text = "! LaTeX Error: File `rotating.sty' not found"))
         shell: Rscript {0}
 
       - uses: r-lib/actions/setup-r-dependencies@v1

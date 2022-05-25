@@ -75,15 +75,26 @@ fontsize=\footnotesize}
 \widowpenalty = 10000
 \displaywidowpenalty = 10000
 
-<<setup, echo=FALSE, results='hide'>>=
-options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE,
-        digits=5, mc.cores=2)
+<<setup, include=FALSE>>=
+#use 2 cores on CRAN, potentially more if not:
+use_cores <- ifelse(
+  identical(Sys.getenv("NOT_CRAN"), "true"), #s. testhat::on_cran
+  2,
+  max(1, parallel::detectCores() - 2)
+)
+options(prompt = "R> ", continue = "+  ", width = 70, #JSS style
+        useFancyQuotes = FALSE, digits=5, 
+        mc.cores = use_cores)
 clrs <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33",
           "#A65628", "#F781BF", "#999999")
-knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  fig.path='UsingSpikeSlabGAM',
+  dev='pdf'
+)
 @
 
-<<loadLibs, echo=FALSE, results='hide'>>=
+<<load, echo=FALSE, results='hide'>>=
 library("spikeSlabGAM")
 library("mboost")
 library("ggplot2")
@@ -111,10 +122,6 @@ on coefficient groups associated with parametric and semi-parametric effects.\\
 \noindent \emph{Note 1}: An earlier version of this introduction to \pkg{spikeSlabGAM} has been published as \\
 \noindent Fabian Scheipl (2011). \pkg{spikeSlabGAM}: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in \proglang{R}. \emph{Journal of Statistical Software}, \textbf{43}(14), 1--24.
 
-\noindent \emph{Note 2}:  To respect resource limitations on the CRAN servers, this vignette uses only two processes for parallelized MCMC sampling.
-To increase the number of cores  and speed up computations significantly,
-change \code{mc.cores=2} in the \code{options()} statement in the \code{setup} \proglang{R}-chunk at the very beginning of \texttt{UsingSpikeSlabGAM.Rnw} to a higher value.
-}
 
 \Keywords{MCMC, P-splines, spike-and-slab prior, normal-inverse-gamma}
 \Plainkeywords{MCMC, P-splines, spike-and-slab prior, normal-inverse-gamma}
@@ -132,13 +139,7 @@ URL: \url{http:/www.stat.uni-muenchen.de/~scheipl/}
 
 \begin{document}
 
-<<include=FALSE>>=
-library(knitr)
-opts_chunk$set(
-  concordance=TRUE,
-  fig.path='UsingSpikeSlabGAM',dev='pdf'
-)
-@
+
 
 %\VignetteIndexEntry{spikeSlabGAM}
 %\VignetteDepends{spikeSlabGAM, mlbench, mboost}
