@@ -1,4 +1,54 @@
-\documentclass[article, shortnames, nojss, noheadings, notitle]{jss}
+\documentclass[article, shortnames, nojss, noheadings, notitle]{jss}\usepackage[]{graphicx}\usepackage[]{xcolor}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 \usepackage{amsmath,amsfonts,bm}
 
 \usepackage{thumbpdf}
@@ -75,31 +125,7 @@ fontsize=\footnotesize}
 \widowpenalty = 10000
 \displaywidowpenalty = 10000
 
-<<setup, include=FALSE>>=
-#use 2 cores on CRAN, potentially more if not:
-use_cores <- ifelse(
-  identical(Sys.getenv("NOT_CRAN"), "true"), #s. testhat::on_cran
-  2,
-  max(1, parallel::detectCores() - 2)
-)
-options(prompt = "R> ", continue = "+  ", width = 70, #JSS style
-        useFancyQuotes = FALSE, digits=5, 
-        mc.cores = use_cores)
-clrs <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33",
-          "#A65628", "#F781BF", "#999999")
-knitr::opts_chunk$set(
-  cache = TRUE,
-  fig.path='UsingSpikeSlabGAM',
-  dev='pdf'
-)
-@
 
-<<load, echo=FALSE, results='hide'>>=
-library("spikeSlabGAM")
-library("mboost")
-library("ggplot2")
-library("gtable")
-@
 
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{spikeSlabGAM: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in R}
@@ -135,8 +161,7 @@ Ludwigstr. 33\\
 E-mail: \email{Fabian.Scheipl@stat.uni-muenchen.de}\\
 URL: \url{http:/www.stat.uni-muenchen.de/~scheipl/}
 }
-
-
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
 
@@ -737,42 +762,53 @@ We draw $n=200$ observations from the following data generating process:
 \item  the response vector $\bm y = \bm{\eta} +  \tfrac{\operatorname{sd}(\bm \eta)}{\mathtt{snr}} \bm\epsilon$ is generated under signal-to-noise ratio $\mathtt{snr}=3$
 with i.i.d. $t_5$-distributed errors $\epsilon_i\;(i=1,\ldots,n)$.
 \end{itemize}
-<<mkData, echo=T, results='hide'>>=
-set.seed(1312424)
-n <- 200
-snr <- 3
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{set.seed}\hlstd{(}\hlnum{1312424}\hlstd{)}
+\hlstd{n} \hlkwb{<-} \hlnum{200}
+\hlstd{snr} \hlkwb{<-} \hlnum{3}
 
-sm1 <- runif(n)
-fsm1 <- dbeta(sm1, 7, 3)/2
+\hlstd{sm1} \hlkwb{<-} \hlkwd{runif}\hlstd{(n)}
+\hlstd{fsm1} \hlkwb{<-} \hlkwd{dbeta}\hlstd{(sm1,} \hlnum{7}\hlstd{,} \hlnum{3}\hlstd{)}\hlopt{/}\hlnum{2}
 
-sm2 <- runif(n, 0, 1)
-f <- gl(3, n/3)
-ff <- as.numeric(f)/2
-fsm2f <- ff + ff * sm2 +
-  ((f == 1) * -dbeta(sm2, 6, 4) + (f == 2) * dbeta(sm2, 6, 9) +
-     (f == 3) * dbeta(sm2, 9, 6))/2
+\hlstd{sm2} \hlkwb{<-} \hlkwd{runif}\hlstd{(n,} \hlnum{0}\hlstd{,} \hlnum{1}\hlstd{)}
+\hlstd{f} \hlkwb{<-} \hlkwd{gl}\hlstd{(}\hlnum{3}\hlstd{, n}\hlopt{/}\hlnum{3}\hlstd{)}
+\hlstd{ff} \hlkwb{<-} \hlkwd{as.numeric}\hlstd{(f)}\hlopt{/}\hlnum{2}
+\hlstd{fsm2f} \hlkwb{<-} \hlstd{ff} \hlopt{+} \hlstd{ff} \hlopt{*} \hlstd{sm2} \hlopt{+}
+  \hlstd{((f} \hlopt{==} \hlnum{1}\hlstd{)} \hlopt{* -}\hlkwd{dbeta}\hlstd{(sm2,} \hlnum{6}\hlstd{,} \hlnum{4}\hlstd{)} \hlopt{+} \hlstd{(f} \hlopt{==} \hlnum{2}\hlstd{)} \hlopt{*} \hlkwd{dbeta}\hlstd{(sm2,} \hlnum{6}\hlstd{,} \hlnum{9}\hlstd{)} \hlopt{+}
+     \hlstd{(f} \hlopt{==} \hlnum{3}\hlstd{)} \hlopt{*} \hlkwd{dbeta}\hlstd{(sm2,} \hlnum{9}\hlstd{,} \hlnum{6}\hlstd{))}\hlopt{/}\hlnum{2}
 
-lin <- matrix(rnorm(n * 3), n, 3)
-colnames(lin) <- paste("lin", 1:3, sep = "")
+\hlstd{lin} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{rnorm}\hlstd{(n} \hlopt{*} \hlnum{3}\hlstd{), n,} \hlnum{3}\hlstd{)}
+\hlkwd{colnames}\hlstd{(lin)} \hlkwb{<-} \hlkwd{paste}\hlstd{(}\hlstr{"lin"}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{3}\hlstd{,} \hlkwc{sep} \hlstd{=} \hlstr{""}\hlstd{)}
 
-noise1 <- sm1 + rnorm(n)
-noise2 <- runif(n)
-noise3 <- runif(n)
-noise4 <- sample(gl(4, n/4))
+\hlstd{noise1} \hlkwb{<-} \hlstd{sm1} \hlopt{+} \hlkwd{rnorm}\hlstd{(n)}
+\hlstd{noise2} \hlkwb{<-} \hlkwd{runif}\hlstd{(n)}
+\hlstd{noise3} \hlkwb{<-} \hlkwd{runif}\hlstd{(n)}
+\hlstd{noise4} \hlkwb{<-} \hlkwd{sample}\hlstd{(}\hlkwd{gl}\hlstd{(}\hlnum{4}\hlstd{, n}\hlopt{/}\hlnum{4}\hlstd{))}
 
-eta <- drop(fsm1 + fsm2f + lin %*% c(.1, .2, .3))
-y <- eta + sd(eta)/snr * rt(n, df = 5)
-d <- data.frame(y, sm1, sm2, f, lin, noise1, noise2, noise3, noise4)
-@
+\hlstd{eta} \hlkwb{<-} \hlkwd{drop}\hlstd{(fsm1} \hlopt{+} \hlstd{fsm2f} \hlopt{+} \hlstd{lin} \hlopt{%*%} \hlkwd{c}\hlstd{(}\hlnum{.1}\hlstd{,} \hlnum{.2}\hlstd{,} \hlnum{.3}\hlstd{))}
+\hlstd{y} \hlkwb{<-} \hlstd{eta} \hlopt{+} \hlkwd{sd}\hlstd{(eta)}\hlopt{/}\hlstd{snr} \hlopt{*} \hlkwd{rt}\hlstd{(n,} \hlkwc{df} \hlstd{=} \hlnum{5}\hlstd{)}
+\hlstd{d} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(y, sm1, sm2, f, lin, noise1, noise2, noise3, noise4)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 We fit an additive model with all covariates as main effects and first-order interactions between the first 4 as potential model terms:
-<<defForm1>>=
-f1 <- y ~ (sm1 + sm2 + f + lin1)^2 + lin2 +lin3 + noise1 + noise2 + noise3 + noise4
-@
-The function \code{spikeSlabGAM} sets up the design matrices, calls the sampler and returns the results\footnote{Note that the number of available processes for
-the parallelized MCMC sampling is set to just 2 in this vignette in order to comply with CRAN policies on resource usage -- you can speed up the sampler by setting \code{options(mc.cores = <how many processes you want>)} before calling \code{spikeSlabGAM}}:
-<<fit1, cache=T, results='hide'>>=
-m <- spikeSlabGAM(formula = f1, data = d)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{f1} \hlkwb{<-} \hlstd{y} \hlopt{~} \hlstd{(sm1} \hlopt{+} \hlstd{sm2} \hlopt{+} \hlstd{f} \hlopt{+} \hlstd{lin1)}\hlopt{^}\hlnum{2} \hlopt{+} \hlstd{lin2} \hlopt{+}\hlstd{lin3} \hlopt{+} \hlstd{noise1} \hlopt{+} \hlstd{noise2} \hlopt{+} \hlstd{noise3} \hlopt{+} \hlstd{noise4}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+The function \code{spikeSlabGAM} sets up the design matrices, calls the sampler and returns the results\footnote{Note that you can speed up the sampler somewhat by setting \code{options(mc.cores = <how many processes you want>)} before calling \code{spikeSlabGAM}}:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{m} \hlkwb{<-} \hlkwd{spikeSlabGAM}\hlstd{(}\hlkwc{formula} \hlstd{= f1,} \hlkwc{data} \hlstd{= d)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 The following output shows the first part of the \code{summary} of the fitted model.
 Note that the numeric covariates have been split into \code{lin()}- and \code{sm()}-terms and that the factors
@@ -783,51 +819,143 @@ If such a decomposition into marginal and joint effects is irrelevant or inappro
 \code{Mean posterior deviance} is $\tfrac{1}{T}\sum^T_t -2l(\bm y| \bm \eta^{(t)}, \phi^{(t)})$, the average of twice the negative
 log-likelihood of the observations over the saved MCMC iterations, the \code{null deviance} is twice the negative
 log-likelihood of an intercept model without covariates.
-<<summary1.1Fake, echo=T, eval=FALSE>>=
-summary(m)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{summary}\hlstd{(m)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 \begin{small}
-<<summary1.1Prep, echo=FALSE, results='hide'>>=
-summ <- summary(m)
-@
 
-<<summary1.1, echo=FALSE>>=
-print(summ, printModels=F)
-@
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+## Spike-and-Slab STAR for Gaussian data 
+## 
+## Model:
+## y ~ ((lin(sm1) + sm(sm1)) + (lin(sm2) + sm(sm2)) + fct(f) + (lin(lin1) + 
+##     sm(lin1)))^2 + (lin(lin2) + sm(lin2)) + (lin(lin3) + sm(lin3)) + 
+##     (lin(noise1) + sm(noise1)) + (lin(noise2) + sm(noise2)) + 
+##     (lin(noise3) + sm(noise3)) + fct(noise4) - lin(sm1):sm(sm1) - 
+##     lin(sm2):sm(sm2) - lin(lin1):sm(lin1)
+## <environment: 0x55b4a5463b40>
+## 200 observations; 257 coefficients in 37 model terms.
+## 
+## Prior:
+##     a[tau]     b[tau]       v[0]       a[w]       b[w] a[sigma^2] 
+##    5.0e+00    2.5e+01    2.5e-04    1.0e+00    1.0e+00    1.0e-04 
+## b[sigma^2] 
+##    1.0e-04 
+## 
+## MCMC:
+## Saved 1500 samples from 3 chain(s), each ran 2500 iterations after a
+##   burn-in of 100 ; Thinning: 5
+## 
+##                             
+## Null deviance:           714
+## Mean posterior deviance: 323
+## 
+## Marginal posterior inclusion probabilities and term importance:
+##                    P(gamma = 1)     pi dim    
+## u                            NA     NA   1    
+## lin(sm1)                  1.000  0.090   1 ***
+## sm(sm1)                   1.000  0.063   8 ***
+## lin(sm2)                  0.994  0.025   1 ***
+## sm(sm2)                   0.997  0.020   8 ***
+## fct(f)                    1.000  0.607   2 ***
+## lin(lin1)                 0.766 -0.003   1  **
+## sm(lin1)                  0.042  0.000   9    
+## lin(lin2)                 0.975  0.020   1 ***
+## sm(lin2)                  0.051  0.000   9    
+## lin(lin3)                 1.000  0.041   1 ***
+## sm(lin3)                  0.093  0.000   9    
+## lin(noise1)               0.037  0.001   1    
+## sm(noise1)                0.036  0.000   9    
+## lin(noise2)               0.036  0.001   1    
+## sm(noise2)                0.040  0.000   8    
+## lin(noise3)               0.025  0.000   1    
+## sm(noise3)                0.044  0.000   8    
+## fct(noise4)               0.069  0.001   3    
+## lin(sm1):lin(sm2)         0.025  0.000   1    
+## lin(sm1):sm(sm2)          0.070  0.000   7    
+## lin(sm1):fct(f)           0.032  0.000   2    
+## lin(sm1):lin(lin1)        0.028  0.001   1    
+## lin(sm1):sm(lin1)         0.114  0.000   7    
+## sm(sm1):lin(sm2)          0.082  0.000   7    
+## sm(sm1):sm(sm2)           0.065  0.000  27    
+## sm(sm1):fct(f)            0.274  0.001  13   *
+## sm(sm1):lin(lin1)         0.100  0.000   7    
+## sm(sm1):sm(lin1)          0.091  0.000  28    
+## lin(sm2):fct(f)           0.999  0.044   2 ***
+## lin(sm2):lin(lin1)        0.080 -0.001   1    
+## lin(sm2):sm(lin1)         0.063  0.000   8    
+## sm(sm2):fct(f)            1.000  0.092  13 ***
+## sm(sm2):lin(lin1)         0.051  0.000   7    
+## sm(sm2):sm(lin1)          0.075  0.000  28    
+## fct(f):lin(lin1)          0.028  0.000   2    
+## fct(f):sm(lin1)           0.065  0.000  14    
+## *:P(gamma = 1)>.25 **:P(gamma = 1)>.5 ***:P(gamma = 1)>.9
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 \end{small}
 \begin{figure}[!htbp]
 \begin{small}
-<<summary1.2, echo=F>>=
-#this is just ctrl-c-v from summary.spikeSlabGAM s.t. we don't get too much
-#redundant info about model formula etc. roughly the same as: print(sum,
-#printPGamma=F, printModels=T)
-cat("\nPosterior model probabilities (inclusion threshold =",summ$thresh,"):\n")
-modelTable <- {
-  #make ("x","")-vectors out of model names
-  models <- sapply(names(summ$modelTable), function(x){
-    sapply(strsplit(gsub("1", "x", x),""),
-           function(y) gsub("0", "", y))
-  })
-  models <- rbind(round(summ$modelTable,3), models,
-                  round(cumsum(summ$modelTable), 3))
-  rownames(models) <- c("prob.:",
-                        names(summ$predvars[!grepl("u(", names(summ$predvars),
-                                                   fixed=TRUE)]),
-                        "cumulative:")
-  models <- data.frame(models)
-  showModels <- 8
-  models <- models[,1:showModels, drop=F]
-  colnames(models) <- 1:NCOL(models)
-  models
-}
-print(modelTable)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+## 
+## Posterior model probabilities (inclusion threshold = 0.5 ):
+##                        1     2     3     4     5     6     7     8
+## prob.:             0.236  0.08 0.057 0.019 0.017 0.015 0.015 0.013
+## lin(sm1)               x     x     x     x     x     x     x     x
+## sm(sm1)                x     x     x     x     x     x     x     x
+## lin(sm2)               x     x     x     x     x     x     x     x
+## sm(sm2)                x     x     x     x     x     x     x     x
+## fct(f)                 x     x     x     x     x     x     x     x
+## lin(lin1)              x           x     x     x           x     x
+## sm(lin1)                                                          
+## lin(lin2)              x     x     x     x     x     x     x     x
+## sm(lin2)                                                          
+## lin(lin3)              x     x     x     x     x     x     x     x
+## sm(lin3)                                                          
+## lin(noise1)                                                       
+## sm(noise1)                                                        
+## lin(noise2)                                                       
+## sm(noise2)                                                        
+## lin(noise3)                                                       
+## sm(noise3)                                                        
+## fct(noise4)                                                       
+## lin(sm1):lin(sm2)                                                 
+## lin(sm1):sm(sm2)                                                  
+## lin(sm1):fct(f)                                                   
+## lin(sm1):lin(lin1)                                                
+## lin(sm1):sm(lin1)                        x                        
+## sm(sm1):lin(sm2)                                                  
+## sm(sm1):sm(sm2)                                            x      
+## sm(sm1):fct(f)                     x                 x            
+## sm(sm1):lin(lin1)                              x                  
+## sm(sm1):sm(lin1)                                                  
+## lin(sm2):fct(f)        x     x     x     x     x     x     x     x
+## lin(sm2):lin(lin1)                                                
+## lin(sm2):sm(lin1)                                                 
+## sm(sm2):fct(f)         x     x     x     x     x     x     x     x
+## sm(sm2):lin(lin1)                                                 
+## sm(sm2):sm(lin1)                                                 x
+## fct(f):lin(lin1)                                                  
+## fct(f):sm(lin1)                                                   
+## cumulative:        0.236 0.316 0.373 0.392 0.409 0.424 0.439 0.451
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 \end{small}
 \caption{Excerpt of the second part of the output returned by \texttt{summary.spikeSlabGAM}, which tabulates the
 configurations of $P(\gamma_j=1)>.5$ with highest posterior probability. In the example,
-the correct model (column \Sexpr{which(names(summ[[1]])=="111111010100000000000000000010010000")})
-has a posterior probability of about \Sexpr{round(summ[[1]]["111111010100000000000000000010010000"],3)}.}
+the correct model (column 1)
+has a posterior probability of about 0.236.}
 \label{sum12}
 \end{figure}
 In most applications, the primary focus will be on the marginal posterior inclusion probabilities \code{P(gamma = 1)},
@@ -858,24 +986,21 @@ By default, the posterior mean of the linear predictor associated with each cova
 credible intervals is shown.
 \begin{figure}[!htbp]\begin{center}\prehrule
 \tikzset{font=\scriptsize}
-<<plotm1Fake, echo=TRUE, eval=FALSE>>=
-plot(m)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(m)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 
-<<plotm1prep, echo=FALSE, cache=TRUE, results='hide', fig.show='hide'>>=
-pl <- plot(m, nrow=4, ncol=3,
-           ggElems=list(theme(legend.key.size = grid:::unit(0.01, "npc"),
-                              legend.text = element_text(size = 7),
-                              legend.title=element_text(size=8, hjust = 0),
-                              axis.text.x = element_text(size=8),
-                              axis.text.y = element_text(size=8, hjust=1),
-                              plot.margin=grid:::unit(c(0.5, 0, 0, 0), "lines"))))
-@
 
-<<plotm1, echo=FALSE, fig.width=6, cache=TRUE, external=TRUE>>=
-do.call(gridExtra:::grid.arrange, c(pl, nrow=4, ncol=3))
-@
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{UsingSpikeSlabGAMplotm1-1} 
+\end{knitrout}
 \posthrule\caption{Posterior means and pointwise 80\% credible intervals for model \texttt{m}.
 Interaction surfaces of two numerical covariates
 are displayed as color coded contour plots, with regions in which the credible interval does not overlap zero marked
@@ -899,29 +1024,22 @@ panels).}.
 % \setkeys{Gin}{width=6in}
 \begin{figure}[!htbp]\begin{center}\prehrule
 \tikzset{font=\small}
-<<plotm1sm1Fake, echo=TRUE, eval=FALSE>>=
-plot(m, labels = c("lin(sm1)", "sm(sm1)"), cumulative = FALSE)
-trueFsm1 <- data.frame(truth = fsm1 - mean(fsm1), sm1 = sm1)
-plot(m, labels = "sm(sm1)", ggElems = list(geom_line(aes(x = sm1, y = truth),
-                                                     data = trueFsm1, linetype = 2)))
-<<plotm1sm1Prep, echo=FALSE, cache=TRUE, results='hide', fig.show='hide'>>=
-pSm11 <- plot(m, labels="sm(sm1)",
-              ggElems=list(theme(axis.text.x = element_text(size=9),
-                                 axis.text.y = element_text(size=9, hjust=1))))
-pSm1Sep <-  plot(m, labels=c("lin(sm1)", "sm(sm1)"), cumulative=FALSE,
-                 ggElems=list(theme(axis.text.x = element_text(size=9),
-                                    axis.text.y = element_text(size=9, hjust=1))),
-                 nrow=1, ncol=2) #,
-# JSS version only:        ggElems=list(list(ylab("$\\eta$"))))
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(m,} \hlkwc{labels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"lin(sm1)"}\hlstd{,} \hlstr{"sm(sm1)"}\hlstd{),} \hlkwc{cumulative} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlstd{trueFsm1} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{truth} \hlstd{= fsm1} \hlopt{-} \hlkwd{mean}\hlstd{(fsm1),} \hlkwc{sm1} \hlstd{= sm1)}
+\hlkwd{plot}\hlstd{(m,} \hlkwc{labels} \hlstd{=} \hlstr{"sm(sm1)"}\hlstd{,} \hlkwc{ggElems} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= sm1,} \hlkwc{y} \hlstd{= truth),}
+                                                     \hlkwc{data} \hlstd{= trueFsm1,} \hlkwc{linetype} \hlstd{=} \hlnum{2}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
-<<plotm1sm1, echo=FALSE, fig.width=6, fig.height=2, cache=TRUE, external=TRUE>>=
-trueFsm1 <- data.frame(truth=fsm1-mean(fsm1), sm1=sm1)
-pSm1Cum <- pSm11[[1]] + geom_line(data=trueFsm1, aes(x=sm1, y=truth), lty=2)  +
-  theme(axis.text.x = element_text(size=9),
-        axis.text.y = element_text(size=9, hjust=1))# + ylab("$\\eta$")
-gridExtra:::grid.arrange(pSm1Sep[[1]], pSm1Sep[[2]], pSm1Cum, nrow=1)
-@
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{UsingSpikeSlabGAMplotm1sm1-1} 
+\end{knitrout}
 
 \posthrule\caption{Posterior means and pointwise 80\% credible intervals for $f(\mathtt{sm1})$ in
 \texttt{m1}. Left and middle panel show the separate \texttt{lin()}- and \texttt{sm()}-terms returned by the first call to \code{plot},
@@ -932,24 +1050,23 @@ right panel shows their sum. True shape of $f(\mathtt{sm1})$ added as a dashed l
 \setkeys{Gin}{width=6in}
 \begin{figure}[!htbp]\begin{center}\prehrule
 \tikzset{font=\small}
-<<plotm1sm2fFake, echo=TRUE, eval=FALSE>>=
-trueFsm2f <-data.frame(truth = fsm2f - mean(fsm2f), sm2 = sm2, f = f)
-plot(m, labels = "sm(sm2):fct(f)",
-     ggElems = list(geom_line(aes(x = sm2, y = truth, colour = f),
-                              data = trueFsm2f, linetype = 2)))
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{trueFsm2f} \hlkwb{<-}\hlkwd{data.frame}\hlstd{(}\hlkwc{truth} \hlstd{= fsm2f} \hlopt{-} \hlkwd{mean}\hlstd{(fsm2f),} \hlkwc{sm2} \hlstd{= sm2,} \hlkwc{f} \hlstd{= f)}
+\hlkwd{plot}\hlstd{(m,} \hlkwc{labels} \hlstd{=} \hlstr{"sm(sm2):fct(f)"}\hlstd{,}
+     \hlkwc{ggElems} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= sm2,} \hlkwc{y} \hlstd{= truth,} \hlkwc{colour} \hlstd{= f),}
+                              \hlkwc{data} \hlstd{= trueFsm2f,} \hlkwc{linetype} \hlstd{=} \hlnum{2}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
-<<plotm1sm2fprep, echo=FALSE, cache=TRUE, results='hide', fig.show='hide'>>=
-trueFsm2f <-data.frame(truth=fsm2f-mean(fsm2f), sm2=sm2, f=f)
-#JSS only: plot(m, labels="sm(sm2):fct(f)", ggElems=list(list(ylab("$\\eta$")), geom_line(aes(x=sm2, y=truth, colour=f), data=trueFsm2f, linetype=2)))
-pl2 <- plot(m, labels="sm(sm2):fct(f)",
-            ggElems=list(geom_line(aes(x=sm2, y=truth, colour=f), data=trueFsm2f,
-                                   linetype=2)))
-@
 
-<<plotm1sm2f, echo=FALSE, fig.width=6, fig.height=3, cache=TRUE, external=TRUE>>=
-pl2[[1]]
-@
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{UsingSpikeSlabGAMplotm1sm2f-1} 
+\end{knitrout}
 
 \posthrule\caption{Posterior means and pointwise 80\% credible intervals for $f(\mathtt{sm2}, \mathtt{f})$ in
 \texttt{m1}. True shape of $f(\mathtt{sm2}|\mathtt{f})$ added as dashed line for each level of \texttt{f}, see lines of code above the figure.}
@@ -972,58 +1089,147 @@ We remove two columns with a large number of missing values and
 use the complete measurements of the remaining 7 covariates and the response (diabetes Yes/No) for 524 women
 to estimate the model.
 We set aside 200 observations as a test set:
-<<pimaDataPrep, echo=TRUE>>=
-data("PimaIndiansDiabetes2", package = "mlbench")
-pimaDiab <- na.omit(PimaIndiansDiabetes2[, -c(4, 5)])
-pimaDiab <- within(pimaDiab,{
-  diabetes <- 1*(diabetes == "pos")
-})
-set.seed(1109712439)
-testInd <- sample(1:nrow(pimaDiab), 200)
-pimaDiabTrain <- pimaDiab[-testInd,]
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hlstd{(}\hlstr{"PimaIndiansDiabetes2"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"mlbench"}\hlstd{)}
+\hlstd{pimaDiab} \hlkwb{<-} \hlkwd{na.omit}\hlstd{(PimaIndiansDiabetes2[,} \hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{5}\hlstd{)])}
+\hlstd{pimaDiab} \hlkwb{<-} \hlkwd{within}\hlstd{(pimaDiab,\{}
+  \hlstd{diabetes} \hlkwb{<-} \hlnum{1}\hlopt{*}\hlstd{(diabetes} \hlopt{==} \hlstr{"pos"}\hlstd{)}
+\hlstd{\})}
+\hlkwd{set.seed}\hlstd{(}\hlnum{1109712439}\hlstd{)}
+\hlstd{testInd} \hlkwb{<-} \hlkwd{sample}\hlstd{(}\hlnum{1}\hlopt{:}\hlkwd{nrow}\hlstd{(pimaDiab),} \hlnum{200}\hlstd{)}
+\hlstd{pimaDiabTrain} \hlkwb{<-} \hlstd{pimaDiab[}\hlopt{-}\hlstd{testInd,]}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 Note that \code{spikeSlabGAM()} always expects a dataset without any missing values and responses between 0 and 1 for binomial models.
 
 We increase the length of the burn-in phase for each chain from 100 to 500 iterations and
 run 8 parallel\footnote{on Windows, a parallel socket cluster is set up,
 on other OSs forking via \code{parallel:mclapply} is used} chains for an additive main effects model:
-<<pimaM0, echo=TRUE, cache=TRUE, results='hide'>>=
-mcmc <- list(nChains = 8, chainLength = 1000, burnin = 500, thin = 5)
-m0 <- spikeSlabGAM(
-  diabetes ~ pregnant + glucose + pressure + mass + pedigree + age,
-  family = "binomial", data = pimaDiabTrain, mcmc = mcmc)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{mcmc} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{nChains} \hlstd{=} \hlnum{8}\hlstd{,} \hlkwc{chainLength} \hlstd{=} \hlnum{1000}\hlstd{,} \hlkwc{burnin} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{thin} \hlstd{=} \hlnum{5}\hlstd{)}
+\hlstd{m0} \hlkwb{<-} \hlkwd{spikeSlabGAM}\hlstd{(}
+  \hlstd{diabetes} \hlopt{~} \hlstd{pregnant} \hlopt{+} \hlstd{glucose} \hlopt{+} \hlstd{pressure} \hlopt{+} \hlstd{mass} \hlopt{+} \hlstd{pedigree} \hlopt{+} \hlstd{age,}
+  \hlkwc{family} \hlstd{=} \hlstr{"binomial"}\hlstd{,} \hlkwc{data} \hlstd{= pimaDiabTrain,} \hlkwc{mcmc} \hlstd{= mcmc)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 We compute the posterior predictive means for the test set, and request a summary of the fitted model:
-<<pimaM0Summary, echo=TRUE>>=
-pr0 <- predict(m0, newdata = pimaDiab[testInd,])
-print(summary(m0), printModels = FALSE)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{pr0} \hlkwb{<-} \hlkwd{predict}\hlstd{(m0,} \hlkwc{newdata} \hlstd{= pimaDiab[testInd,])}
+\end{alltt}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in (function (xnew) : predictions outside fitted range for lin(pregnant).}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in (function (xnew) : predictions outside fitted range for sm(pregnant).}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in (function (xnew) : predictions outside fitted range for lin(pressure).}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in (function (xnew) : predictions outside fitted range for sm(pressure).}}\begin{alltt}
+\hlkwd{print}\hlstd{(}\hlkwd{summary}\hlstd{(m0),} \hlkwc{printModels} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Spike-and-Slab STAR for Binomial data 
+## 
+## Model:
+## diabetes ~ (lin(pregnant) + sm(pregnant)) + (lin(glucose) + sm(glucose)) + 
+##     (lin(pressure) + sm(pressure)) + (lin(mass) + sm(mass)) + 
+##     (lin(pedigree) + sm(pedigree)) + (lin(age) + sm(age))
+## <environment: 0x55b4ba90a658>
+## 524 observations; 58 coefficients in 13 model terms.
+## 
+## Prior:
+##  a[tau]  b[tau]    v[0]    a[w]    b[w] 
+## 5.0e+00 2.5e+01 2.5e-04 1.0e+00 1.0e+00 
+## 
+## MCMC:
+## Saved 8000 samples from 8 chain(s), each ran 5000 iterations after a
+##   burn-in of 500 ; Thinning: 5
+## P-IWLS acceptance rates: 0.91 for alpha; 0.63 for xi.
+##                             
+## Null deviance:           673
+## Mean posterior deviance: 454
+## 
+## Marginal posterior inclusion probabilities and term importance:
+##               P(gamma = 1)     pi dim    
+## u                       NA     NA   1    
+## lin(pregnant)        0.908  0.084   1 ***
+## sm(pregnant)         0.015  0.000   8    
+## lin(glucose)         1.000  0.513   1 ***
+## sm(glucose)          0.016  0.000   9    
+## lin(pressure)        0.017 -0.001   1    
+## sm(pressure)         0.018  0.000   9    
+## lin(mass)            1.000  0.204   1 ***
+## sm(mass)             0.729  0.063   9  **
+## lin(pedigree)        1.000  0.085   1 ***
+## sm(pedigree)         0.015  0.000   8    
+## lin(age)             0.119  0.007   1    
+## sm(age)              0.705  0.044   8  **
+## *:P(gamma = 1)>.25 **:P(gamma = 1)>.5 ***:P(gamma = 1)>.9
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 \code{spikeSlabGAM} selects nonlinear effects for \code{age} and \code{mass} and a linear trend in \code{glucose}
 (and with fairly weak support for a nonlinear effect of \code{pedigree}).
 \pkg{mboost}\code{::gamboost} ranks the variables very similarly, based on the relative selection frequencies of the associated baselearners:
-<<pimaB0, echo=TRUE, cache=TRUE, results='hide'>>=
-b <- gamboost(
-  as.factor(diabetes) ~ pregnant + glucose + pressure + mass + pedigree + age,
-  family = Binomial(), data = pimaDiabTrain)[300]
-aic <- AIC(b, method = "classical")
-prB <- predict(b[mstop(aic)], newdata = pimaDiab[testInd,])
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{b} \hlkwb{<-} \hlkwd{gamboost}\hlstd{(}
+  \hlkwd{as.factor}\hlstd{(diabetes)} \hlopt{~} \hlstd{pregnant} \hlopt{+} \hlstd{glucose} \hlopt{+} \hlstd{pressure} \hlopt{+} \hlstd{mass} \hlopt{+} \hlstd{pedigree} \hlopt{+} \hlstd{age,}
+  \hlkwc{family} \hlstd{=} \hlkwd{Binomial}\hlstd{(),} \hlkwc{data} \hlstd{= pimaDiabTrain)[}\hlnum{300}\hlstd{]}
+\hlstd{aic} \hlkwb{<-} \hlkwd{AIC}\hlstd{(b,} \hlkwc{method} \hlstd{=} \hlstr{"classical"}\hlstd{)}
+\hlstd{prB} \hlkwb{<-} \hlkwd{predict}\hlstd{(b[}\hlkwd{mstop}\hlstd{(aic)],} \hlkwc{newdata} \hlstd{= pimaDiab[testInd,])}
+\end{alltt}
 
-<<pimaB0Sum, echo=TRUE>>=
-summary(b[mstop(aic)])$selprob
-@
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in bsplines(mf[[i]], knots = args\$knots[[i]]\$knots, boundary.knots = args\$knots[[i]]\$boundary.knots, : Some 'x' values are beyond 'boundary.knots'; Linear extrapolation used.}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in bsplines(mf[[i]], knots = args\$knots[[i]]\$knots, boundary.knots = args\$knots[[i]]\$boundary.knots, : Some 'x' values are beyond 'boundary.knots'; Linear extrapolation used.}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{summary}\hlstd{(b[}\hlkwd{mstop}\hlstd{(aic)])}\hlopt{$}\hlstd{selprob}
+\end{alltt}
+\begin{verbatim}
+##     bbs(mass, df = dfbase)  bbs(glucose, df = dfbase) 
+##                   0.347826                   0.229814 
+## bbs(pedigree, df = dfbase) bbs(pregnant, df = dfbase) 
+##                   0.130435                   0.105590 
+##      bbs(age, df = dfbase) bbs(pressure, df = dfbase) 
+##                   0.099379                   0.086957
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 Finally, we compare the deviance (i.e., twice negative log-likelihood) on the test set for the two fitted models:
-<<pimaM0Pred>>=
-dev <- function(y, p){
-  -2*sum(dbinom(x = y, size = 1, prob = p, log = T))
-}
-c(spikeSlabGAM = dev(pimaDiab[testInd, "diabetes"], pr0),
-  gamboost   = dev(pimaDiab[testInd, "diabetes"], plogis(prB)))
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{dev} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{y}\hlstd{,} \hlkwc{p}\hlstd{)\{}
+  \hlopt{-}\hlnum{2}\hlopt{*}\hlkwd{sum}\hlstd{(}\hlkwd{dbinom}\hlstd{(}\hlkwc{x} \hlstd{= y,} \hlkwc{size} \hlstd{=} \hlnum{1}\hlstd{,} \hlkwc{prob} \hlstd{= p,} \hlkwc{log} \hlstd{= T))}
+\hlstd{\}}
+\hlkwd{c}\hlstd{(}\hlkwc{spikeSlabGAM} \hlstd{=} \hlkwd{dev}\hlstd{(pimaDiab[testInd,} \hlstr{"diabetes"}\hlstd{], pr0),}
+  \hlkwc{gamboost}   \hlstd{=} \hlkwd{dev}\hlstd{(pimaDiab[testInd,} \hlstr{"diabetes"}\hlstd{],} \hlkwd{plogis}\hlstd{(prB)))}
+\end{alltt}
+\begin{verbatim}
+## spikeSlabGAM     gamboost 
+##       199.52       204.57
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 So it seems like \code{spikeSlabGAM}'s model averaged predictions are a little more accurate
 than the predictions returned by \code{gamboost} in this case.
@@ -1031,22 +1237,82 @@ than the predictions returned by \code{gamboost} in this case.
 We can check the sensitivity of the results to the hyperparameters and refit the
 model with a larger $v_0$ to see if/how the results change:
 
-<<pimaM1, echo=TRUE, cache=TRUE, results='hide'>>=
-hyper1 <- list(gamma = c(v0 = 0.005))
-m1 <- spikeSlabGAM(
-  diabetes ~ pregnant + glucose + pressure + mass + pedigree + age,
-  family = "binomial", data = pimaDiabTrain, mcmc = mcmc,
-  hyperparameters = hyper1)
-pr1 <- predict(m1, newdata = pimaDiab[testInd, ])
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{hyper1} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{gamma} \hlstd{=} \hlkwd{c}\hlstd{(}\hlkwc{v0} \hlstd{=} \hlnum{0.005}\hlstd{))}
+\hlstd{m1} \hlkwb{<-} \hlkwd{spikeSlabGAM}\hlstd{(}
+  \hlstd{diabetes} \hlopt{~} \hlstd{pregnant} \hlopt{+} \hlstd{glucose} \hlopt{+} \hlstd{pressure} \hlopt{+} \hlstd{mass} \hlopt{+} \hlstd{pedigree} \hlopt{+} \hlstd{age,}
+  \hlkwc{family} \hlstd{=} \hlstr{"binomial"}\hlstd{,} \hlkwc{data} \hlstd{= pimaDiabTrain,} \hlkwc{mcmc} \hlstd{= mcmc,}
+  \hlkwc{hyperparameters} \hlstd{= hyper1)}
+\hlstd{pr1} \hlkwb{<-} \hlkwd{predict}\hlstd{(m1,} \hlkwc{newdata} \hlstd{= pimaDiab[testInd, ])}
+\end{alltt}
 
-<<pimaM1Sum, echo=T>>=
-print(summary(m1), printModels = FALSE)
-(dev(pimaDiab[testInd, "diabetes"], pr1))
-@
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in (function (xnew) : predictions outside fitted range for lin(pregnant).}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in (function (xnew) : predictions outside fitted range for sm(pregnant).}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in (function (xnew) : predictions outside fitted range for lin(pressure).}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in (function (xnew) : predictions outside fitted range for sm(pressure).}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{print}\hlstd{(}\hlkwd{summary}\hlstd{(m1),} \hlkwc{printModels} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Spike-and-Slab STAR for Binomial data 
+## 
+## Model:
+## diabetes ~ (lin(pregnant) + sm(pregnant)) + (lin(glucose) + sm(glucose)) + 
+##     (lin(pressure) + sm(pressure)) + (lin(mass) + sm(mass)) + 
+##     (lin(pedigree) + sm(pedigree)) + (lin(age) + sm(age))
+## <environment: 0x55b4b30f78d8>
+## 524 observations; 58 coefficients in 13 model terms.
+## 
+## Prior:
+## a[tau] b[tau]   v[0]   a[w]   b[w] 
+##  5.000 25.000  0.005  1.000  1.000 
+## 
+## MCMC:
+## Saved 8000 samples from 8 chain(s), each ran 5000 iterations after a
+##   burn-in of 500 ; Thinning: 5
+## P-IWLS acceptance rates: 0.84 for alpha; 0.63 for xi.
+##                             
+## Null deviance:           673
+## Mean posterior deviance: 446
+## 
+## Marginal posterior inclusion probabilities and term importance:
+##               P(gamma = 1)     pi dim    
+## u                       NA     NA   1    
+## lin(pregnant)        0.951  0.078   1 ***
+## sm(pregnant)         0.069  0.000   8    
+## lin(glucose)         1.000  0.474   1 ***
+## sm(glucose)          0.078  0.000   9    
+## lin(pressure)        0.106 -0.008   1    
+## sm(pressure)         0.082  0.001   9    
+## lin(mass)            1.000  0.220   1 ***
+## sm(mass)             0.995  0.104   9 ***
+## lin(pedigree)        0.987  0.079   1 ***
+## sm(pedigree)         0.068  0.000   8    
+## lin(age)             0.140  0.012   1    
+## sm(age)              0.346  0.041   8   *
+## *:P(gamma = 1)>.25 **:P(gamma = 1)>.5 ***:P(gamma = 1)>.9
+\end{verbatim}
+\begin{alltt}
+\hlstd{(}\hlkwd{dev}\hlstd{(pimaDiab[testInd,} \hlstr{"diabetes"}\hlstd{], pr1))}
+\end{alltt}
+\begin{verbatim}
+## [1] 199.72
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 The selected terms are very similar, and the prediction is slightly more accurate
-(predictive deviance for \code{m0} was \Sexpr{round(dev(pimaDiab[testInd,"diabetes"], pr0),2)}).
+(predictive deviance for \code{m0} was 199.52).
 Note that, due to the multi-modality of the target posterior, stable estimation of precise posterior inclusion and
 model probabilities requires more parallel chains than were used in this example.
 
@@ -1065,9 +1331,66 @@ i.e., never including an interaction if the associated main effects are excluded
 
 \section*{Computational Details}
 This vignette was created with:
-<<sessionInfo>>=
-sessionInfo()
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{sessionInfo}\hlstd{()}
+\end{alltt}
+\begin{verbatim}
+## R version 4.1.0 (2021-05-18)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Linux Mint 20
+## 
+## Matrix products: default
+## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=de_DE.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=de_DE.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] parallel  stats     graphics  grDevices utils     datasets 
+## [7] methods   base     
+## 
+## other attached packages:
+## [1] gtable_0.3.0        ggplot2_3.3.6       mboost_2.9-5       
+## [4] stabs_0.6-4         spikeSlabGAM_1.1-15
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_1.0.8.3       here_1.0.1         mvtnorm_1.1-3     
+##  [4] lattice_0.20-45    nleqslv_3.3.2      rprojroot_2.0.3   
+##  [7] assertthat_0.2.1   digest_0.6.29      foreach_1.5.2     
+## [10] utf8_1.2.2         R6_2.5.1           plyr_1.8.7        
+## [13] nnls_1.4           MatrixModels_0.5-0 evaluate_0.15     
+## [16] coda_0.19-4        pracma_2.3.8       highr_0.9         
+## [19] pillar_1.7.0       rlang_1.0.2        SparseM_1.81      
+## [22] rpart_4.1.16       partykit_1.2-15    Matrix_1.4-0      
+## [25] rmarkdown_2.14     labeling_0.4.2     splines_4.1.0     
+## [28] stringr_1.4.0      munsell_0.5.0      compiler_4.1.0    
+## [31] xfun_0.30          pkgconfig_2.0.3    libcoin_1.0-9     
+## [34] mcmc_0.9-7         htmltools_0.5.2    tidyselect_1.1.2  
+## [37] tibble_3.1.7       gridExtra_2.3      quadprog_1.5-8    
+## [40] R2WinBUGS_2.1-21   codetools_0.2-18   doMC_1.3.8        
+## [43] reshape_0.8.9      fansi_1.0.3        withr_2.5.0       
+## [46] crayon_1.5.1       dplyr_1.0.9        MASS_7.3-55       
+## [49] grid_4.1.0         lifecycle_1.0.1    DBI_1.1.2         
+## [52] magrittr_2.0.3     scales_1.2.0       cli_3.3.0         
+## [55] stringi_1.7.6      farver_2.1.0       sp_1.4-6          
+## [58] akima_0.6-2.3      ellipsis_0.3.2     generics_0.1.2    
+## [61] vctrs_0.4.1        boot_1.3-28        Formula_1.2-4     
+## [64] iterators_1.0.14   tools_4.1.0        glue_1.6.2        
+## [67] purrr_0.3.4        fastmap_1.1.0      survival_3.3-1    
+## [70] yaml_2.3.5         colorspace_2.0-3   cluster_2.1.2     
+## [73] isoband_0.2.5      inum_1.0-4         knitr_1.39        
+## [76] quantreg_5.88      MCMCpack_1.6-1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 \section*{Acknowledgements}
 Discussions with and feedback from Thomas Kneib, Ludwig
