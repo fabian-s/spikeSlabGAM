@@ -1,3 +1,7 @@
+spikeSlabGAM 1.1-18 (2022-05-27) ----------------------------------------
+
+* update for keeping up with CRAN checks: use a pre-compiled, static PDF vignette
+
 spikeSlabGAM 1.1-17 (2022-05-25) ----------------------------------------
 
 * update for keeping up with CRAN checks: Rd formatting

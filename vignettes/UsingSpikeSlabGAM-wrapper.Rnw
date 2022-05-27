@@ -1,0 +1,11 @@
+\documentclass{article}
+\usepackage{pdfpages}
+%\VignetteIndexEntry{spikeSlabGAM: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in R}
+
+\begin{document}
+
+\textbf{This is a precompiled PDF. Please visit the Github repo for the executable vignette with code.}
+
+\includepdf[pages=-, fitpaper=true]{UsingSpikeSlabGAM-precompiled.pdf}
+
+\end{document}
