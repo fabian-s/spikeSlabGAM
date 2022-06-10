@@ -369,11 +369,10 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
 #' by \code{\link[cluster]{clara}}) as suggested in Ruppert/Wand/Carroll, ch.
 #' 13.5. Since the thin plate penalty term penalizes deviations from a linear
 #' trend, it is recommended to add marginal linear trends and their interaction
-#' to the model if \code{baseType ="thinPlate"} to improve the fit.
-#'
-#' @note TODO: prediction seems very unstable when extrapolating outside the
-#'   convex hull, sometimes even nonsensical values inside conv.hull close to
-#'   border - problem in akima::interp?
+#' to the model if \code{baseType ="thinPlate"} to improve the fit.  
+#' 
+#' Note that predictions outside the convex hull (sometimes even just close its 
+#' border) of the original data tend to become rather unstable very quickly.
 #'
 #' @param coords a \code{data.frame} with two columns containing the coordinates
 #' @param K (approximate) number of basis functions in the original basis
@@ -400,7 +399,7 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
 #' @references Ruppert, D., Wand, M.P., Carroll, R.J. (2003). Semiparametric
 #'   Regression. Cambridge University Press
 #' @importFrom cluster clara
-#' @importFrom akima interpp
+#' @importFrom interp interp
 #' @export
 srf <- function(coords, K = min(50, sum(nd) / 4), rankZ = .999, centerBase = TRUE,
                 baseType = c("B", "thinPlate"), decomposition = c("ortho", "MM", "asIs"),
@@ -461,9 +460,9 @@ srf <- function(coords, K = min(50, sum(nd) / 4), rankZ = .999, centerBase = TRU
     }
 
     X <- apply(Bu, 2, function(b) {
-      interpp(
+      interp(
         x = xu[, 1], y = xu[, 2], z = b, xo = xnew[, 1], yo = xnew[, 2],
-        extrap = FALSE, linear = FALSE
+        extrap = FALSE, method = "linear"
       )$z
     })
     return(X)

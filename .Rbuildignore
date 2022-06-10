@@ -9,3 +9,4 @@ vignettes/.gitignore
 vignettes/cache
 TODO
 ^\.github$
+^LICENSE\.md$

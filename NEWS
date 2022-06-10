@@ -1,3 +1,8 @@
+spikeSlabGAM 1.1-19 (2022-06-10) ----------------------------------------
+
+* BDR told us to use interp instead of akima to avoid its restrictive license
+* changed to MIT license
+
 spikeSlabGAM 1.1-18 (2022-05-27) ----------------------------------------
 
 * update for keeping up with CRAN checks: use a pre-compiled, static PDF vignette

@@ -65,12 +65,10 @@ spline basis are chosen via a space-filling algorithm (i.e. medoids returned
 by \code{\link[cluster]{clara}}) as suggested in Ruppert/Wand/Carroll, ch.
 13.5. Since the thin plate penalty term penalizes deviations from a linear
 trend, it is recommended to add marginal linear trends and their interaction
-to the model if \code{baseType ="thinPlate"} to improve the fit.
-}
-\note{
-TODO: prediction seems very unstable when extrapolating outside the
-  convex hull, sometimes even nonsensical values inside conv.hull close to
-  border - problem in akima::interp?
+to the model if \code{baseType ="thinPlate"} to improve the fit.  
+
+Note that predictions outside the convex hull (sometimes even just close its 
+border) of the original data tend to become rather unstable very quickly.
 }
 \references{
 Ruppert, D., Wand, M.P., Carroll, R.J. (2003). Semiparametric
