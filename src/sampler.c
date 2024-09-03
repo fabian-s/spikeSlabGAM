@@ -93,40 +93,40 @@ SEXP sampler(
 			save = 0, keep = *burnin,  nrv =1,  info=0,
 			nSamp=(*totalLength-*burnin)/(*thin), oneInt = 1, zeroInt = 0;
 
-	double *p1 =Calloc(*pPen, double);
+	double *p1 =R_Calloc(*pPen, double);
 
 	double infV  = 100000, oneV = 1.0, zeroV = 0.0, minusOneV =-1.0;
 	double *one=&oneV, *zero=&zeroV, *minusOne=&minusOneV, *inf=&infV, acceptance=0;
 	double invSigma2 = 1 / *sigma2, sqrtInvSigma2 = R_pow(invSigma2, 0.5);
 	double  *penAlphaSq, *alphaLong, *varAlpha, *priorMeanAlpha, *modeAlpha, *offsetAlpha;;
-	penAlphaSq	= Calloc(*pPen, double);
+	penAlphaSq	= R_Calloc(*pPen, double);
 	for(int i=*p-*pPen; i<*p; i++) penAlphaSq[i- *p + *pPen] = R_pow(alpha[i], 2.0);
-	alphaLong = Calloc(*q, double);
+	alphaLong = R_Calloc(*q, double);
 	F77_CALL(dgemm)("N","N", q, &oneInt, p, one, G, q, alpha, p, zero, alphaLong, q FCONE FCONE);
-	varAlpha = Calloc(*p, double);
+	varAlpha = R_Calloc(*p, double);
 	for(int i=0; i<startPen; i++) varAlpha[i] = *inf; /*unpenalized*/
 	for(int i=startPen; i<*p; i++) varAlpha[i] = tau2[i-startPen]*gamma[i-startPen]; /*penalized*/
-	priorMeanAlpha	= Calloc(*p, double);
+	priorMeanAlpha	= R_Calloc(*p, double);
 	setToZero(priorMeanAlpha, *p);
-	modeAlpha = Calloc(*p, double);
+	modeAlpha = R_Calloc(*p, double);
 	F77_CALL(dcopy)(p, alpha, &oneInt, modeAlpha, &oneInt);
-	offsetAlpha = Calloc(*n, double);
+	offsetAlpha = R_Calloc(*n, double);
 	F77_CALL(dcopy)(n, offset, &oneInt, offsetAlpha, &oneInt);
 
 
 	double *ksiUpdate, *priorMeanKsi, *modeKsi,  *offsetKsi;
 	int safeQKsiUpdate = imax2(1, *qKsiUpdate);
 	//ksiUpdate contains the last qKsiUpdate elements in ksi
-	ksiUpdate = Calloc(safeQKsiUpdate, double);
+	ksiUpdate = R_Calloc(safeQKsiUpdate, double);
 	F77_CALL(dcopy)(&safeQKsiUpdate, &ksi[*q-safeQKsiUpdate], &oneInt, ksiUpdate, &oneInt);
-	priorMeanKsi = Calloc(safeQKsiUpdate, double);
+	priorMeanKsi = R_Calloc(safeQKsiUpdate, double);
 	setToZero(priorMeanKsi, safeQKsiUpdate);
 	for(int i=0; i<*qKsiUpdate; i++) priorMeanKsi[i] = 1.0;
-	modeKsi = Calloc(safeQKsiUpdate, double);
+	modeKsi = R_Calloc(safeQKsiUpdate, double);
 	setToZero(modeKsi, safeQKsiUpdate);
 	for(int i=0; i<*qKsiUpdate; i++) modeKsi[i] = ksi[i+qKsiNoUpdate];
 	// offsetKsi = offset + X_d=1*alpha : use lin.predictor of grps with ksi==1 as offset
-	offsetKsi = Calloc(*n, double);
+	offsetKsi = R_Calloc(*n, double);
 	F77_CALL(dcopy)(n, offset, &oneInt, offsetKsi, &oneInt);
 	if(qKsiNoUpdate < *q){
 		if(qKsiNoUpdate > 0){
@@ -135,22 +135,22 @@ SEXP sampler(
 	}
 
 	double	*eta, *resid, rss, *XAlpha, *XKsiUpdate, *etaOffset;
-	eta	= Calloc(*n, double);
+	eta	= R_Calloc(*n, double);
 	F77_CALL(dgemm)("N","N", n, &oneInt, q, one, X, n, beta, q, zero, eta, n FCONE FCONE);
-	resid = Calloc(*n, double);
+	resid = R_Calloc(*n, double);
 	rss = 0;
 	for(int i=0; i<*n; i++) {
 		resid[i] = y[i]-eta[i] - offset[i];
 		rss += R_pow(resid[i], 2.0);
 	}
-	XAlpha = Calloc(*p * (*n), double);
+	XAlpha = R_Calloc(*p * (*n), double);
 	updateXAlpha(XAlpha, X, G, ksi, q, qKsiUpdate, p, n);
-	XKsiUpdate = Calloc( *n * safeQKsiUpdate, double);
+	XKsiUpdate = R_Calloc( *n * safeQKsiUpdate, double);
 	setToZero(XKsiUpdate, *n * safeQKsiUpdate);
 	if(qKsiNoUpdate < *q){
 		updateXKsi(XKsiUpdate, X, alphaLong, q, &qKsiNoUpdate, n);
 	}
-	etaOffset	= Calloc(*n, double);
+	etaOffset	= R_Calloc(*n, double);
 	for(int i=0; i<*n; i++) etaOffset[i] = eta[i]+offset[i];
 
 
@@ -158,8 +158,8 @@ SEXP sampler(
 	// ######## set up blocks for blockwise updates ############### //
 	// ############################################################ //
 
-	XBlockQR *AlphaBlocks = Calloc(*blocksAlpha, XBlockQR);
-	XBlockQR *KsiBlocks = Calloc(*blocksKsi, XBlockQR);
+	XBlockQR *AlphaBlocks = R_Calloc(*blocksAlpha, XBlockQR);
+	XBlockQR *KsiBlocks = R_Calloc(*blocksKsi, XBlockQR);
 
 
 	for(int i=0; i < *blocksAlpha; i++){
@@ -169,27 +169,27 @@ SEXP sampler(
 		(AlphaBlocks[i]).qA = (AlphaBlocks[i]).indA2 - (AlphaBlocks[i]).indA1 + 1;
 		(AlphaBlocks[i]).qI = *p - (AlphaBlocks[i]).qA;
 
-		(AlphaBlocks[i]).qraux = Calloc((AlphaBlocks[i]).qA, double);
+		(AlphaBlocks[i]).qraux = R_Calloc((AlphaBlocks[i]).qA, double);
 		setToZero((AlphaBlocks[i]).qraux, (AlphaBlocks[i]).qA);
-		(AlphaBlocks[i]).work = Calloc((AlphaBlocks[i]).qA, double);
+		(AlphaBlocks[i]).work = R_Calloc((AlphaBlocks[i]).qA, double);
 		setToZero((AlphaBlocks[i]).work, (AlphaBlocks[i]).qA);
-		(AlphaBlocks[i]).pivots = Calloc((AlphaBlocks[i]).qA, int);
+		(AlphaBlocks[i]).pivots = R_Calloc((AlphaBlocks[i]).qA, int);
 		for(int j=0; j < (AlphaBlocks[i]).qA; j++) (AlphaBlocks[i]).pivots[j] = 0;
 
-		(AlphaBlocks[i]).coefI = Calloc((AlphaBlocks[i]).qI, double);
+		(AlphaBlocks[i]).coefI = R_Calloc((AlphaBlocks[i]).qI, double);
 		setToZero((AlphaBlocks[i]).coefI, (AlphaBlocks[i]).qI);
 
-		(AlphaBlocks[i]).Xa = Calloc(((AlphaBlocks[i]).qA + *n) * (AlphaBlocks[i]).qA, double);
+		(AlphaBlocks[i]).Xa = R_Calloc(((AlphaBlocks[i]).qA + *n) * (AlphaBlocks[i]).qA, double);
 		setToZero((AlphaBlocks[i]).Xa, ((AlphaBlocks[i]).qA + *n) * (AlphaBlocks[i]).qA);
-		(AlphaBlocks[i]).Xi = Calloc(*n * (AlphaBlocks[i]).qI, double);
+		(AlphaBlocks[i]).Xi = R_Calloc(*n * (AlphaBlocks[i]).qI, double);
 		setToZero((AlphaBlocks[i]).Xi, *n * (AlphaBlocks[i]).qI );
-		(AlphaBlocks[i]).ya = Calloc(((AlphaBlocks[i]).qA + *n), double);
+		(AlphaBlocks[i]).ya = R_Calloc(((AlphaBlocks[i]).qA + *n), double);
 		F77_CALL(dcopy)(n, y, &nrv, (AlphaBlocks[i]).ya, &nrv);
 		setToZero((AlphaBlocks[i]).ya + *n, (AlphaBlocks[i]).qA);
 
-		(AlphaBlocks[i]).m = Calloc((AlphaBlocks[i]).qA, double);
+		(AlphaBlocks[i]).m = R_Calloc((AlphaBlocks[i]).qA, double);
 			setToZero((AlphaBlocks[i]).m, (AlphaBlocks[i]).qA);
-		(AlphaBlocks[i]).err = Calloc((AlphaBlocks[i]).qA, double);
+		(AlphaBlocks[i]).err = R_Calloc((AlphaBlocks[i]).qA, double);
 			setToZero((AlphaBlocks[i]).err, (AlphaBlocks[i]).qA);
 
 	}
@@ -204,27 +204,27 @@ SEXP sampler(
 			(KsiBlocks[i]).qA = (KsiBlocks[i]).indA2 - (KsiBlocks[i]).indA1 + 1;
 			(KsiBlocks[i]).qI = *qKsiUpdate - (KsiBlocks[i]).qA;
 
-			(KsiBlocks[i]).qraux = Calloc((KsiBlocks[i]).qA, double);
+			(KsiBlocks[i]).qraux = R_Calloc((KsiBlocks[i]).qA, double);
 			setToZero((KsiBlocks[i]).qraux, (KsiBlocks[i]).qA);
-			(KsiBlocks[i]).work = Calloc((KsiBlocks[i]).qA, double);
+			(KsiBlocks[i]).work = R_Calloc((KsiBlocks[i]).qA, double);
 			setToZero((KsiBlocks[i]).work, (KsiBlocks[i]).qA);
-			(KsiBlocks[i]).pivots = Calloc((KsiBlocks[i]).qA, int);
+			(KsiBlocks[i]).pivots = R_Calloc((KsiBlocks[i]).qA, int);
 			for(int j=0; j < (KsiBlocks[i]).qA; j++) (KsiBlocks[i]).pivots[j] = 0;
 
-			(KsiBlocks[i]).coefI = Calloc((KsiBlocks[i]).qI, double);
+			(KsiBlocks[i]).coefI = R_Calloc((KsiBlocks[i]).qI, double);
 			setToZero((KsiBlocks[i]).coefI, (KsiBlocks[i]).qI);
 
-			(KsiBlocks[i]).Xa = Calloc(((KsiBlocks[i]).qA + *n) * (KsiBlocks[i]).qA, double);
+			(KsiBlocks[i]).Xa = R_Calloc(((KsiBlocks[i]).qA + *n) * (KsiBlocks[i]).qA, double);
 			setToZero((KsiBlocks[i]).Xa, ((KsiBlocks[i]).qA + *n) * (KsiBlocks[i]).qA);
-			(KsiBlocks[i]).Xi = Calloc(*n * (KsiBlocks[i]).qI, double);
+			(KsiBlocks[i]).Xi = R_Calloc(*n * (KsiBlocks[i]).qI, double);
 			setToZero((KsiBlocks[i]).Xi, *n * (KsiBlocks[i]).qI );
-			(KsiBlocks[i]).ya = Calloc(((KsiBlocks[i]).qA + *n), double);
+			(KsiBlocks[i]).ya = R_Calloc(((KsiBlocks[i]).qA + *n), double);
 			F77_CALL(dcopy)(n, y, &nrv, (KsiBlocks[i]).ya, &nrv);
 			setToZero((KsiBlocks[i]).ya + *n, (KsiBlocks[i]).qA);
 
-			(KsiBlocks[i]).m = Calloc((KsiBlocks[i]).qA, double);
+			(KsiBlocks[i]).m = R_Calloc((KsiBlocks[i]).qA, double);
 			setToZero((KsiBlocks[i]).m, (KsiBlocks[i]).qA);
-			(KsiBlocks[i]).err = Calloc((KsiBlocks[i]).qA, double);
+			(KsiBlocks[i]).err = R_Calloc((KsiBlocks[i]).qA, double);
 			setToZero((KsiBlocks[i]).err, (KsiBlocks[i]).qA);
 		}
 		initializeBlocksQR(KsiBlocks, XKsiUpdate, *n, *blocksKsi, *qKsiUpdate, varKsi, scale);
@@ -405,17 +405,17 @@ SEXP sampler(
 		}
 	}
 
-	Free(etaOffset); Free(XKsiUpdate); Free(XAlpha);  Free(resid); Free(eta);
-	Free(offsetKsi); Free(modeKsi); Free(priorMeanKsi);	Free(ksiUpdate);
-	Free(offsetAlpha);
-	Free(modeAlpha);
-	Free(priorMeanAlpha);
-	Free(varAlpha);
-	Free(alphaLong);
-	Free(penAlphaSq);
-	freeXBlockQR(AlphaBlocks, *blocksAlpha);
-	if(qKsiNoUpdate < *q) freeXBlockQR(KsiBlocks, *blocksKsi);
-	Free(p1);
+	R_Free(etaOffset); R_Free(XKsiUpdate); R_Free(XAlpha);  R_Free(resid); R_Free(eta);
+	R_Free(offsetKsi); R_Free(modeKsi); R_Free(priorMeanKsi);	R_Free(ksiUpdate);
+	R_Free(offsetAlpha);
+	R_Free(modeAlpha);
+	R_Free(priorMeanAlpha);
+	R_Free(varAlpha);
+	R_Free(alphaLong);
+	R_Free(penAlphaSq);
+	R_FreeXBlockQR(AlphaBlocks, *blocksAlpha);
+	if(qKsiNoUpdate < *q) R_FreeXBlockQR(KsiBlocks, *blocksKsi);
+	R_Free(p1);
 	return(R_NilValue);
 }/* end sampler ()*/
 

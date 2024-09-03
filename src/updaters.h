@@ -17,7 +17,7 @@ static void updateXAlpha(double *XAlpha, double *X, double *G, double *ksi, int 
 	//calculates X*diag(ksi)*G
 	int i,j, nqNoUpdate=(*q - *qKsiUpdate) * (*n), nrv=1;
 	double one=1.0, zero=0.0;
-	double *temp = Calloc(*q * (*n), double);
+	double *temp = R_Calloc(*q * (*n), double);
 
 	//copy first qKsiNoUpdate columns of X to temp
 	if(nqNoUpdate > 0) F77_CALL(dcopy)(&nqNoUpdate, X, &nrv, temp, &nrv);
@@ -29,7 +29,7 @@ static void updateXAlpha(double *XAlpha, double *X, double *G, double *ksi, int 
 	}
 	//XAlpha = temp %*%G = (X*ksi) %*% G
 	F77_CALL(dgemm)("N","N", n, p, q, &one, temp, n, G, q, &zero, XAlpha, n FCONE FCONE);
-	Free(temp);
+	R_Free(temp);
 }
 
 static void updateXKsi(double *XKsiUpdate, double *X, double *alphaLong, int *q, int *qKsiNoUpdate, int *n){
@@ -197,13 +197,13 @@ static void  updateCoefBlockQR_IWLS(int j, int n, double *X, double *y,
 	int i, k, l, info=0, oneInt = 1, switchMode = 0;
 	int qA = (Xblocks[j]).qA, qI = (Xblocks[j]).qI, rows = n + qA;
 	double minusOne = -1.0, one=1.0, likC, logAccProb, proposalDens;
-	double *coefC =  Calloc(qA, double);
-	double *coefChange = Calloc(qA, double);
-	double *var = Calloc(n, double);
-	double *w = Calloc(n, double);
-	double *mu = Calloc(n, double);
-	double *etaOffset = Calloc(n, double);
-	double *etaMode= Calloc(n, double);
+	double *coefC =  R_Calloc(qA, double);
+	double *coefChange = R_Calloc(qA, double);
+	double *var = R_Calloc(n, double);
+	double *w = R_Calloc(n, double);
+	double *mu = R_Calloc(n, double);
+	double *etaOffset = R_Calloc(n, double);
+	double *etaMode= R_Calloc(n, double);
 
 	//0. update Xa, Xi (see updateBlocks)
 	l = 0;
@@ -416,13 +416,13 @@ static void  updateCoefBlockQR_IWLS(int j, int n, double *X, double *y,
 		}
 	}
 
-	Free(etaMode);
-	Free(etaOffset);
-	Free(mu);
-	Free(w);
-	Free(var);
-	Free(coefChange);
-	Free(coefC);
+	R_Free(etaMode);
+	R_Free(etaOffset);
+	R_Free(mu);
+	R_Free(w);
+	R_Free(var);
+	R_Free(coefChange);
+	R_Free(coefC);
 }
 
 static  void updateCoefQR(
@@ -443,9 +443,9 @@ static  void updateCoefQR(
 ){
 // FIXME: DIRTYDIRTY- scale[0] is 1/sqrt(sigma2) for gaussian, else the real scale parameter (e.g. n_i for binomial)
 	int j, k, length=blocksCoef;
-	double *yOffset = Calloc(n, double);
-	int *shuffle = Calloc(blocksCoef, int);
-	int *iterator = Calloc(blocksCoef, int);
+	double *yOffset = R_Calloc(n, double);
+	int *shuffle = R_Calloc(blocksCoef, int);
+	int *iterator = R_Calloc(blocksCoef, int);
 
 	if(family == 0) { // offset for IWLS incorporated into determining working obs, only need this for non-IWLS
 		for(j = 0; j < n; j++) yOffset[j] = y[j] - offset[j];
@@ -471,9 +471,9 @@ static  void updateCoefQR(
 		}
 
 	}
-	Free(iterator);
-	Free(shuffle);
-	Free(yOffset);
+	R_Free(iterator);
+	R_Free(shuffle);
+	R_Free(yOffset);
 }
 
 static  void  rescaleKsiAlpha(double *ksi, double *alpha, double *varKsi, double *tau2, double *G, int *d, int p, int q,
@@ -481,9 +481,9 @@ static  void  rescaleKsiAlpha(double *ksi, double *alpha, double *varKsi, double
 	/*rescale ksi groupwise so that sum(abs(ksi_g))/dim(g)=1, change alphas accordingly*/
 	/* also tried rescaling by 1/max(abs(ksi_g)) --> stronger regularization*/
 	int  i ,j, oneInt =1;
-	double *scale = Calloc(p, double);
+	double *scale = R_Calloc(p, double);
 		setToZero(scale, p);
-	double *scaleLong = Calloc(q, double);
+	double *scaleLong = R_Calloc(q, double);
 		setToZero(scaleLong, q);
 	double one = 1.0, zero=0.0;
 
@@ -523,8 +523,8 @@ static  void  rescaleKsiAlpha(double *ksi, double *alpha, double *varKsi, double
 			//varKsi[j-qKsiNoUpdate] *= R_pow(scaleLong[j], 2.0);
 		}
 	}
-	Free(scaleLong);
-	Free(scale);
+	R_Free(scaleLong);
+	R_Free(scale);
 }
 
 static double updateLogPost(

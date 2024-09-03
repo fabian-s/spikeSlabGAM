@@ -1,12 +1,14 @@
 #ifndef MYUTILS_H_
 #define MYUTILS_H_
 
-/*  R_alloc*/
+
 #include <R.h>
 /* FlushConsole*/
 #include <Rinternals.h>
 /* rng's, log, etc..*/
 #include <Rmath.h>
+/*  R_alloc*/
+#include <R_ext/RS.h>
 /* BLAS */
 #include <R_ext/BLAS.h>
 /* Lapack*/
@@ -15,7 +17,6 @@
 #include <R_ext/Linpack.h>
 /* CheckUserInterrupt*/
 #include <R_ext/Utils.h>
-
 /*Fortran routines DQRLS etc...*/
 #include <R_ext/Applic.h>
 
@@ -44,22 +45,22 @@ typedef struct {
 } XBlockQR;
 
 
-void freeXBlockQR(XBlockQR *blocks, int n){
+void R_FreeXBlockQR(XBlockQR *blocks, int n){
 	for (int i =0; i < n; i++) {
-		Free(blocks[i].ya);
-		Free(blocks[i].Xa);
-		Free(blocks[i].Xi);
-		Free(blocks[i].coefI);
+		R_Free(blocks[i].ya);
+		R_Free(blocks[i].Xa);
+		R_Free(blocks[i].Xi);
+		R_Free(blocks[i].coefI);
 
-		Free(blocks[i].qraux);
-		Free(blocks[i].work);
-		Free(blocks[i].pivots);
+		R_Free(blocks[i].qraux);
+		R_Free(blocks[i].work);
+		R_Free(blocks[i].pivots);
 
-		Free(blocks[i].m);
-		Free(blocks[i].err);
+		R_Free(blocks[i].m);
+		R_Free(blocks[i].err);
 
 	}
-	Free(blocks);
+	R_Free(blocks);
 }
 
 
