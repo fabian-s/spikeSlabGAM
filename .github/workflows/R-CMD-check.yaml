@@ -1,12 +1,18 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/master/examples
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# NOTE: This workflow is overkill for most R packages and
+# check-standard.yaml is likely a better choice.
+# usethis::use_github_action("check-standard") will install it.
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
 
-name: R-CMD-check
+name: R-CMD-check.yaml
+
+permissions: read-all
 
 jobs:
   R-CMD-check:
@@ -18,49 +24,40 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macOS-latest,   r: 'release'}
+          - {os: macos-latest,   r: 'release'}
+
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          # use 4.0 or 4.1 to check with rtools40's older compiler
+          - {os: windows-latest, r: 'oldrel-4'}
+
+          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
+          - {os: ubuntu-latest,  r: 'oldrel-1'}
+          - {os: ubuntu-latest,  r: 'oldrel-2'}
+          - {os: ubuntu-latest,  r: 'oldrel-3'}
+          - {os: ubuntu-latest,  r: 'oldrel-4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: r-lib/actions/setup-pandoc@v1
+      - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-          
-      - uses: r-lib/actions/setup-tinytex@master
-      
-      - name: Install LATEX dependencies
-        run: |
-          install.packages("tinytex")
-          try(tinytex::tlmgr_install(pkgs = c("ae", "thumbpdf", "caption", "comment", "fancyvrb", "upquote", "pgf")))
-          try(tinytex::parse_install(text = "! LaTeX Error: File `framed.sty' not found"))
-          try(tinytex::parse_install(text = "! LaTeX Error: File `algorithmic.sty' not found"))
-          try(tinytex::parse_install(text = "! LaTeX Error: File `algorithm.sty' not found"))
-          try(tinytex::parse_install(text = "! LaTeX Error: File `bm.sty' not found"))
-          try(tinytex::parse_install(text = "! LaTeX Error: File `rotating.sty' not found"))
-          try(tinytex::parse_install(text = "! LaTeX Error: File `grfext.sty' not found."))
-          try(tinytex::parse_install(text = "! LaTeX Error: File `pdfpages.sty' not found."))
-          try(tinytex::parse_install(text = "! LaTeX Error: File `pdflscape.sty' not found.")) 
-        shell: Rscript {0}
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck
+          extra-packages: any::rcmdcheck
+          needs: check
 
       - uses: r-lib/actions/check-r-package@v2
-        with: 
-          args: 'c("--as-cran")'
-          build_args: 'c("-compact-vignettes=both")'
-          error-on: '"error"'
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
