@@ -96,7 +96,7 @@ SEXP sampler(
 	double *p1 =R_Calloc(*pPen, double);
 
 	double infV  = 100000, oneV = 1.0, zeroV = 0.0, minusOneV =-1.0;
-	double *one=&oneV, *zero=&zeroV, *minusOne=&minusOneV, *inf=&infV, acceptance=0;
+	double *one=&oneV, *zero=&zeroV, *minusOne=&minusOneV, *inf=&infV; //	, acceptance=0;
 	double invSigma2 = 1 / *sigma2, sqrtInvSigma2 = R_pow(invSigma2, 0.5);
 	double  *penAlphaSq, *alphaLong, *varAlpha, *priorMeanAlpha, *modeAlpha, *offsetAlpha;;
 	penAlphaSq	= R_Calloc(*pPen, double);
@@ -396,14 +396,14 @@ SEXP sampler(
 	PutRNGstate();
 
 	if(*verbose) Rprintf(".");
-	if(*family > 0) {
-		acceptance = 0.0;
-		for(j=0; j<*blocksAlpha; j++) acceptance += acceptAlpha[j];
-		acceptance = 0.0;
-		if(qKsiNoUpdate < *q){
-			for(j=0; j<*blocksKsi; j++) acceptance += acceptKsi[j];
-		}
-	}
+	// if(*family > 0) {
+	// 	acceptance = 0.0;
+	// 	for(j=0; j<*blocksAlpha; j++) acceptance += acceptAlpha[j];
+	// 	acceptance = 0.0;
+	// 	if(qKsiNoUpdate < *q){
+	// 		for(j=0; j<*blocksKsi; j++) acceptance += acceptKsi[j];
+	// 	}
+	// }
 
 	R_Free(etaOffset); R_Free(XKsiUpdate); R_Free(XAlpha);  R_Free(resid); R_Free(eta);
 	R_Free(offsetKsi); R_Free(modeKsi); R_Free(priorMeanKsi);	R_Free(ksiUpdate);
