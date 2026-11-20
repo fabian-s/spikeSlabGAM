@@ -5,12 +5,8 @@
 # define FCONE
 #endif
 
-/* FIXME:
-   Check these declarations against the C/Fortran source code.
-*/
-
 /* .C calls */
-extern void sampler(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void sampler(double *, double *, double *, double *, double *, double *, double *, double *, int *, int *, int *, int *, int *, int *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, int *, int *, int *, int *, int *, int *, int *, int *, int *, int *, int *, double *, int *, double *, int *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *);
 
 static const R_CMethodDef CEntries[] = {
     {"sampler", (DL_FUNC) &sampler, 53},
