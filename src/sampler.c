@@ -19,7 +19,7 @@
 #include "updaters.h"
 
 //extern "C"{
-SEXP sampler(
+void sampler(
 		/*prior params*/
 		double *a1, double *a2, /* prior for tau2*/
 		double *b1, double *b2, /* prior for sigma2 */
@@ -416,6 +416,5 @@ SEXP sampler(
 	R_FreeXBlockQR(AlphaBlocks, *blocksAlpha);
 	if(qKsiNoUpdate < *q) R_FreeXBlockQR(KsiBlocks, *blocksKsi);
 	R_Free(p1);
-	return(R_NilValue);
 }/* end sampler ()*/
 
