@@ -10,3 +10,4 @@ vignettes/cache
 TODO
 ^\.github$
 ^LICENSE\.md$
+^CRAN-SUBMISSION$

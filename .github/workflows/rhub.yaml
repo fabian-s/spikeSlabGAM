@@ -38,7 +38,9 @@ jobs:
         config: ${{ github.event.inputs.config }}
       id: rhub-setup
     - name: Setup TeX Live
-      uses: teatimeguest/setup-texlive-action@v3  
+      uses: teatimeguest/setup-texlive-action@v3
+      with:
+        packages: pdfpages
 
   linux-containers:
     needs: setup

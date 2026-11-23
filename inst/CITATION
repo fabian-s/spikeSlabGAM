@@ -3,9 +3,9 @@
      The JSS (2011) article focuses more on implementation, while theoretical details, simulation results and case studies
      are published in JASA (2012):")
 
-     citEntry(entry="Article",
+     bibentry(bibtype="Article",
               title = "{spikeSlabGAM}: {B}ayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in {R}",
-              author = personList(as.person("Fabian Scheipl")),
+              author = person("Fabian", "Scheipl"),
               journal = "Journal of Statistical Software",
  			  year = "2011",
  			  volume = "43",
@@ -17,15 +17,15 @@
                "Journal of Statistical Software, 43(14), 1--24."),
      )
 
-     citEntry(entry="Article",
+     bibentry(bibtype="Article",
               title = "Spike-and-Slab Priors for Function Selection in Structured Additive Regression Models",
-              author = personList(as.person("Fabian Scheipl"), as.person("Ludwig Fahrmeir"), as.person("Thomas Kneib")),
+              author = c(person("Fabian", "Scheipl"), person("Ludwig", "Fahrmeir"), person("Thomas", "Kneib")),
               journal = "Journal of the American Statistical Association",
  			  year = "2012",
  			  volume = "107",
  			  number = "500",
  			  pages  = "1518--1532",
- 			  url= "http://dx.doi.org/10.1080/01621459.2012.737742",
+ 			  doi = "10.1080/01621459.2012.737742",
               textVersion = paste("Fabian Scheipl, Ludwig Fahrmeir, Thomas Kneib (2012).",
                "Spike-and-Slab Priors for Function Selection in Structured Additive Regression Models.",
                "Journal of the American Statistical Association, 107(500), 1518--1532."),
