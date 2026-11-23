@@ -7,9 +7,12 @@
 allInvolvedTerms <- function(label, m) {
   trms <- strsplit(label, ":")[[1]]
   # add linear components to smooth terms
-  if (any(grepl("sm(", trms, fixed = T))) {
-    whichSm <- grep("sm(", trms, fixed = T)
-    linTrms <- sapply(trms[whichSm], function(x) sub("sm(", "lin(", x, fixed = T))
+  if (any(grepl("sm(", trms, fixed = TRUE))) {
+    whichSm <- grep("sm(", trms, fixed = TRUE)
+    linTrms <- sapply(
+      trms[whichSm],
+      function(x) sub("sm(", "lin(", x, fixed = TRUE)
+    )
     # add interactions
     newInts <- expand.grid(c(trms, linTrms), c(trms, linTrms))
     newInts <- unique(apply(newInts, 1, paste, collapse = ":"))
@@ -31,8 +34,7 @@ centerBase <- function(B, x, degree = 0, method = c("P", "QR")) {
     # !this removes one column from B! (?!?)
     qrC <- qr(t(matrix(colSums(B), 1, ncol(B))))
     return(t(qr.qy(qrC, t(B)))[, -1, drop = FALSE])
-  }
-  else {
+  } else {
     # B_centered[, i] = resid(lm(B[, i] ~ 1 + x + ... + x^degree)) bzw
     #                  resid(lm(B[, i] ~ -1 + Xx))
     # bzw B_centered = (I - Xx (Xx'Xx)^-1 Xx') B
@@ -73,13 +75,12 @@ getModels <- function(x, thresh = 0.5) {
     }
   ))
   t <- table(models)
-  c(sort(t / sum(t), decreasing = T))
+  c(sort(t / sum(t), decreasing = TRUE))
 }
 
 # check whether points are inside 2-d polygon defined by vertices
 # (assumes non-closed polygon, i.e head(vertices, 1)!= tail(vertices, 1))
 insidePoly <- function(points, vertices) {
-
   # angle between two vectors, enforce (-180 deg, 180 deg)
   angle <- function(v1, v2) {
     ang <- (atan2(v1[2], v1[1]) - atan2(v2[2], v2[1]))
@@ -93,7 +94,9 @@ insidePoly <- function(points, vertices) {
   getAngleSum <- function(p, vertices) {
     vertexPairs <- cbind(1:nrow(vertices), c(2:nrow(vertices), 1))
     # check: p on a vertex?
-    if (paste(p, collapse = ";") %in% apply(vertices, 1, paste, collapse = ";")) {
+    if (
+      paste(p, collapse = ";") %in% apply(vertices, 1, paste, collapse = ";")
+    ) {
       return(2 * pi)
     }
 
@@ -116,8 +119,14 @@ insidePoly <- function(points, vertices) {
 
 # find starting values via QR-based IWLS
 #' @import stats
-iwls.start <- function(X, y, family, weights = rep(1, n),
-                       offset = rep(0, n), steps = 5) {
+iwls.start <- function(
+  X,
+  y,
+  family,
+  weights = rep(1, n),
+  offset = rep(0, n),
+  steps = 5
+) {
   n <- length(y)
   p <- NCOL(X)
   if (family == 2) {
@@ -167,8 +176,17 @@ mmDesign <- function(B, K, tol = 1e-10, rankZ = .995) {
   colsZ <- if (rankZ < 1) {
     # use at least 3 but at most so many eigenvectors that rankZ * 100% of info
     # in K is represented
-    max(3, min(ncol(B), min(which(cumsum(ek$values[!nullvals]) /
-      sum(ek$values[!nullvals]) >= rankZ))))
+    max(
+      3,
+      min(
+        ncol(B),
+        min(which(
+          cumsum(ek$values[!nullvals]) /
+            sum(ek$values[!nullvals]) >=
+            rankZ
+        ))
+      )
+    )
   } else {
     rankZ
   }
@@ -179,8 +197,14 @@ mmDesign <- function(B, K, tol = 1e-10, rankZ = .995) {
 # Return orthogonalized low-rank centered basis for penalized part of a function
 # based on a matrix of basis functions B with associated covariance Cov or
 # on the implied (nonstationary) covariance of the function C = B Cov B'
-orthoDesign <- function(B = NULL, Cov = diag(NCOL(B)),
-                        C = B %*% (Cov %*% t(B)), tol = 1e-10, rankZ = .995, rank = NULL) {
+orthoDesign <- function(
+  B = NULL,
+  Cov = diag(NCOL(B)),
+  C = B %*% (Cov %*% t(B)),
+  tol = 1e-10,
+  rankZ = .995,
+  rank = NULL
+) {
   ## do a full eigen decomposition only if there's no info on the rank of C
   ## i.e if neither B nor rank are supplied, otherwise use a truncated svd
   ## via lanczos-iteration (10-50 times faster)
@@ -198,8 +222,12 @@ orthoDesign <- function(B = NULL, Cov = diag(NCOL(B)),
 
   nullvals <- eC$values < tol
   colsZ <- if (rankZ < 1) {
-    max(3, min(which(cumsum(eC$values[!nullvals]) / sum(eC$values[!nullvals]) >
-      rankZ)))
+    max(
+      3,
+      min(which(
+        cumsum(eC$values[!nullvals]) / sum(eC$values[!nullvals]) > rankZ
+      ))
+    )
   } else {
     rankZ
   }
@@ -209,8 +237,13 @@ orthoDesign <- function(B = NULL, Cov = diag(NCOL(B)),
 }
 
 # make a P-spline basis with K basis functions
-psBasis <- function(x, K = length(x), spline.degree = 3, diff.ord = 2,
-                    knots = NULL) {
+psBasis <- function(
+  x,
+  K = length(x),
+  spline.degree = 3,
+  diff.ord = 2,
+  knots = NULL
+) {
   if (is.null(knots)) {
     knots.no <- K - spline.degree + 1
     xl <- min(x)
@@ -227,7 +260,11 @@ psBasis <- function(x, K = length(x), spline.degree = 3, diff.ord = 2,
     P <- crossprod(P)
   }
   return(list(
-    X = X, P = P, knots = knots, K = K, spline.degree = spline.degree,
+    X = X,
+    P = P,
+    knots = knots,
+    K = K,
+    spline.degree = spline.degree,
     diff.ord = diff.ord
   ))
 }
@@ -254,7 +291,7 @@ summarizeF <- function(f, aggregate, quantiles) {
       }
     } else {
       NULL
-    } ,
+    },
     qu = if (!is.null(quantiles)) {
       paste(quantiles * 100, "percentile", sep = "")
     } else {
@@ -269,8 +306,12 @@ summarizeF <- function(f, aggregate, quantiles) {
 # nd: boolean vector of NonDuplicated locations
 # K: number of basis functions/knots
 # knots: a matrix of coordinates for the knots
-tp2DBasis <- function(coords, K = NULL, nd = rep(TRUE, length(coords)),
-                      knots = NULL) {
+tp2DBasis <- function(
+  coords,
+  K = NULL,
+  nd = rep(TRUE, length(coords)),
+  knots = NULL
+) {
   get2dKnts <- function(coords, K) {
     # get good knot locations from 5 repeated runs of
     # a space-filling algorithm
@@ -283,7 +324,7 @@ tp2DBasis <- function(coords, K = NULL, nd = rep(TRUE, length(coords)),
   }
 
   if (is.null(knots) & is.null(K)) stop("need to specify either K or knots.")
-  if (is.null(knots)) knots <- get2dKnts(coords[nd, , drop = F], K)
+  if (is.null(knots)) knots <- get2dKnts(coords[nd, , drop = FALSE], K)
   if (!is.null(knots)) K <- nrow(knots)
 
   rK <- dist(knots)
@@ -304,10 +345,11 @@ matrixInvRoot <- function(A, tol = 1e-10) {
   Positive <- sva$d > max(tol * sva$d[1L], 0)
   if (all(Positive)) {
     return(sva$v %*% (1 / sqrt(sva$d) * t(sva$u)))
-  }
-  else {
-    return(sva$v[, Positive, drop = FALSE] %*% ((1 / sqrt(sva$d[Positive]) *
-      t(sva$u[, Positive, drop = FALSE]))))
+  } else {
+    return(
+      sva$v[, Positive, drop = FALSE] %*%
+        ((1 / sqrt(sva$d[Positive]) * t(sva$u[, Positive, drop = FALSE])))
+    )
   }
 }
 
@@ -324,7 +366,6 @@ frob <- function(x) {
 scaleMat <- function(x, factor = 2) {
   return(x / (factor * frob(x)))
 }
-
 
 
 safeDeparse <- function(expr) {
@@ -356,9 +397,19 @@ safeDeparse <- function(expr) {
 # @v nv approximate right singular vectors
 # authors:  Jim Baglama and Lothar Reichel
 # code taken from http://www.rforge.net/irlba/ (version 0.1.1)
-irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
-                  maxit = 1000, m_b = 20, reorth = 2, tol = 1e-6, V = NULL) {
-
+irlba <- function(
+  A,
+  nu = 5,
+  nv = 5,
+  adjust = 3,
+  aug = "ritz",
+  sigma = "ls",
+  maxit = 1000,
+  m_b = 20,
+  reorth = 2,
+  tol = 1e-6,
+  V = NULL
+) {
   # ---------------------------------------------------------------------
   # Check input parameters
   # ---------------------------------------------------------------------
@@ -415,11 +466,9 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
   if (is.null(V)) {
     V <- matrix(0.0, n, m_b)
     V[, 1] <- rnorm(n)
-  }
-  else {
+  } else {
     V <- cbind(V, matrix(0.0, n, m_b - ncol(V)))
   }
-
 
   # ---------------------------------------------------------------------
   # Initialize local variables
@@ -485,13 +534,25 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
   # S_B            Singular values of B
   # V_B            Right singular vectors of B
   # k              Number of singular vectors returned
-  convtests <- function(Bsz, tol, k_org, U_B, S_B, V_B,
-                          residuals, k, SVTol, Smax) {
+  convtests <- function(
+    Bsz,
+    tol,
+    k_org,
+    U_B,
+    S_B,
+    V_B,
+    residuals,
+    k,
+    SVTol,
+    Smax
+  ) {
     Len_res <- sum(residuals[1:k_org] < tol * Smax)
     if (Len_res == k_org) {
       return(list(
-        converged = TRUE, U_B = U_B[, 1:k_org, drop = FALSE],
-        S_B = S_B[1:k_org, drop = FALSE], V_B = V_B[, 1:k_org, drop = FALSE],
+        converged = TRUE,
+        U_B = U_B[, 1:k_org, drop = FALSE],
+        S_B = S_B[1:k_org, drop = FALSE],
+        V_B = V_B[, 1:k_org, drop = FALSE],
         k = k
       ))
     }
@@ -508,7 +569,6 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
   # ---------------------------------------------------------------------
 
   while (iter <= maxit) {
-
     # ---------------------------------------------------------------------
     # Lanczos bidiagonalization iteration
     # Compute the Lanczos bidiagonal decomposition:
@@ -546,8 +606,7 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
       W[, j] <- orthog(W[, j, drop = FALSE], W[, 1:j - 1, drop = FALSE])
       W[, j] <- W[, j, drop = FALSE] / norm(W[, j, drop = FALSE])
       S <- 0
-    }
-    else {
+    } else {
       W[, j] <- W[, j, drop = FALSE] / S
     }
 
@@ -572,8 +631,7 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
           F <- orthog(F, V[, 1:j, drop = FALSE])
           V[, j + 1] <- F / norm(F)
           R <- 0
-        }
-        else {
+        } else {
           V[, j + 1] <- F / R
         }
 
@@ -585,9 +643,7 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
         }
 
         if (interchange) {
-          W[, j + 1] <- t(as.matrix(crossprod(V[, j + 1,
-            drop = FALSE
-          ], A)))
+          W[, j + 1] <- t(as.matrix(crossprod(V[, j + 1, drop = FALSE], A)))
         } else {
           W[, j + 1] <- as.matrix(A %*% V[, j + 1, drop = FALSE])
         }
@@ -604,14 +660,13 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
         if (S <= SVTol) {
           W[, j + 1] <- rnorm(nrow(W))
           W[, j + 1] <- orthog(W[, j + 1, drop = FALSE], W[, 1:j, drop = FALSE])
-          W[, j + 1] <- W[, j + 1, drop = FALSE] / norm(W[, j + 1, drop = FALSE])
+          W[, j + 1] <- W[, j + 1, drop = FALSE] /
+            norm(W[, j + 1, drop = FALSE])
           S <- 0
-        }
-        else {
+        } else {
           W[, j + 1] <- W[, j + 1, drop = FALSE] / S
         }
-      }
-      else {
+      } else {
         #       Add a last block to matrix B
         B <- rbind(B, c(rep(0, j - 1), S))
       }
@@ -636,8 +691,7 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
     if (iter == 1) {
       Smax <- Bsvd$d[1]
       Smin <- Bsvd$d[Bsz]
-    }
-    else {
+    } else {
       Smax <- max(Smax, Bsvd$d[1])
       Smin <- min(Smin, Bsvd$d[Bsz])
     }
@@ -663,7 +717,15 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
     R <- R_F %*% Bsvd$u[Bsz, , drop = FALSE]
     #   Check for convergence
     ct <- convtests(
-      Bsz, tol, k_org, Bsvd$u, Bsvd$d, Bsvd$v, abs(R), k, SVTol,
+      Bsz,
+      tol,
+      k_org,
+      Bsvd$u,
+      Bsvd$d,
+      Bsvd$v,
+      abs(R),
+      k,
+      SVTol,
       Smax
     )
 
@@ -687,32 +749,34 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
       Bsvd$v <- cbind(
         rbind(Bsvd$v, rep(0, Bsz)),
         c(rep(0, Bsz), 1)
-      ) %*% Bsvd2$v
-      V_B_last <- Bsvd$v [Bsz + 1, , drop = FALSE]
+      ) %*%
+        Bsvd2$v
+      V_B_last <- Bsvd$v[Bsz + 1, , drop = FALSE]
       s <- R_F %*% solve(B, cbind(c(rep(0, Bsz - 1), 1)))
-      Bsvd$v <- Bsvd$v[1:Bsz, , drop = FALSE] + s * Bsvd$v[Bsz + 1, ,
-        drop = FALSE
-      ]
+      Bsvd$v <- Bsvd$v[1:Bsz, , drop = FALSE] +
+        s * Bsvd$v[Bsz + 1, , drop = FALSE]
 
       qrv <- qr(cbind(rbind(Bsvd$v[, 1:k], 0), rbind(-s, 1)))
       Bsvd$v[, 1:k + 1] <- cbind(Bsvd$v, F) %*% qr.Q(qrv)
 
       #     Update and compute the k x k + 1 part of B
-      UT <- R[1:k + 1, 1:k, drop = FALSE] + R[, k + 1, drop = FALSE] %*%
-        t(V_B_last)
+      UT <- R[1:k + 1, 1:k, drop = FALSE] +
+        R[, k + 1, drop = FALSE] %*%
+          t(V_B_last)
       B <- diag(Bsvd$d[1:k]) %*% (UT * upper.tri(UT, diag = TRUE))
-    }
-    else {
+    } else {
       #     Use the Ritz vectors
-      V[, 1:(k + dim(F)[2])] <- cbind(V[, 1:(dim(Bsvd$v)[1]), drop = FALSE] %*%
-        Bsvd$v[, 1:k, drop = FALSE], F)
+      V[, 1:(k + dim(F)[2])] <- cbind(
+        V[, 1:(dim(Bsvd$v)[1]), drop = FALSE] %*%
+          Bsvd$v[, 1:k, drop = FALSE],
+        F
+      )
       B <- cbind(diag(Bsvd$d[1:k, drop = FALSE]), R[1:k, drop = FALSE])
     }
 
     #   Update the left approximate singular vectors
-    W[, 1:k] <- W[, 1:(dim(Bsvd$u)[1]), drop = FALSE] %*% Bsvd$u[, 1:k,
-      drop = FALSE
-    ]
+    W[, 1:k] <- W[, 1:(dim(Bsvd$u)[1]), drop = FALSE] %*%
+      Bsvd$u[, 1:k, drop = FALSE]
 
     iter <- iter + 1
   }
@@ -727,10 +791,11 @@ irlba <- function(A, nu = 5, nv = 5, adjust = 3, aug = "ritz", sigma = "ls",
   # DPT. OF DIRTY TRICKS: modified names to conform with those returned by eigen
   # to save some keystrokes/assignments in orthoDesign() ...
   return(list(
-    values = Bsvd$d[1:k_org], vectors = W[, 1:(dim(Bsvd$u)[1]),
-      drop = FALSE
-    ] %*% Bsvd$u[, 1:k_org, drop = FALSE],
-    v = V[, 1:(dim(Bsvd$v)[1]), drop = FALSE] %*% Bsvd$v[, 1:k_org, drop = FALSE],
+    values = Bsvd$d[1:k_org],
+    vectors = W[, 1:(dim(Bsvd$u)[1]), drop = FALSE] %*%
+      Bsvd$u[, 1:k_org, drop = FALSE],
+    v = V[, 1:(dim(Bsvd$v)[1]), drop = FALSE] %*%
+      Bsvd$v[, 1:k_org, drop = FALSE],
     iter = iter
   ))
 }

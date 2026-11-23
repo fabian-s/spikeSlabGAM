@@ -1,5 +1,6 @@
 #' @include terms.R
-{}
+{
+}
 
 #' Generate design and model information for \code{spikeSlabGAM}
 #'
@@ -48,12 +49,15 @@
 #'   compatibility)}
 #' @export
 #' @author Fabian Scheipl
-ssGAMDesign <- function(formula, data,
-                        specials = c("u", "lin", "fct", "sm", "rnd", "mrf", "srf"),
-                        minUniqueValues = 6,
-                        lowRankInteractions = TRUE,
-                        orthogonalizeInteractions = TRUE,
-                        decomposition = NULL) {
+ssGAMDesign <- function(
+  formula,
+  data,
+  specials = c("u", "lin", "fct", "sm", "rnd", "mrf", "srf"),
+  minUniqueValues = 6,
+  lowRankInteractions = TRUE,
+  orthogonalizeInteractions = TRUE,
+  decomposition = NULL
+) {
   replaceRawTerms <- function(formula, specials, decomposition) {
     # replace all non-specials with specials
     # (i.e. numeric:  x -> lin(x) + sm(x) (or lin(x) if GAM), factor x -> fct(x))
@@ -63,8 +67,14 @@ ssGAMDesign <- function(formula, data,
     # find out which terms do not involve special terms
     rawLabels <- if (length(unlist(attr(rawTrms, "specials")))) {
       whereSpecials <- unique(unlist(apply(
-        attr(rawTrms, "factors")[unlist(attr(rawTrms, "specials")), , drop = F] > 0,
-        1, which
+        attr(rawTrms, "factors")[
+          unlist(attr(rawTrms, "specials")),
+          ,
+          drop = FALSE
+        ] >
+          0,
+        1,
+        which
       )))
       if (length(whereSpecials)) {
         attr(rawTrms, "term.labels")[-whereSpecials]
@@ -75,14 +85,22 @@ ssGAMDesign <- function(formula, data,
       attr(rawTrms, "term.labels")
     }
     # split up interactions:
-    rawLabels <- unique(unlist(sapply(rawLabels, strsplit, split = c(":", "*"))))
+    rawLabels <- unique(unlist(sapply(
+      rawLabels,
+      strsplit,
+      split = c(":", "*")
+    )))
 
     replace1Term <- function(x) {
-      decompArg <- ifelse(!is.null(decomposition),
-        paste(", decomposition ='", decomposition, "'", sep = ""), ""
+      decompArg <- ifelse(
+        !is.null(decomposition),
+        paste(", decomposition ='", decomposition, "'", sep = ""),
+        ""
       )
-      ifelse(is.numeric(data[, x]),
-        ifelse(length(unique(data[, x])) > minUniqueValues,
+      ifelse(
+        is.numeric(data[, x]),
+        ifelse(
+          length(unique(data[, x])) > minUniqueValues,
           paste("(lin(", x, ") + sm(", x, decompArg, "))", sep = ""),
           paste("fct(", x, ")", sep = "")
         ),
@@ -128,15 +146,13 @@ ssGAMDesign <- function(formula, data,
       tmp <- c("")
       if (length(intActs)) {
         # for each covariate with a linear term...
-        for (l in grep("lin(", mainEfs, fixed = T)) {
+        for (l in grep("lin(", mainEfs, fixed = TRUE)) {
           x <- substr(mainEfs[l], 5, nchar(mainEfs[l]) - 1)
           # ...remove interactions in which the covariate occurs twice
           if (length(x)) {
-            nonsense <- sapply(gregexpr(x, intActs, fixed = T), length) > 1
+            nonsense <- sapply(gregexpr(x, intActs, fixed = TRUE), length) > 1
             if (any(nonsense)) {
-              tmp <- c(tmp, paste("-", intActs[nonsense],
-                collapse = ""
-              ))
+              tmp <- c(tmp, paste("-", intActs[nonsense], collapse = ""))
             }
           }
         }
@@ -146,7 +162,10 @@ ssGAMDesign <- function(formula, data,
     noNonsense <- rmNonsenseInteractions(newFormulaString)
 
     # TODO: make all interactions with u() into u()-terms
-    newFormulaString <- paste(newFormulaString, paste(noNonsense, collapse = ""))
+    newFormulaString <- paste(
+      newFormulaString,
+      paste(noNonsense, collapse = "")
+    )
     return(formula(newFormulaString))
   }
 
@@ -157,39 +176,52 @@ ssGAMDesign <- function(formula, data,
 
   # make designs for all main effects
   mainEffects <- trms[attr(trms, "order") == 1]
-  mainEffectDesigns <- sapply(1:sum(attr(trms, "order") == 1), function(i) {
-    with(data, eval(mainEffects[i][[3]]))
-  }, simplify = FALSE)
+  mainEffectDesigns <- sapply(
+    1:sum(attr(trms, "order") == 1),
+    function(i) {
+      with(data, eval(mainEffects[i][[3]]))
+    },
+    simplify = FALSE
+  )
   names(mainEffectDesigns) <- labels[attr(trms, "order") == 1]
 
   # make designs for all interactions
   interactions <- labels[attr(trms, "order") != 1]
 
-  makeInteractions <- function(term, Designs,
-                                 center = orthogonalizeInteractions,
-                                 orthogonalize = lowRankInteractions) {
+  makeInteractions <- function(
+    term,
+    Designs,
+    center = orthogonalizeInteractions,
+    orthogonalize = lowRankInteractions
+  ) {
     terms <- strsplit(term, ":")[[1]]
     Xs <- Designs[terms]
     label <- paste(sapply(Xs, attr, which = "label"), collapse = ":")
     # design for interaction contains column-wise product
     # of main effect designs:
-    B <- matrix(apply(Xs[[1]], 2, function(x) {
-      x * Xs[[2]]
-    }),
-    nrow = nrow(Xs[[1]]), ncol = NCOL(Xs[[1]]) * NCOL(Xs[[2]])
+    B <- matrix(
+      apply(Xs[[1]], 2, function(x) {
+        x * Xs[[2]]
+      }),
+      nrow = nrow(Xs[[1]]),
+      ncol = NCOL(Xs[[1]]) * NCOL(Xs[[2]])
     )
-    colnames(B) <- namesB <- paste(rep(colnames(Xs[[1]]), e = NCOL(Xs[[2]])),
+    colnames(B) <- namesB <- paste(
+      rep(colnames(Xs[[1]]), e = NCOL(Xs[[2]])),
       rep(colnames(Xs[[2]]), t = NCOL(Xs[[1]])),
       sep = ":"
     )
     if (length(Xs) > 2) {
       for (i in 3:length(Xs)) {
-        B <- matrix(apply(B, 2, function(x) {
-          x * Xs[[i]]
-        }),
-        nrow = nrow(B), ncol = NCOL(B) * NCOL(Xs[[i]])
+        B <- matrix(
+          apply(B, 2, function(x) {
+            x * Xs[[i]]
+          }),
+          nrow = nrow(B),
+          ncol = NCOL(B) * NCOL(Xs[[i]])
         )
-        colnames(B) <- namesB <- paste(rep(namesB, e = NCOL(Xs[[i]])),
+        colnames(B) <- namesB <- paste(
+          rep(namesB, e = NCOL(Xs[[i]])),
           rep(colnames(Xs[[i]]), t = length(namesB)),
           sep = ":"
         )
@@ -209,7 +241,9 @@ ssGAMDesign <- function(formula, data,
       B <- {
         # irlba works well only for larger matrices
         if (ncol(B) > 20 & interActRank > 10) {
-          eC <- try(irlba(B, max(interActRank, sapply(Xs, NCOL)),
+          eC <- try(irlba(
+            B,
+            max(interActRank, sapply(Xs, NCOL)),
             max(interActRank, sapply(Xs, NCOL)),
             adjust = 0
           ))
@@ -226,8 +260,9 @@ ssGAMDesign <- function(formula, data,
         nullvals <- eC$values < 10e-10
         colsZ <- max(
           3,
-          min(which(cumsum(eC$values[!nullvals]) / sum(eC$values[!nullvals]) >
-            .999))
+          min(which(
+            cumsum(eC$values[!nullvals]) / sum(eC$values[!nullvals]) > .999
+          ))
         )
 
         colsZ <- min(colsZ, sum(!nullvals))
@@ -242,8 +277,11 @@ ssGAMDesign <- function(formula, data,
     return(structure(B, label = label, predvars = list(qrB = qrB)))
   }
 
-  interactionDesigns <- sapply(interactions, makeInteractions,
-    Designs = mainEffectDesigns, simplify = FALSE
+  interactionDesigns <- sapply(
+    interactions,
+    makeInteractions,
+    Designs = mainEffectDesigns,
+    simplify = FALSE
   )
 
   # initialize Design
@@ -259,7 +297,8 @@ ssGAMDesign <- function(formula, data,
   }
 
   X <- cbind(
-    X, do.call(cbind, mainEffectDesigns),
+    X,
+    do.call(cbind, mainEffectDesigns),
     do.call(cbind, interactionDesigns)
   )
   grpInds <- unlist(c(
@@ -274,7 +313,7 @@ ssGAMDesign <- function(formula, data,
     )
   ))
   names(grpInds) <- grpInds
-  grpInds[grep("u(", grpInds, fixed = T)] <- "u"
+  grpInds[grep("u(", grpInds, fixed = TRUE)] <- "u"
 
   makeHierarchy <- function(formula, grpInds) {
     trms <- terms(formula)
@@ -310,7 +349,11 @@ ssGAMDesign <- function(formula, data,
   )
 
   return(list(
-    response = y, Design = X, groupIndicators = grpInds, H = H,
-    formula = formula, predvars = predvars
+    response = y,
+    Design = X,
+    groupIndicators = grpInds,
+    H = H,
+    formula = formula,
+    predvars = predvars
   ))
 }

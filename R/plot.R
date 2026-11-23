@@ -1,5 +1,6 @@
 #' @include spikeSlabGAM.R
-{}
+{
+}
 
 #' Plot the estimated effect of a model term.
 #'
@@ -52,9 +53,16 @@
 #' @import reshape
 #' @importFrom scales muted
 #' @import grDevices
-plotTerm <- function(label, m, cumulative = TRUE,
-                     aggregate = mean, quantiles = c(.1, .9), gridlength = 40, contours = 30,
-                     ggElems = list()) {
+plotTerm <- function(
+  label,
+  m,
+  cumulative = TRUE,
+  aggregate = mean,
+  quantiles = c(.1, .9),
+  gridlength = 40,
+  contours = 30,
+  ggElems = list()
+) {
   nBins <- contours
   alphaRug <- .2
 
@@ -70,18 +78,18 @@ plotTerm <- function(label, m, cumulative = TRUE,
 
   quantiles <- sort(quantiles)
 
-
   # find main effect(s) and add interactions
   trms <- allInvolvedTerms(label, m)
 
-
   # find variables that are involved...
-  vars <- sapply(trms, function(x) gsub("\\)", "", gsub("([[:graph:]]+\\()", "", x)))
+  vars <- sapply(
+    trms,
+    function(x) gsub("\\)", "", gsub("([[:graph:]]+\\()", "", x))
+  )
   xu <- lapply(m$predvars[trms], function(x) environment(x$makeNewX)$xu)
   names(xu) <- vars
   vars <- unique(vars)
   xu <- xu[!duplicated(names(xu))]
-
 
   if (length(vars) > 3) {
     warning(
@@ -104,27 +112,36 @@ plotTerm <- function(label, m, cumulative = TRUE,
     }
     isFct <- grepl("fct(", trms, fixed = TRUE) & !grepl(":", trms)
     isLin <- grepl("lin(", trms, fixed = TRUE) & !grepl(":", trms)
-    varsLin <- sapply(trms[isLin], function(x) gsub(
-        "\\)", "",
-        gsub("([[:graph:]]+\\()", "", x)
-      ))
-    varsSrf <- sapply(trms[isSrf], function(x) gsub(
-        "\\)", "",
-        gsub("([[:graph:]]+\\()", "", x)
-      ))
+    varsLin <- sapply(
+      trms[isLin],
+      function(x)
+        gsub(
+          "\\)",
+          "",
+          gsub("([[:graph:]]+\\()", "", x)
+        )
+    )
+    varsSrf <- sapply(
+      trms[isSrf],
+      function(x)
+        gsub(
+          "\\)",
+          "",
+          gsub("([[:graph:]]+\\()", "", x)
+        )
+    )
 
     if (any(isLin)) {
       # TODO: check degree = 1
       if (any(cumulative)) {
         warning(
-          "Cumulative plot for a space-varying linear effect ", label,
+          "Cumulative plot for a space-varying linear effect ",
+          label,
           " makes no sense. Setting cumulative = FALSE."
         )
         cumulative <- FALSE
       }
     }
-
-
 
     dfs <- sapply(xu, is.data.frame)
     if (sum(dfs) > 1) {
@@ -133,10 +150,16 @@ plotTerm <- function(label, m, cumulative = TRUE,
     }
     srfGrid <- {
       tmp <- xu[dfs][[1]]
-      uvals <- apply(tmp, 2, function(x) seq(min(x), max(x), l = gridlength / 2))
+      uvals <- apply(
+        tmp,
+        2,
+        function(x) seq(min(x), max(x), l = gridlength / 2)
+      )
       tmp <- expand.grid(uvals[, 1], uvals[, 2])
       rng <- environment(m$predvars[trms[isSrf][1]][[1]]$makeNewX)$rng
-      insidePoly <- environment(m$predvars[trms[isSrf][1]][[1]]$makeNewX)$insidePoly
+      insidePoly <- environment(
+        m$predvars[trms[isSrf][1]][[1]]$makeNewX
+      )$insidePoly
       tmp <- tmp[insidePoly(tmp, rng), ]
       names(tmp) <- names(xu[dfs][[1]])
       tmp
@@ -144,10 +167,13 @@ plotTerm <- function(label, m, cumulative = TRUE,
 
     # sort & make grid for factor variables:
     facGrid <- if (any(isFct)) {
-      do.call(expand.grid, lapply(
-        xu[!dfs & !(names(xu) %in% varsLin)],
-        function(x) return(sort(x))
-      ))
+      do.call(
+        expand.grid,
+        lapply(
+          xu[!dfs & !(names(xu) %in% varsLin)],
+          function(x) return(sort(x))
+        )
+      )
     } else {
       NULL
     }
@@ -184,9 +210,13 @@ plotTerm <- function(label, m, cumulative = TRUE,
     }
 
     # get predictions
-    pred <- data.frame(evalTerm(label,
-      model = m, newdata = grid,
-      aggregate = aggregate, quantiles = quantiles, returnData = FALSE
+    pred <- data.frame(evalTerm(
+      label,
+      model = m,
+      newdata = grid,
+      aggregate = aggregate,
+      quantiles = quantiles,
+      returnData = FALSE
     ))
     fcts <- sapply(grid[names(grid) != "FILLER"], is.factor)
     nums <- sapply(
@@ -198,7 +228,6 @@ plotTerm <- function(label, m, cumulative = TRUE,
     quantileStr <- colnames(pred)[-1]
     aggregateStr <- colnames(pred)[1]
 
-
     titleStr <- if (cumulative) paste(vars, collapse = "*") else label
     plotElems <- list(labs(title = titleStr))
 
@@ -206,18 +235,24 @@ plotTerm <- function(label, m, cumulative = TRUE,
       # srf
       nms <- names(xu[[1]])
       aesStr <- aes_string(
-        x = nms[1], y = nms[2], z = aggregateStr,
+        x = nms[1],
+        y = nms[2],
+        z = aggregateStr,
         colour = "..level.."
       )
       plotElems <- c(
         geom_contour(data = data, mapping = aesStr, bins = nBins),
         list(scale_colour_gradient2(
           name = expression(eta),
-          low = muted("darkblue"), mid = "grey80", high = muted("darkred")
+          low = muted("darkblue"),
+          mid = "grey80",
+          high = muted("darkred")
         )),
         geom_point(
-          data = m$data, mapping = aes_string(x = nms[1], y = nms[2]),
-          alpha = alphaRug, size = .5
+          data = m$data,
+          mapping = aes_string(x = nms[1], y = nms[2]),
+          alpha = alphaRug,
+          size = .5
         ),
         plotElems
       )
@@ -226,12 +261,18 @@ plotTerm <- function(label, m, cumulative = TRUE,
         plotElems <- c(
           geom_tile(
             data = data,
-            aes_string(x = nms[1], y = nms[2], fill = "sign"), colour = NA, alpha = .1
+            aes_string(x = nms[1], y = nms[2], fill = "sign"),
+            colour = NA,
+            alpha = .1
           ),
           list(scale_fill_gradient2(
-            name = "CI", low = muted(alpha("darkblue", .1)),
-            mid = "white", high = muted(alpha("darkred", .1)),
-            breaks = c(-1, 1), limits = c(-1.1, 1.1), labels = c("< 0", "> 0")
+            name = "CI",
+            low = muted(alpha("darkblue", .1)),
+            mid = "white",
+            high = muted(alpha("darkred", .1)),
+            breaks = c(-1, 1),
+            limits = c(-1.1, 1.1),
+            labels = c("< 0", "> 0")
           )),
           plotElems
         )
@@ -239,39 +280,63 @@ plotTerm <- function(label, m, cumulative = TRUE,
     }
     if (length(vars) == 2 & any(fcts)) {
       # srf:fct
-      nms <- paste(paste(names(xu)[dfs], "$", sep = ""), names(srfGrid), sep = "")
+      nms <- paste(
+        paste(names(xu)[dfs], "$", sep = ""),
+        names(srfGrid),
+        sep = ""
+      )
       aesStr <- aes_string(
-        x = nms[1], y = nms[2], z = aggregateStr,
+        x = nms[1],
+        y = nms[2],
+        z = aggregateStr,
         colour = "..level.."
       )
       plotElems <- c(
-        facet_grid(eval(substitute(
-          formula(~.a),
-          list(.a = as.name(names(fcts)[fcts]))
-        )), labeller = label_both),
+        facet_grid(
+          eval(substitute(
+            formula(~.a),
+            list(.a = as.name(names(fcts)[fcts]))
+          )),
+          labeller = label_both
+        ),
         geom_contour(data = data, mapping = aesStr, bins = nBins),
         list(scale_colour_gradient2(
           name = expression(eta),
-          low = muted("darkblue"), mid = "grey80", high = muted("darkred")
+          low = muted("darkblue"),
+          mid = "grey80",
+          high = muted("darkred")
         )),
         geom_point(
-          data = m$data, mapping = aes_string(x = nms[1], y = nms[2]),
-          alpha = alphaRug, size = .2
+          data = m$data,
+          mapping = aes_string(x = nms[1], y = nms[2]),
+          alpha = alphaRug,
+          size = .2
         ),
         plotElems
       )
       if (plotCR) {
         data$sign <- ifelse(apply(data[, 2:3], 1, prod) > 0, sign(data[, 3]), 0)
         plotElems <- c(
-          geom_tile(data = data, aes_string(
-            x = nms[1], y = nms[2],
-            fill = "sign"
-          ), colour = NA, alpha = .1),
-          list(scale_fill_gradient2(
-            name = "CI", low = muted(alpha("darkblue", .1)),
-            mid = "white", high = muted(alpha("darkred", .1))
+          geom_tile(
+            data = data,
+            aes_string(
+              x = nms[1],
+              y = nms[2],
+              fill = "sign"
+            ),
+            colour = NA,
+            alpha = .1
           ),
-          breaks = c(-1, 1), limits = c(-1.1, 1.1), labels = c("< 0", "> 0")
+          list(
+            scale_fill_gradient2(
+              name = "CI",
+              low = muted(alpha("darkblue", .1)),
+              mid = "white",
+              high = muted(alpha("darkred", .1))
+            ),
+            breaks = c(-1, 1),
+            limits = c(-1.1, 1.1),
+            labels = c("< 0", "> 0")
           ),
           plotElems
         )
@@ -281,39 +346,60 @@ plotTerm <- function(label, m, cumulative = TRUE,
       # srf:lin
       nms <- names(xu[dfs][[1]])
       nmLin <- gsub("[aeiou]", "", varsLin[1])
-      linLabel <- parse(text = paste(
-        "frac(partialdiff * eta, partialdiff *",
-        nmLin, ")* sd(", nmLin, ")"
-      ))
+      linLabel <- parse(
+        text = paste(
+          "frac(partialdiff * eta, partialdiff *",
+          nmLin,
+          ")* sd(",
+          nmLin,
+          ")"
+        )
+      )
       aesStr <- aes_string(
-        x = nms[1], y = nms[2], z = aggregateStr,
+        x = nms[1],
+        y = nms[2],
+        z = aggregateStr,
         colour = "..level.."
       )
       plotElems <- c(
         geom_contour(data = data, mapping = aesStr, bins = nBins),
         list(scale_colour_gradient2(
-          name = linLabel, low = muted("darkblue"),
-          mid = "grey80", high = muted("darkred")
+          name = linLabel,
+          low = muted("darkblue"),
+          mid = "grey80",
+          high = muted("darkred")
         )),
         geom_point(
-          data = m$data, mapping = aes_string(x = nms[1], y = nms[2]),
-          alpha = alphaRug, size = .5
+          data = m$data,
+          mapping = aes_string(x = nms[1], y = nms[2]),
+          alpha = alphaRug,
+          size = .5
         ),
         plotElems
       )
       if (plotCR) {
         data$sign <- ifelse(apply(data[, 2:3], 1, prod) > 0, sign(data[, 3]), 0)
         plotElems <- c(
-          geom_tile(data = data, aes_string(
-            x = nms[1], y = nms[2],
-            fill = "sign"
-          ), colour = NA, alpha = .1),
-          list(scale_fill_gradient2(
-            name = "CI",
-            low = muted(alpha("darkblue", .1)), mid = "white",
-            high = muted(alpha("darkred", .1))
+          geom_tile(
+            data = data,
+            aes_string(
+              x = nms[1],
+              y = nms[2],
+              fill = "sign"
+            ),
+            colour = NA,
+            alpha = .1
           ),
-          breaks = c(-1, 1), limits = c(-1.1, 1.1), labels = c("< 0", "> 0")
+          list(
+            scale_fill_gradient2(
+              name = "CI",
+              low = muted(alpha("darkblue", .1)),
+              mid = "white",
+              high = muted(alpha("darkred", .1))
+            ),
+            breaks = c(-1, 1),
+            limits = c(-1.1, 1.1),
+            labels = c("< 0", "> 0")
           ),
           plotElems
         )
@@ -321,74 +407,111 @@ plotTerm <- function(label, m, cumulative = TRUE,
     }
     if (length(vars) == 3 & sum(fcts) == 2) {
       # sort factors by decreasing no. of levels
-      lvls <- sapply(grid[, fcts, drop = F], nlevels)
+      lvls <- sapply(grid[, fcts, drop = FALSE], nlevels)
       lvlsO <- order(lvls)
       vars <- c(vars[fcts][lvlsO], vars[!fcts])
 
-      nms <- paste(paste(names(xu)[dfs], "$", sep = ""), names(srfGrid), sep = "")
+      nms <- paste(
+        paste(names(xu)[dfs], "$", sep = ""),
+        names(srfGrid),
+        sep = ""
+      )
       aesStr <- aes_string(
-        x = nms[1], y = nms[2], z = aggregateStr,
+        x = nms[1],
+        y = nms[2],
+        z = aggregateStr,
         colour = "..level.."
       )
       plotElems <- c(
-        facet_grid(eval(substitute(
-          formula(.b ~ .a),
-          list(
-            .a = as.name(names(fcts)[fcts][1]),
-            .b = as.name(names(fcts)[fcts][2])
-          )
-        )), labeller = label_both),
+        facet_grid(
+          eval(substitute(
+            formula(.b ~ .a),
+            list(
+              .a = as.name(names(fcts)[fcts][1]),
+              .b = as.name(names(fcts)[fcts][2])
+            )
+          )),
+          labeller = label_both
+        ),
         geom_contour(data = data, mapping = aesStr, bins = nBins),
         list(scale_colour_gradient2(
           name = expression(eta),
-          low = muted("darkblue"), mid = "grey80", high = muted("darkred")
+          low = muted("darkblue"),
+          mid = "grey80",
+          high = muted("darkred")
         )),
         geom_point(
-          data = m$data, mapping = aes_string(x = nms[1], y = nms[2]),
-          alpha = alphaRug, size = .2
+          data = m$data,
+          mapping = aes_string(x = nms[1], y = nms[2]),
+          alpha = alphaRug,
+          size = .2
         ),
         plotElems
       )
       if (plotCR) {
         data$sign <- ifelse(apply(data[, 2:3], 1, prod) > 0, sign(data[, 3]), 0)
         plotElems <- c(
-          geom_tile(data = data, aes_string(
-            x = nms[1], y = nms[2],
-            fill = "sign"
-          ), colour = NA, alpha = .1),
+          geom_tile(
+            data = data,
+            aes_string(
+              x = nms[1],
+              y = nms[2],
+              fill = "sign"
+            ),
+            colour = NA,
+            alpha = .1
+          ),
           list(scale_fill_gradient2(
             name = "CI",
-            low = muted(alpha("darkblue", .1)), mid = "white",
+            low = muted(alpha("darkblue", .1)),
+            mid = "white",
             high = muted(alpha("darkred", .1)),
-            breaks = c(-1, 1), limits = c(-1.1, 1.1), labels = c("< 0", "> 0")
+            breaks = c(-1, 1),
+            limits = c(-1.1, 1.1),
+            labels = c("< 0", "> 0")
           )),
           plotElems
         )
       }
     }
     if (length(vars) == 3 & sum(fcts) == 1) {
-      nms <- paste(paste(names(xu)[dfs], "$", sep = ""), names(srfGrid), sep = "")
+      nms <- paste(
+        paste(names(xu)[dfs], "$", sep = ""),
+        names(srfGrid),
+        sep = ""
+      )
       nmLin <- gsub("[aeiou]", "", varsLin[1])
-      linLabel <- parse(text = paste(
-        "frac(partialdiff * eta, partialdiff *",
-        nmLin, ")"
-      ))
+      linLabel <- parse(
+        text = paste(
+          "frac(partialdiff * eta, partialdiff *",
+          nmLin,
+          ")"
+        )
+      )
       aesStr <- aes_string(
-        x = nms[1], y = nms[2], z = aggregateStr,
+        x = nms[1],
+        y = nms[2],
+        z = aggregateStr,
         colour = "..level.."
       )
       plotElems <- c(
-        facet_grid(eval(substitute(
-          formula(. ~ .a),
-          list(.a = as.name(names(fcts)[fcts]))
-        )), labeller = label_both),
+        facet_grid(
+          eval(substitute(
+            formula(. ~ .a),
+            list(.a = as.name(names(fcts)[fcts]))
+          )),
+          labeller = label_both
+        ),
         geom_contour(data = data, mapping = aesStr, bins = nBins),
         list(scale_colour_gradient2(
           name = linLabel,
-          low = muted("darkblue"), mid = "grey80", high = muted("darkred")
+          low = muted("darkblue"),
+          mid = "grey80",
+          high = muted("darkred")
         )),
         geom_point(
-          data = m$data, mapping = aes_string(x = nms[1], y = nms[2]),
+          data = m$data,
+          mapping = aes_string(x = nms[1], y = nms[2]),
           alpha = alphaRug
         ),
         plotElems
@@ -397,14 +520,19 @@ plotTerm <- function(label, m, cumulative = TRUE,
         data$sign <- ifelse(apply(data[, 2:3], 1, prod) > 0, sign(data[, 3]), 0)
         plotElems <- c(
           geom_tile(
-            data = data, aes_string(x = nms[1], y = nms[2], fill = "sign"),
-            colour = NA, alpha = .1
+            data = data,
+            aes_string(x = nms[1], y = nms[2], fill = "sign"),
+            colour = NA,
+            alpha = .1
           ),
           list(scale_fill_gradient2(
             name = "CI",
-            low = muted(alpha("darkblue", .1)), mid = "white",
+            low = muted(alpha("darkblue", .1)),
+            mid = "white",
             high = muted(alpha("darkred", .1)),
-            breaks = c(-1, 1), limits = c(-1.1, 1.1), labels = c("< 0", "> 0")
+            breaks = c(-1, 1),
+            limits = c(-1.1, 1.1),
+            labels = c("< 0", "> 0")
           )),
           plotElems
         )
@@ -413,34 +541,48 @@ plotTerm <- function(label, m, cumulative = TRUE,
     # end any(isSrf)
   } else {
     # sort / make grid:
-    grid <- do.call(expand.grid, lapply(xu, function(x) {
-      if (!is.factor(x)) {
-        x <- seq(min(x), max(x), length = gridlength)
+    grid <- do.call(
+      expand.grid,
+      lapply(xu, function(x) {
+        if (!is.factor(x)) {
+          x <- seq(min(x), max(x), length = gridlength)
+        } else {
+          x <- sort(x)
+        }
+        return(x)
+      })
+    )
+
+    pred <- data.frame(
+      if (cumulative) {
+        Reduce(
+          "+",
+          lapply(
+            trms,
+            evalTerm,
+            model = m,
+            newdata = grid,
+            aggregate = aggregate,
+            quantiles = quantiles,
+            returnData = FALSE
+          )
+        )
       } else {
-        x <- sort(x)
+        evalTerm(
+          label,
+          model = m,
+          newdata = grid,
+          aggregate = aggregate,
+          quantiles = quantiles,
+          returnData = FALSE
+        )
       }
-      return(x)
-    }))
-
-
-    pred <- data.frame(if (cumulative) {
-      Reduce("+", lapply(trms, evalTerm,
-        model = m, newdata = grid,
-        aggregate = aggregate, quantiles = quantiles, returnData = FALSE
-      ))
-    } else {
-      evalTerm(label,
-        model = m, newdata = grid, aggregate = aggregate,
-        quantiles = quantiles, returnData = FALSE
-      )
-    })
-
+    )
 
     quantileStr <- colnames(pred)[-1]
     aggregateStr <- colnames(pred)[1]
 
     data <- data.frame(grid, pred)
-
 
     titleStr <- if (cumulative) paste(vars, collapse = "*") else label
     plotElems <- list(labs(title = titleStr))
@@ -450,14 +592,17 @@ plotTerm <- function(label, m, cumulative = TRUE,
         # factor
         geom <- if (plotCR) {
           geom_pointrange(aes_string(
-            x = vars, y = aggregateStr,
-            ymin = quantileStr[1], ymax = quantileStr[2]
+            x = vars,
+            y = aggregateStr,
+            ymin = quantileStr[1],
+            ymax = quantileStr[2]
           ))
         } else {
           geom_point(aes_string(x = vars, y = aggregateStr))
         }
         plotElems <- c(
-          geom, list(ylab(expression(eta))),
+          geom,
+          list(ylab(expression(eta))),
           plotElems
         )
       } else {
@@ -466,7 +611,8 @@ plotTerm <- function(label, m, cumulative = TRUE,
         plotElems <- c(
           geom_line(data = data, aesAggrStr),
           geom_rug(
-            data = data.frame(m$data), aes_string(x = vars, y = NULL),
+            data = data.frame(m$data),
+            aes_string(x = vars, y = NULL),
             alpha = alphaRug
           ),
           list(ylab(expression(eta))),
@@ -474,10 +620,14 @@ plotTerm <- function(label, m, cumulative = TRUE,
         )
         if (plotCR) {
           aesCRStr <- aes_string(
-            x = vars, ymin = quantileStr[1],
+            x = vars,
+            ymin = quantileStr[1],
             ymax = quantileStr[2]
           )
-          plotElems <- c(geom_ribbon(data = data, aesCRStr, alpha = .3), plotElems)
+          plotElems <- c(
+            geom_ribbon(data = data, aesCRStr, alpha = .3),
+            plotElems
+          )
         }
       }
     } else {
@@ -492,33 +642,43 @@ plotTerm <- function(label, m, cumulative = TRUE,
             f2 <- vars[-which.min(lvls)]
             geom <- if (plotCR) {
               aesStr <- aes_string(
-                x = f2, y = aggregateStr, colour = f1,
-                group = f1, ymin = quantileStr[1], ymax = quantileStr[2]
+                x = f2,
+                y = aggregateStr,
+                colour = f1,
+                group = f1,
+                ymin = quantileStr[1],
+                ymax = quantileStr[2]
               )
               geom_pointrange(aesStr, position = position_dodge(width = .66))
             } else {
               aesStr <- aes_string(
-                x = f2, y = aggregateStr, colour = f1,
+                x = f2,
+                y = aggregateStr,
+                colour = f1,
                 group = f1
               )
               geom_point(aesStr, position = position_dodge(width = .66))
             }
             plotElems <- c(
-              geom, list(ylab(expression(eta))),
+              geom,
+              list(ylab(expression(eta))),
               plotElems
             )
           } else {
             # num:factor
             aesAggrStr <- aes_string(
-              x = vars[nums], y = aggregateStr,
+              x = vars[nums],
+              y = aggregateStr,
               col = vars[!nums]
             )
             plotElems <- c(
               geom_line(aesAggrStr),
               geom_rug(
-                data = m$data, aes_string(
+                data = m$data,
+                aes_string(
                   x = vars[nums],
-                  col = paste("as.factor(", vars[!nums], ")"), y = NULL
+                  col = paste("as.factor(", vars[!nums], ")"),
+                  y = NULL
                 ),
                 alpha = alphaRug
               ),
@@ -527,8 +687,10 @@ plotTerm <- function(label, m, cumulative = TRUE,
             )
             if (plotCR) {
               aesCRStr <- aes_string(
-                x = vars[nums], ymin = quantileStr[1],
-                ymax = quantileStr[2], fill = vars[!nums]
+                x = vars[nums],
+                ymin = quantileStr[1],
+                ymax = quantileStr[2],
+                fill = vars[!nums]
               )
               plotElems <- c(geom_ribbon(aesCRStr, alpha = .3), plotElems)
             }
@@ -538,52 +700,75 @@ plotTerm <- function(label, m, cumulative = TRUE,
           meltdata <- melt(data, id.vars = vars)
           # data for geom_rug has to contain the faceting variable (and everything else too for some reason?!?)
           # so we blow up the data a little
-          suppressWarnings(rugdata <- data.frame(do.call(
-            cbind,
-            c(xu, value = 0)
-          )))
-          rugdata <- do.call(rbind, apply(
-            t(levels(meltdata$variable)), 2,
-            function(x) cbind(rugdata, variable = x)
-          ))
+          suppressWarnings(
+            rugdata <- data.frame(do.call(
+              cbind,
+              c(xu, value = 0)
+            ))
+          )
+          rugdata <- do.call(
+            rbind,
+            apply(
+              t(levels(meltdata$variable)),
+              2,
+              function(x) cbind(rugdata, variable = x)
+            )
+          )
 
           convhull <- m$data[chull(as.matrix(m$data[, vars])), vars]
           keep <- which(insidePoly(data[, vars], convhull))
 
           aesStr <- aes_string(
-            x = vars[1], y = vars[2], z = aggregateStr,
+            x = vars[1],
+            y = vars[2],
+            z = aggregateStr,
             colour = "..level.."
           )
           plotElems <- c(
             geom_contour(
-              data = data[keep, ], mapping = aesStr,
+              data = data[keep, ],
+              mapping = aesStr,
               bins = nBins
             ),
             list(scale_colour_gradient2(
               name = expression(eta),
-              low = muted("darkblue"), mid = "grey80", high = muted("darkred"),
+              low = muted("darkblue"),
+              mid = "grey80",
+              high = muted("darkred"),
               guide = "legend"
             )),
             geom_rug(
               data = rugdata,
-              mapping = aes_string(x = vars[1], y = vars[2]), alpha = alphaRug
+              mapping = aes_string(x = vars[1], y = vars[2]),
+              alpha = alphaRug
             ),
             plotElems
           )
           if (plotCR) {
-            data$sign <- ifelse(apply(data[, 4:5], 1, prod) > 0,
-              sign(data[, 5]), 0
+            data$sign <- ifelse(
+              apply(data[, 4:5], 1, prod) > 0,
+              sign(data[, 5]),
+              0
             )
             plotElems <- c(
-              geom_tile(data = data, aes_string(
-                x = vars[1],
-                y = vars[2], fill = "sign"
-              ), colour = NA, alpha = .1),
+              geom_tile(
+                data = data,
+                aes_string(
+                  x = vars[1],
+                  y = vars[2],
+                  fill = "sign"
+                ),
+                colour = NA,
+                alpha = .1
+              ),
               list(scale_fill_gradient2(
                 name = "CI",
-                low = muted(alpha("darkblue", .1)), mid = "white",
-                high = muted(alpha("darkred", .1)), guide = "legend",
-                breaks = c(-1, 1), limits = c(-1.1, 1.1),
+                low = muted(alpha("darkblue", .1)),
+                mid = "white",
+                high = muted(alpha("darkred", .1)),
+                guide = "legend",
+                breaks = c(-1, 1),
+                limits = c(-1.1, 1.1),
                 labels = c("< 0", "> 0")
               )),
               plotElems
@@ -599,7 +784,7 @@ plotTerm <- function(label, m, cumulative = TRUE,
         }
 
         # sort factors by decreasing no. of levels
-        lvls <- sapply(grid[, fcts, drop = F], nlevels)
+        lvls <- sapply(grid[, fcts, drop = FALSE], nlevels)
         lvlsO <- order(lvls)
         vars <- c(vars[fcts][lvlsO], vars[nums])
         if (sum(fcts) == 1) {
@@ -614,44 +799,61 @@ plotTerm <- function(label, m, cumulative = TRUE,
           keep <- which(insidePoly(data[, vars[2:3]], convhull))
 
           aesStr <- aes_string(
-            x = vars[2], y = vars[3], z = aggregateStr,
+            x = vars[2],
+            y = vars[3],
+            z = aggregateStr,
             colour = "..level.."
           )
           plotElems <- c(
             geom_contour(
-              data = data[keep, ], mapping = aesStr,
+              data = data[keep, ],
+              mapping = aesStr,
               bins = nBins
             ),
             list(scale_colour_gradient2(
               name = expression(eta),
-              low = muted("darkblue"), mid = "grey80", high = muted("darkred")
+              low = muted("darkblue"),
+              mid = "grey80",
+              high = muted("darkred")
             )),
             plotElems
           )
 
           if (plotCR) {
-            data$sign <- ifelse(apply(data[, 5:6], 1, prod) > 0,
-              sign(data[, 5]), 0
+            data$sign <- ifelse(
+              apply(data[, 5:6], 1, prod) > 0,
+              sign(data[, 5]),
+              0
             )
             plotElems <- c(
               geom_tile(
                 data = data,
-                aes_string(x = vars[2], y = vars[3], fill = "sign"), colour = NA,
+                aes_string(x = vars[2], y = vars[3], fill = "sign"),
+                colour = NA,
                 alpha = .1
               ),
               list(scale_fill_gradient2(
                 name = "CI",
-                low = alpha(muted("darkblue"), .1), mid = alpha("white", .1),
-                high = alpha(muted("darkred"), .1), breaks = c(-1, 1),
-                limits = c(-1.1, 1.1), labels = c("< 0", "> 0")
+                low = alpha(muted("darkblue"), .1),
+                mid = alpha("white", .1),
+                high = alpha(muted("darkred"), .1),
+                breaks = c(-1, 1),
+                limits = c(-1.1, 1.1),
+                labels = c("< 0", "> 0")
               )),
               plotElems
             )
           }
-          plotElems <- c(list(facet_grid(eval(substitute(
-            formula(~.a),
-            list(.a = as.name(vars[1]))
-          )), labeller = label_both)), plotElems)
+          plotElems <- c(
+            list(facet_grid(
+              eval(substitute(
+                formula(~.a),
+                list(.a = as.name(vars[1]))
+              )),
+              labeller = label_both
+            )),
+            plotElems
+          )
         }
         if (sum(fcts) == 2) {
           # fct:fct:num
@@ -659,9 +861,11 @@ plotTerm <- function(label, m, cumulative = TRUE,
           plotElems <- c(
             geom_line(aesAggrStr),
             geom_rug(
-              data = m$data, aes_string(
+              data = m$data,
+              aes_string(
                 x = vars[3],
-                col = paste("as.factor(", vars[2], ")"), y = NULL
+                col = paste("as.factor(", vars[2], ")"),
+                y = NULL
               ),
               alpha = alphaRug
             ),
@@ -669,8 +873,10 @@ plotTerm <- function(label, m, cumulative = TRUE,
           )
           if (plotCR) {
             aesCRStr <- aes_string(
-              x = vars[3], ymin = quantileStr[1],
-              ymax = quantileStr[2], fill = vars[2]
+              x = vars[3],
+              ymin = quantileStr[1],
+              ymax = quantileStr[2],
+              fill = vars[2]
             )
             plotElems <- c(geom_ribbon(aesCRStr, alpha = .3), plotElems)
           }
@@ -678,23 +884,31 @@ plotTerm <- function(label, m, cumulative = TRUE,
             formula(~.a),
             list(.a = as.name(vars[1]))
           ))
-          plotElems <- c(list(
-            facet_grid(facetFrml, labeller = label_both),
-            list(ylab(expression(eta)))
-          ), plotElems)
+          plotElems <- c(
+            list(
+              facet_grid(facetFrml, labeller = label_both),
+              list(ylab(expression(eta)))
+            ),
+            plotElems
+          )
         }
         if (all(fcts)) {
           # fct:fct:fct
           geom <- if (plotCR) {
             aesStr <- aes_string(
-              x = vars[3], y = aggregateStr,
-              colour = vars[2], group = vars[2], ymin = quantileStr[1],
+              x = vars[3],
+              y = aggregateStr,
+              colour = vars[2],
+              group = vars[2],
+              ymin = quantileStr[1],
               ymax = quantileStr[2]
             )
             geom_pointrange(aesStr, position = position_dodge(width = .66))
           } else {
             aesStr <- aes_string(
-              x = vars[3], y = aggregateStr, colour = vars[2],
+              x = vars[3],
+              y = aggregateStr,
+              colour = vars[2],
               group = vars[2]
             )
             geom_point(aesStr, position = position_dodge(width = .66))
@@ -703,10 +917,14 @@ plotTerm <- function(label, m, cumulative = TRUE,
             formula(~.a),
             list(.a = as.name(vars[1]))
           ))
-          plotElems <- c(list(
-            facet_grid(facetFrml, labeller = label_both),
-            geom, list(ylab(expression(eta)))
-          ), plotElems)
+          plotElems <- c(
+            list(
+              facet_grid(facetFrml, labeller = label_both),
+              geom,
+              list(ylab(expression(eta)))
+            ),
+            plotElems
+          )
         }
       }
     }
@@ -772,12 +990,21 @@ plotTerm <- function(label, m, cumulative = TRUE,
 #' @examples
 #' #see ?spikeSlabGAM
 # FIXME: only wrks if smooth trms are specified AFTER linear terms...
-plot.spikeSlabGAM <- function(x, labels = NULL, cumulative = TRUE,
-                              commonEtaScale = FALSE, aggregate = mean, quantiles = c(.1, .9),
-                              gridlength = 20, base_size = 12, ggElems = list(),
-                              nrow = min(ceiling(sqrt(length(plotList))), 3),
-                              ncol = min(ceiling(length(plotList) / nrow), 3),
-                              interactive.dev = c("x11", "quartz", "windows"), ...) {
+plot.spikeSlabGAM <- function(
+  x,
+  labels = NULL,
+  cumulative = TRUE,
+  commonEtaScale = FALSE,
+  aggregate = mean,
+  quantiles = c(.1, .9),
+  gridlength = 20,
+  base_size = 12,
+  ggElems = list(),
+  nrow = min(ceiling(sqrt(length(plotList))), 3),
+  ncol = min(ceiling(length(plotList) / nrow), 3),
+  interactive.dev = c("x11", "quartz", "windows"),
+  ...
+) {
   interactive.dev <- match.arg(interactive.dev)
 
   # add custom theme / overwrite default theme
@@ -789,13 +1016,13 @@ plot.spikeSlabGAM <- function(x, labels = NULL, cumulative = TRUE,
       legend.key = element_rect(fill = "white", colour = "white"),
       legend.text = element_text(size = base_size * 0.6),
       legend.title = element_text(
-        face = "bold", size = base_size * 0.6,
+        face = "bold",
+        size = base_size * 0.6,
         hjust = 0
       )
     )),
     ggElems
   )
-
 
   if (is.null(labels)) {
     if (cumulative) {
@@ -813,17 +1040,20 @@ plot.spikeSlabGAM <- function(x, labels = NULL, cumulative = TRUE,
         order <- order[-rm]
       }
 
-
       labels <- terms[order == 1]
       varsList <- sapply(
         terms,
         function(x) {
           sapply(
-            unlist(strsplit(gsub(
-              "(:?[[:lower:]]+)(\\([[:alnum:]._]+\\))", "\\2",
-              x
-            ), c("\\)"))),
-            function(y) gsub("(", "", y, fixed = T)
+            unlist(strsplit(
+              gsub(
+                "(:?[[:lower:]]+)(\\([[:alnum:]._]+\\))",
+                "\\2",
+                x
+              ),
+              c("\\)")
+            )),
+            function(y) gsub("(", "", y, fixed = TRUE)
           )
         }
       )
@@ -833,9 +1063,6 @@ plot.spikeSlabGAM <- function(x, labels = NULL, cumulative = TRUE,
       # AFTER linear terms...
       combos <- rev(names(varsList))[!duplicated(rev(varsList))]
       comboOrder <- rev(order)[!duplicated(rev(varsList))]
-
-
-
 
       plotLabels <- c()
       for (o in max(order):1) {
@@ -860,19 +1087,23 @@ plot.spikeSlabGAM <- function(x, labels = NULL, cumulative = TRUE,
   # TODO: order plots as in formula or via term importance...?
   if (is.null(labels)) plotLabels <- rev(plotLabels)
 
-
-  plotList <- lapply(as.list(plotLabels), plotTerm,
-    m = x, cumulative = cumulative,
-    aggregate = aggregate, quantiles = quantiles, gridlength = gridlength,
+  plotList <- lapply(
+    as.list(plotLabels),
+    plotTerm,
+    m = x,
+    cumulative = cumulative,
+    aggregate = aggregate,
+    quantiles = quantiles,
+    gridlength = gridlength,
     ggElems = ggElems
   )
   nPlots <- length(plotList)
 
-
   if (commonEtaScale) {
     # get range of eta across all plots...
     rangeEta <- range(lapply(plotList, function(p) {
-      useCols <- unlist(mapply(grep,
+      useCols <- unlist(mapply(
+        grep,
         pattern = c("^eta$", "percentile$"),
         MoreArgs = list(x = colnames(p$data))
       ))
@@ -885,8 +1116,7 @@ plot.spikeSlabGAM <- function(x, labels = NULL, cumulative = TRUE,
       })
       if ("contour" %in% geoms) {
         return(p)
-      }
-      else {
+      } else {
         return(p + coord_cartesian(ylim = rangeEta))
       }
     })
@@ -897,7 +1127,8 @@ plot.spikeSlabGAM <- function(x, labels = NULL, cumulative = TRUE,
     rstudio <- identical(options()$device, "RStudioGD")
     if (rstudio & nrow * ncol < length(plotList)) {
       message(
-        "Temporarily setting <options(device ='", interactive.dev,
+        "Temporarily setting <options(device ='",
+        interactive.dev,
         "')> to open multiple graphics displays since dispatch on multiple graphic devices is not supported in RStudio."
       )
       options(device = interactive.dev)

@@ -1,5 +1,6 @@
 #' @include spikeSlabGAM.R
-{}
+{
+}
 
 #' Summary for posterior of a \code{spikeSlabGAM} fit
 #'
@@ -32,14 +33,19 @@
 summary.spikeSlabGAM <- function(object, threshold = .5, ...) {
   stopifnot(class(object) == "spikeSlabGAM", threshold >= 0, threshold <= 1)
 
-  inds <- sapply(unique(names(object$model$groupIndicatorsOrig)),
+  inds <- sapply(
+    unique(names(object$model$groupIndicatorsOrig)),
     function(x) which(names(object$model$groupIndicatorsOrig) == x),
     simplify = FALSE
   )
 
   dims <- sapply(inds, length)
-  etas <- sapply(inds, function(x) object$X[, x, drop = F] %*%
-      object$postMeans$beta[x, drop = F])
+  etas <- sapply(
+    inds,
+    function(x)
+      object$X[, x, drop = FALSE] %*%
+        object$postMeans$beta[x, drop = FALSE]
+  )
   q <- NCOL(etas)
 
   etas <- cbind(etas, eta = rowSums(etas))
@@ -52,9 +58,8 @@ summary.spikeSlabGAM <- function(object, threshold = .5, ...) {
   trmSummary <- matrix(NA, nrow = q, ncol = 3)
   rownames(trmSummary) <- unique(names(object$model$groupIndicatorsOrig))
   colnames(trmSummary) <- c("P(gamma = 1)", "pi", "dim")
-  penRows <- (rownames(trmSummary) != "u") & !grepl("u(", rownames(trmSummary),
-    fixed = T
-  )
+  penRows <- (rownames(trmSummary) != "u") &
+    !grepl("u(", rownames(trmSummary), fixed = TRUE)
   penCols <- if (any(!penRows)) {
     (1:q)[-which(!penRows)]
   } else {
@@ -69,35 +74,46 @@ summary.spikeSlabGAM <- function(object, threshold = .5, ...) {
   }
   etaNoUSq <- crossprod(etaNoU)
   trmSummary[penRows, "pi"] <- apply(
-    etas[, penCols, drop = FALSE], 2,
+    etas[, penCols, drop = FALSE],
+    2,
     function(x) t(etaNoU) %*% x / etaNoUSq
   )
   trmSummary[1:q, "dim"] <- dims
 
   response <- if (object$family == 1 & any(object$model$scale != 1)) {
-    cbind(object$y * object$model$scale, object$model$scale -
-      object$y * object$model$scale)
+    cbind(
+      object$y * object$model$scale,
+      object$model$scale -
+        object$y * object$model$scale
+    )
   } else {
     object$y
   }
-  nullDev <- -2 * logLik(glm(response ~ 1,
-    offset = object$model$offset,
-    family = switch(as.character(object$family),
-      "0" = "gaussian",
-      "1" = "binomial",
-      "2" = "poisson"
-    )
-  ))
-
+  nullDev <- -2 *
+    logLik(glm(
+      response ~ 1,
+      offset = object$model$offset,
+      family = switch(
+        as.character(object$family),
+        "0" = "gaussian",
+        "1" = "binomial",
+        "2" = "poisson"
+      )
+    ))
 
   modelTable <- getModels(object, threshold)
 
-
-  return(structure(c(list(
-    modelTable = modelTable, trmSummary = trmSummary,
-    nullDev = nullDev, thresh = threshold
-  ), object),
-  class = "summary.spikeSlabGAM"
+  return(structure(
+    c(
+      list(
+        modelTable = modelTable,
+        trmSummary = trmSummary,
+        nullDev = nullDev,
+        thresh = threshold
+      ),
+      object
+    ),
+    class = "summary.spikeSlabGAM"
   ))
 }
 
@@ -121,13 +137,24 @@ summary.spikeSlabGAM <- function(object, threshold = .5, ...) {
 #' @author Fabian Scheipl
 #' @method print summary.spikeSlabGAM
 #' @export
-print.summary.spikeSlabGAM <- function(x, digits = 3, printPGamma = TRUE,
-                                       printModels = TRUE, showModels = NULL, ...) {
-  cat(paste("Spike-and-Slab STAR for", switch(as.character(x$family),
-    "0" = "Gaussian",
-    "1" = "Binomial",
-    "2" = "Poisson"
-  ), "data \n\nModel:\n"))
+print.summary.spikeSlabGAM <- function(
+  x,
+  digits = 3,
+  printPGamma = TRUE,
+  printModels = TRUE,
+  showModels = NULL,
+  ...
+) {
+  cat(paste(
+    "Spike-and-Slab STAR for",
+    switch(
+      as.character(x$family),
+      "0" = "Gaussian",
+      "1" = "Binomial",
+      "2" = "Poisson"
+    ),
+    "data \n\nModel:\n"
+  ))
 
   if (version$minor >= 12) {
     print(x$formula, showEnv = FALSE)
@@ -136,58 +163,94 @@ print.summary.spikeSlabGAM <- function(x, digits = 3, printPGamma = TRUE,
   }
 
   wrapCat(paste(
-    x$model$n, "observations;", x$model$q, "coefficients in",
-    length(unique(names(x$model$groupIndicators))), "model terms."
+    x$model$n,
+    "observations;",
+    x$model$q,
+    "coefficients in",
+    length(unique(names(x$model$groupIndicators))),
+    "model terms."
   ))
   cat("\n\nPrior:\n")
   priorVec <- with(
     x$hyperparameter,
     c(
-      "a[tau]" = unname(tau2[1]), "b[tau]" = unname(tau2[2]),
-      "v[0]" = unname(gamma["v0"]), "a[w]" = unname(w[1]), "b[w]" = unname(w[2])
+      "a[tau]" = unname(tau2[1]),
+      "b[tau]" = unname(tau2[2]),
+      "v[0]" = unname(gamma["v0"]),
+      "a[w]" = unname(w[1]),
+      "b[w]" = unname(w[2])
     )
   )
   if (x$family == 0) {
-    priorVec <- c(priorVec, with(
-      x$hyperparameter,
-      c("a[sigma^2]" = unname(sigma2[1]), "b[sigma^2]" = unname(sigma2[2]))
-    ))
+    priorVec <- c(
+      priorVec,
+      with(
+        x$hyperparameter,
+        c("a[sigma^2]" = unname(sigma2[1]), "b[sigma^2]" = unname(sigma2[2]))
+      )
+    )
   }
   print(priorVec, digits = digits)
   cat("\nMCMC:\n")
   mcmcVec <- c(x$mcmc[1:4])
-  with(x$mcmc, wrapCat(paste(
-    "Saved", nChains * chainLength, "samples from",
-    nChains, "chain(s), each ran", chainLength * thin,
-    "iterations after a burn-in of", burnin, "; Thinning:", thin, "\n"
-  )))
+  with(
+    x$mcmc,
+    wrapCat(paste(
+      "Saved",
+      nChains * chainLength,
+      "samples from",
+      nChains,
+      "chain(s), each ran",
+      chainLength * thin,
+      "iterations after a burn-in of",
+      burnin,
+      "; Thinning:",
+      thin,
+      "\n"
+    ))
+  )
   cat("\n")
-  mcmcOpts <- with(x$mcmc, paste(
-    ifelse(!useRandomStart,
-      "Did not use randomized starting values.", ""
-    ),
-    ifelse(!allKsi,
-      "Didn't use parameter expansion for terms with 1 coefficient.", ""
-    ),
-    ifelse(x$family != 0,
-      paste("\nP-IWLS acceptance rates: ", round(accept[1], 2), " for alpha; ",
-        round(accept[2], 2), " for xi.",
-        sep = ""
-      ), ""
-    ),
-    ifelse(x$family != 0 && modeSwitching != 0.05,
-      paste("Set 'Mode Switching'-rate to ", modeSwitching, ".", sep = ""), ""
-    ),
-    "\n"
-  ))
+  mcmcOpts <- with(
+    x$mcmc,
+    paste(
+      ifelse(!useRandomStart, "Did not use randomized starting values.", ""),
+      ifelse(
+        !allKsi,
+        "Didn't use parameter expansion for terms with 1 coefficient.",
+        ""
+      ),
+      ifelse(
+        x$family != 0,
+        paste(
+          "\nP-IWLS acceptance rates: ",
+          round(accept[1], 2),
+          " for alpha; ",
+          round(accept[2], 2),
+          " for xi.",
+          sep = ""
+        ),
+        ""
+      ),
+      ifelse(
+        x$family != 0 && modeSwitching != 0.05,
+        paste("Set 'Mode Switching'-rate to ", modeSwitching, ".", sep = ""),
+        ""
+      ),
+      "\n"
+    )
+  )
 
   wrapCat(mcmcOpts)
   cat("\n")
 
-  devmat <- as.table(matrix(c(
-    "Null deviance:" = x$nullDev,
-    "Mean posterior deviance:" = x$DIC["Dbar"]
-  ), nrow = 2, ncol = 1))
+  devmat <- as.table(matrix(
+    c(
+      "Null deviance:" = x$nullDev,
+      "Mean posterior deviance:" = x$DIC["Dbar"]
+    ),
+    nrow = 2,
+    ncol = 1
+  ))
   rownames(devmat) <- c("Null deviance:", "Mean posterior deviance:")
   colnames(devmat) <- c("")
   print(as.table(devmat), digits = digits)
@@ -196,7 +259,8 @@ print.summary.spikeSlabGAM <- function(x, digits = 3, printPGamma = TRUE,
   if (printPGamma) {
     wrapCat("\nMarginal posterior inclusion probabilities and term importance:")
     cat("\n")
-    stars <- paste(ifelse(x$trmSummary[, "P(gamma = 1)"] > .25, "*", ""),
+    stars <- paste(
+      ifelse(x$trmSummary[, "P(gamma = 1)"] > .25, "*", ""),
       ifelse(x$trmSummary[, "P(gamma = 1)"] > .5, "*", ""),
       ifelse(x$trmSummary[, "P(gamma = 1)"] > .9, "*", ""),
       sep = ""
@@ -224,7 +288,8 @@ print.summary.spikeSlabGAM <- function(x, digits = 3, printPGamma = TRUE,
       })
 
       models <- rbind(
-        round(x$modelTable, 3), models,
+        round(x$modelTable, 3),
+        models,
         round(cumsum(x$modelTable), 3)
       )
       rownames(models) <- c(
@@ -237,13 +302,17 @@ print.summary.spikeSlabGAM <- function(x, digits = 3, printPGamma = TRUE,
       # show at least 10/at most 20 models, or enough to represent total .9
       # probability mass.
       if (is.null(showModels)) {
-        showModels <- min(20, max(
-          10,
-          min(which(cumsum(x$modelTable) >= .9))
-        ), NCOL(models))
+        showModels <- min(
+          20,
+          max(
+            10,
+            min(which(cumsum(x$modelTable) >= .9))
+          ),
+          NCOL(models)
+        )
       }
 
-      models <- models[, 1:showModels, drop = F]
+      models <- models[, 1:showModels, drop = FALSE]
       colnames(models) <- 1:NCOL(models)
       models
     }

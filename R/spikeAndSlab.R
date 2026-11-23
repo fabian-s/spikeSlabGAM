@@ -1,5 +1,6 @@
 #' @include utils.R
-{}
+{
+}
 
 #' Set up and sample a spike-and-slab prior model.
 #'
@@ -36,7 +37,7 @@
 #' \item{\code{q}}{length of \eqn{\beta}} \item{\code{scale}}{scale/weights of
 #' the response, defaults to \code{rep(1, n)}, use this to specify number of
 #' trials for binomial data} \item{\code{offset}}{defaults to \code{rep(0,
-#' n)}}}} 
+#' n)}}}}
 #' \item{\code{mcmc}}{\describe{
 #' \item{\code{nChains}}{how many parallel chains to run: defaults to 3}
 #' \item{\code{chainLength}}{how many samples should be generated per chain,
@@ -123,20 +124,21 @@
 #' @importFrom mvtnorm rmvnorm
 #' @useDynLib spikeSlabGAM, .registration = TRUE
 spikeAndSlab <- function(
-                         y, # response (n x 1)
-                         X, # design matrix with covariates (n x q)
-                         family = c("gaussian", "binomial", "poisson"),
-                         hyperparameters = list(), # prior hyperparameters
-                         model = list(), # model structure
-                         mcmc = list(), # MCMC sampler options
-                         start = list() # start values for the sampler
+  y, # response (n x 1)
+  X, # design matrix with covariates (n x q)
+  family = c("gaussian", "binomial", "poisson"),
+  hyperparameters = list(), # prior hyperparameters
+  model = list(), # model structure
+  mcmc = list(), # MCMC sampler options
+  start = list() # start values for the sampler
 ) {
   startTime <- Sys.time()
 
   if (is.null(X) || is.null(y)) stop("Need X and y.")
 
   familystr <- match.arg(family)
-  family <- as.integer(switch(familystr,
+  family <- as.integer(switch(
+    familystr,
     "gaussian" = 0,
     "binomial" = 1,
     "poisson" = 2
@@ -179,7 +181,7 @@ spikeAndSlab <- function(
         50
       } else {
         c(5, 15)
-      } , # blocksizes  for QR-updates
+      }, # blocksizes  for QR-updates
       scalemode = 1, # rescale ksi in each iteration s.t. 0: no rescaling; 1: mean(|ksi_g|) = 1;  2: max(|ksi_g|) = 1
       allKsi = TRUE, # use redundant parameterization for grps with d = 1?
       modeSwitching = 0.05,
@@ -193,12 +195,10 @@ spikeAndSlab <- function(
     mcmc$blocksizeAlpha <- mcmc$blocksizeKsi <- mcmc$blocksize
   }
 
-
   ## check parameters
   mcmc$chainLength <- as.integer(mcmc$chainLength)
   mcmc$burnin <- as.integer(mcmc$burnin)
   mcmc$thin <- as.integer(mcmc$thin)
-
 
   with(
     mcmc,
@@ -208,9 +208,7 @@ spikeAndSlab <- function(
     )
   )
 
-
   mcmc$totalLength <- with(mcmc, burnin + thin * chainLength)
-
 
   ### MODEL
 
@@ -226,8 +224,6 @@ spikeAndSlab <- function(
       offset = rep(0, n)
     )
   model <- modifyList(defaultModel, as.list(model))
-
-
 
   ## adapt length of groupIndicators
   if (length(model$groupIndicators) != model$q) {
@@ -254,28 +250,42 @@ spikeAndSlab <- function(
   # re-order model$groupIndicators and X  s.t. unpen grps and grps with
   # d = 1 (ksi = 1) come first.
   d1Levels <- if (pUnpen) {
-    model$groupIndicators[which(!(model$groupIndicators %in%
-      c("u", names(table(model$groupIndicators[-unpen]))[
-        table(model$groupIndicators[-unpen]) > 1
-      ])))]
+    model$groupIndicators[which(
+      !(model$groupIndicators %in%
+        c(
+          "u",
+          names(table(model$groupIndicators[-unpen]))[
+            table(model$groupIndicators[-unpen]) > 1
+          ]
+        ))
+    )]
   } else {
-    model$groupIndicators[which(!(model$groupIndicators %in%
-      c(names(table(model$groupIndicators))[table(model$groupIndicators) > 1])))]
+    model$groupIndicators[which(
+      !(model$groupIndicators %in%
+        c(names(table(model$groupIndicators))[
+          table(model$groupIndicators) > 1
+        ]))
+    )]
   }
   d1Levels <- setdiff(d1Levels, unpenLevels)
-  grpLevels <- unique(model$groupIndicators[which(!(model$groupIndicators %in%
-    c(unpenLevels, d1Levels)))])
+  grpLevels <- unique(model$groupIndicators[which(
+    !(model$groupIndicators %in%
+      c(unpenLevels, d1Levels))
+  )])
 
-  model$groupIndicators <- factor(model$groupIndicators,
-    levels = c(unpenLevels, d1Levels, grpLevels), ordered = T
+  model$groupIndicators <- factor(
+    model$groupIndicators,
+    levels = c(unpenLevels, d1Levels, grpLevels),
+    ordered = TRUE
   )
 
   properOrder <- order(model$groupIndicators)
-  properPenOrder <- order(model$groupIndicators[!(model$groupIndicators %in%
-    unpenLevels)])
+  properPenOrder <- order(model$groupIndicators[
+    !(model$groupIndicators %in%
+      unpenLevels)
+  ])
   reverseOrder <- order(properOrder)
   reversePenOrder <- order(properPenOrder)
-
 
   model$groupIndicators <- model$groupIndicators[properOrder]
 
@@ -290,27 +300,33 @@ spikeAndSlab <- function(
   model$d <- table(model$groupIndicators)
   model$nGroups <- length(model$d) # p length(alpha)
   model$G <- if (nlevels(model$groupIndicators) > 1) {
-    with(model, 
-         model.matrix(~0 + groupIndicators, 
-                      contrasts.arg = list(groupIndicators = contr.treatment)))
+    with(
+      model,
+      model.matrix(
+        ~ 0 + groupIndicators,
+        contrasts.arg = list(groupIndicators = contr.treatment)
+      )
+    )
   } else {
     matrix(1, nrow = length(model$groupIndicators), ncol = 1)
   }
   model$nUnpenGrps <- pUnpen
   model$nPenGrps <- model$nGroups - pUnpen
 
-
   if (!mcmc$allKsi) {
-    model$updateKsiGrps <- which(!(unique(model$groupIndicators) %in%
-      names(model$d)[model$d == 1]))
-    model$updateKsi <- which(!(model$groupIndicators %in%
-      names(model$d)[model$d == 1]))
+    model$updateKsiGrps <- which(
+      !(unique(model$groupIndicators) %in%
+        names(model$d)[model$d == 1])
+    )
+    model$updateKsi <- which(
+      !(model$groupIndicators %in%
+        names(model$d)[model$d == 1])
+    )
   } else {
     # use redundant params for better mixing
     model$updateKsiGrps <- 1:model$nGroups
     model$updateKsi <- 1:q
   }
-
 
   model$qKsiUpdate <- length(model$updateKsi)
   model$qKsiNoUpdate <- model$q - model$qKsiUpdate
@@ -329,7 +345,10 @@ spikeAndSlab <- function(
       varKsi = rep(1, model$qKsiUpdate), # only relevant if ksiDF>0
       ksiDF = 0 # ksiDF == 0 --> ksi ~ N(+/-1, varKsi), else ksi ~ N(+/-1, 1/Gamma(df/2, df/2))
     )
-  hyperparameters <- modifyList(defaultHyperparameters, as.list(hyperparameters))
+  hyperparameters <- modifyList(
+    defaultHyperparameters,
+    as.list(hyperparameters)
+  )
   if (length(hyperparameters$varKsi) == 1) {
     hyperparameters$varKsi <- rep(hyperparameters$varKsi, model$qKsiUpdate)
   }
@@ -351,67 +370,99 @@ spikeAndSlab <- function(
   ## insert the 1 into gamma hyperparameter
   hyperparameters$gamma["v1"] <- 1
 
-
   ## name hyperparams as expected
   names(hyperparameters$w) <- c("alpha", "beta")
   names(hyperparameters$tau2) <- c("a1", "a2")
   names(hyperparameters$gamma) <- c("v0", "v1")
   names(hyperparameters$sigma2) <- c("b1", "b2")
 
-
-
-
   #### START
   ## set seed if there is none
   if (!length(start$seed)) start$seed <- as.integer(round(1e6 * runif(1)))
   set.seed(start$seed)
 
-
-  gamma <- matrix(if (mcmc$useRandomStart) {
-    replicate(mcmc$nChains, as.vector(sample(hyperparameters$gamma,
-      size = model$nPenGrps,
-      replace = TRUE,
-      prob = c(1, 0) + c(-1, 1) *
-        rbeta(
-          1, hyperparameters$w[1],
-          hyperparameters$w[2]
+  gamma <- matrix(
+    if (mcmc$useRandomStart) {
+      replicate(
+        mcmc$nChains,
+        as.vector(sample(
+          hyperparameters$gamma,
+          size = model$nPenGrps,
+          replace = TRUE,
+          prob = c(1, 0) +
+            c(-1, 1) *
+              rbeta(
+                1,
+                hyperparameters$w[1],
+                hyperparameters$w[2]
+              )
+        ))
+      )
+    } else {
+      replicate(mcmc$nChains, rep(1, model$nPenGrps))
+    },
+    ncol = mcmc$nChains
+  )
+  tau2 <- matrix(
+    if (mcmc$useRandomStart) {
+      replicate(
+        mcmc$nChains,
+        as.vector(
+          1 /
+            rgamma(
+              model$nPenGrps,
+              hyperparameters$tau2[1],
+              hyperparameters$tau2[2]
+            )
         )
-    )))
-  } else {
-    replicate(mcmc$nChains, rep(1, model$nPenGrps))
-  }, ncol = mcmc$nChains)
-  tau2 <- matrix(if (mcmc$useRandomStart) {
-    replicate(mcmc$nChains, as.vector(1 / rgamma(
-      model$nPenGrps,
-      hyperparameters$tau2[1], hyperparameters$tau2[2]
-    )))
-  } else {
-    replicate(mcmc$nChains, rep(
-      hyperparameters$tau2[2] / hyperparameters$tau2[1],
-      model$nPenGrps
-    ))
-  }, ncol = mcmc$nChains)
+      )
+    } else {
+      replicate(
+        mcmc$nChains,
+        rep(
+          hyperparameters$tau2[2] / hyperparameters$tau2[1],
+          model$nPenGrps
+        )
+      )
+    },
+    ncol = mcmc$nChains
+  )
   sigma2 <- if (mcmc$useRandomStart) {
-    replicate(mcmc$nChains, as.vector(1 / rgamma(
-      1,
-      model$n / 2 + hyperparameters$sigma2[1],
-      var(y) / 2 + hyperparameters$sigma2[2]
-    )))
+    replicate(
+      mcmc$nChains,
+      as.vector(
+        1 /
+          rgamma(
+            1,
+            model$n / 2 + hyperparameters$sigma2[1],
+            var(y) / 2 + hyperparameters$sigma2[2]
+          )
+      )
+    )
   } else {
     replicate(mcmc$nChains, var(y) / model$nPenGrps)
   }
   w <- if (mcmc$useRandomStart) {
-    replicate(mcmc$nChains, as.vector(rbeta(
-      1, hyperparameters$w[1],
-      hyperparameters$w[2]
-    )))
+    replicate(
+      mcmc$nChains,
+      as.vector(rbeta(
+        1,
+        hyperparameters$w[1],
+        hyperparameters$w[2]
+      ))
+    )
   } else {
-    replicate(mcmc$nChains, hyperparameters$w[1] / (hyperparameters$w[1] +
-      hyperparameters$w[2]))
+    replicate(
+      mcmc$nChains,
+      hyperparameters$w[1] /
+        (hyperparameters$w[1] +
+          hyperparameters$w[2])
+    )
   }
 
   if (is.null(start$beta) || (family > 0)) {
-    betaM <- switch(as.character(family),
+    betaM <- switch(
+      as.character(family),
       "0" = as.vector(solve(
         crossprod(sqrt(model$scale) * X) + diag(q),
         crossprod(X, y)
@@ -420,28 +471,30 @@ spikeAndSlab <- function(
       "2" = iwls.start(X, y, 2, model$scale, model$offset)
     )
 
-    beta <- matrix(if (mcmc$useRandomStart) {
-      tmp <- replicate(mcmc$nChains, betaM + rnorm(q))
-      gammaLong <- model$G %*% rbind(matrix(1,
-        ncol = ncol(gamma),
-        nrow = model$nUnpenGrps
-      ), gamma)
-      sapply(1:mcmc$nChains, function(i) tmp[, i] * gammaLong[
-          ,
-          i
-        ])
-    }
-    else {
-      replicate(mcmc$nChains, betaM)
-    }, ncol = mcmc$nChains)
+    beta <- matrix(
+      if (mcmc$useRandomStart) {
+        tmp <- replicate(mcmc$nChains, betaM + rnorm(q))
+        gammaLong <- model$G %*%
+          rbind(matrix(1, ncol = ncol(gamma), nrow = model$nUnpenGrps), gamma)
+        sapply(
+          1:mcmc$nChains,
+          function(i)
+            tmp[, i] *
+              gammaLong[,
+                i
+              ]
+        )
+      } else {
+        replicate(mcmc$nChains, betaM)
+      },
+      ncol = mcmc$nChains
+    )
   } else {
     beta <- NULL
   }
 
-
-
-
-  defaultStart <- list( # start values for the Gibbs sampler:
+  defaultStart <- list(
+    # start values for the Gibbs sampler:
     beta = beta,
     gamma = gamma,
     tau2 = tau2,
@@ -452,10 +505,14 @@ spikeAndSlab <- function(
   ## allow start close to origin (start in exact null not possible because divide-by-zero)
   if (!is.null(start$beta)) {
     if (sum(abs(start$beta)) == 0) {
-      start$beta <- matrix(runif(
-        q * mcmc$nChains,
-        -.01, .01
-      ), nrow = q)
+      start$beta <- matrix(
+        runif(
+          q * mcmc$nChains,
+          -.01,
+          .01
+        ),
+        nrow = q
+      )
     }
   }
 
@@ -480,20 +537,29 @@ spikeAndSlab <- function(
   if (length(model$updateKsiGrps)) {
     ksi <- matrix(start$beta, ncol = mcmc$nChains)
     alpha <- matrix(1, nrow = model$nGroups, ncol = mcmc$nChains)
-    alpha[-model$updateKsiGrps, ] <- drop(t(t(ksi) %*%
-      model$G[, -model$updateKsiGrps]))
-    rescales <- apply(abs(ksi[model$updateKsi, , drop = F]), 2, function(x) {
-      tapply(x, model$groupIndicators[model$updateKsi, drop = T], mean)
-    })
+    alpha[-model$updateKsiGrps, ] <- drop(t(
+      t(ksi) %*%
+        model$G[, -model$updateKsiGrps]
+    ))
+    rescales <- apply(
+      abs(ksi[model$updateKsi, , drop = FALSE]),
+      2,
+      function(x) {
+        tapply(x, model$groupIndicators[model$updateKsi, drop = TRUE], mean)
+      }
+    )
     alpha[model$updateKsiGrps, ] <- alpha[model$updateKsiGrps, ] * rescales
     ksi[-model$updateKsi, ] <- 1
     ksi[model$updateKsi, ] <- if (length(model$updateKsiGrps) > 1) {
-      ksi[model$updateKsi, , drop = F] / apply(
-        rescales, 2, rep,
-        model$d[model$updateKsiGrps]
-      )
+      ksi[model$updateKsi, , drop = FALSE] /
+        apply(
+          rescales,
+          2,
+          rep,
+          model$d[model$updateKsiGrps]
+        )
     } else {
-      ksi[model$updateKsi, , drop = F] / rescales
+      ksi[model$updateKsi, , drop = FALSE] / rescales
     }
     start$ksi <- ksi
     start$alpha <- alpha
@@ -508,7 +574,6 @@ spikeAndSlab <- function(
       nrow(ksi) == model$q
     )
   )
-
 
   #
   #
@@ -539,8 +604,11 @@ spikeAndSlab <- function(
         if (sum(rep(blcksSz, blcks)) == blocksizes[[b]]) {
           blocksizes[[b]] <- rep(blcksSz, blcks)
         } else {
-          blocksizes[[b]] <- c(rep(blcksSz, blcks - 1), blcksSz +
-            blocksizes[[b]] %% blcks)
+          blocksizes[[b]] <- c(
+            rep(blcksSz, blcks - 1),
+            blcksSz +
+              blocksizes[[b]] %% blcks
+          )
         }
       }
     }
@@ -551,13 +619,15 @@ spikeAndSlab <- function(
   block <- 0
   i <- 1
   while (block < length(blocksizes)) {
-    if (block == max(which(cumsum(blocksizes) - ksiIndABegin[i] <=
-      mcmc$blocksizeKsi))) {
+    if (
+      block ==
+        max(which(cumsum(blocksizes) - ksiIndABegin[i] <= mcmc$blocksizeKsi))
+    ) {
       block <- block + 1
-    }
-    else {
-      block <- max(which(cumsum(blocksizes) - ksiIndABegin[i] <=
-        mcmc$blocksizeKsi))
+    } else {
+      block <- max(which(
+        cumsum(blocksizes) - ksiIndABegin[i] <= mcmc$blocksizeKsi
+      ))
     }
     ksiIndAEnd[i] <- cumsum(blocksizes)[block]
     if (block < length(blocksizes)) {
@@ -572,30 +642,37 @@ spikeAndSlab <- function(
 
   if (mcmc$verbose) {
     cat(
-      "\nModel has ", model$q, " coefficients in ",
-      model$nGroups, "model terms.\n"
+      "\nModel has ",
+      model$q,
+      " coefficients in ",
+      model$nGroups,
+      "model terms.\n"
     )
     cat(
-      "Blockwise sampling: alpha:", blocksAlpha, " block(s); xi:",
-      blocksKsi, "block(s).\n"
+      "Blockwise sampling: alpha:",
+      blocksAlpha,
+      " block(s); xi:",
+      blocksKsi,
+      "block(s).\n"
     )
   }
-
 
   ##
 
   pcts <- round(quantile(mcmc$burnin:mcmc$totalLength, seq(.1, .9, by = .1)))
 
   betaMat <- ksiMat <- matrix(0, nrow = mcmc$chainLength, ncol = model$q)
-  tau2Mat <- gammaMat <- probV1Mat <- matrix(0,
+  tau2Mat <- gammaMat <- probV1Mat <- matrix(
+    0,
     nrow = mcmc$chainLength,
     ncol = model$nPenGrps
   )
   alphaMat <- matrix(0, nrow = mcmc$chainLength, ncol = model$nGroups)
-  wMat <- likMat <- logPostMat <- sigma2Mat <- matrix(0,
-    nrow = mcmc$chainLength, ncol = 1
+  wMat <- likMat <- logPostMat <- sigma2Mat <- matrix(
+    0,
+    nrow = mcmc$chainLength,
+    ncol = 1
   )
-
 
   parallel <- if (.Platform$OS.type != "windows") {
     "parallel"
@@ -603,18 +680,19 @@ spikeAndSlab <- function(
     "snow"
   }
 
-
   if ((is.null(options()$mc.cores) || is.na(options()$mc.cores))) {
     if (interactive()) {
-      options(mc.cores = as.integer(readline(
-        prompt =
-          paste0(
+      options(
+        mc.cores = as.integer(readline(
+          prompt = paste0(
             "Setting up parallel computation:\n",
             "How many processes do you want to run? "
           )
-      )))
+        ))
+      )
       stopifnot(
-        !is.null(options()$mc.cores), !is.na(options()$mc.cores),
+        !is.null(options()$mc.cores),
+        !is.na(options()$mc.cores),
         options()$mc.cores > 0
       )
     } else {
@@ -626,16 +704,16 @@ spikeAndSlab <- function(
     }
   }
 
-
-
   if (mcmc$verbose) {
     cat("\nstarting chain(s):\n")
     if (parallel == "parallel") {
-      cat(paste(paste(rep("b", mcmc$nChains), collapse = ""),
+      cat(paste(
+        paste(rep("b", mcmc$nChains), collapse = ""),
         "0",
         paste(rep("-", mcmc$nChains * 10 - 2), collapse = ""),
         "100%\n",
-        sep = "", collapse = ""
+        sep = "",
+        collapse = ""
       ))
     }
     if (parallel == "snow") {
@@ -646,7 +724,8 @@ spikeAndSlab <- function(
   do1Chain <- function(i) {
     # set seed for each chain s.t. results are reproducible
     set.seed(as.integer(start$seed + i))
-    res <- .C("sampler",
+    res <- .C(
+      "sampler",
       a1 = as.double(hyperparameters$tau2["a1"]),
       a2 = as.double(hyperparameters$tau2["a2"]),
       b1 = as.double(hyperparameters$sigma2["b1"]),
@@ -656,15 +735,19 @@ spikeAndSlab <- function(
       v0 = as.double(hyperparameters$gamma["v0"]),
       varKsi = as.double(hyperparameters$varKsi),
 
-      q = as.integer(model$q), qKsiUpdate = as.integer(model$qKsiUpdate),
-      p = as.integer(model$nGroups), pPen = as.integer(model$nPenGrps),
+      q = as.integer(model$q),
+      qKsiUpdate = as.integer(model$qKsiUpdate),
+      p = as.integer(model$nGroups),
+      pPen = as.integer(model$nPenGrps),
       n = as.integer(model$n),
       d = as.integer(model$d),
 
-
-      beta = as.double(start$beta[, i]), alpha = as.double(start$alpha[, i]),
-      ksi = as.double(start$ksi[, i]), tau2 = as.double(start$tau2[, i]),
-      gamma = as.double(start$gamma[, i]), sigma2 = as.double(start$sigma2[i]),
+      beta = as.double(start$beta[, i]),
+      alpha = as.double(start$alpha[, i]),
+      ksi = as.double(start$ksi[, i]),
+      tau2 = as.double(start$tau2[, i]),
+      gamma = as.double(start$gamma[, i]),
+      sigma2 = as.double(start$sigma2[i]),
       w = as.double(start$w[i]),
 
       y = as.double(y),
@@ -707,9 +790,9 @@ spikeAndSlab <- function(
       PACKAGE = "spikeSlabGAM"
     )
 
-
     beta <- matrix(res$betaMat, mcmc$chainLength, model$q)[, model$reverseOrder]
-    colnames(beta) <- paste(model$groupIndicators,
+    colnames(beta) <- paste(
+      model$groupIndicators,
       unlist(sapply(model$d, function(x) {
         return(1:x)
       })),
@@ -720,35 +803,39 @@ spikeAndSlab <- function(
     colnames(alpha) <- paste("alpha", levels(model$groupIndicators), sep = ".")
 
     ksi <- matrix(res$ksiMat, mcmc$chainLength, model$q)
-    colnames(ksi) <- paste("ksi", model$groupIndicators,
+    colnames(ksi) <- paste(
+      "ksi",
+      model$groupIndicators,
       unlist(sapply(model$d, function(x) {
         return(1:x)
       })),
       sep = "."
     )
 
-
     tau <- matrix(res$tau2Mat, mcmc$chainLength, model$nPenGrps)
     gamma <- matrix(res$gammaMat, mcmc$chainLength, model$nPenGrps)
     pV1 <- matrix(res$probV1Mat, mcmc$chainLength, model$nPenGrps)
     colnames(tau) <- colnames(gamma) <-
       colnames(pV1) <-
-      unique(model$groupIndicatorsOrig[properOrder[!(properOrder %in% unpen)]])
+        unique(model$groupIndicatorsOrig[properOrder[
+          !(properOrder %in% unpen)
+        ]])
     reorderedPenGroupNames <- if (length(unpen)) {
-      unique(model$groupIndicatorsOrig[-grep(
-        "u(.[0-9]+)?$",
-        model$groupIndicatorsOrig
-      )])
+      unique(model$groupIndicatorsOrig[
+        -grep(
+          "u(.[0-9]+)?$",
+          model$groupIndicatorsOrig
+        )
+      ])
     } else {
       unique(model$groupIndicatorsOrig)
     }
-    tau <- tau[, reorderedPenGroupNames, drop = F]
-    gamma <- gamma[, reorderedPenGroupNames, drop = F]
-    pV1 <- pV1[, reorderedPenGroupNames, drop = F ]
+    tau <- tau[, reorderedPenGroupNames, drop = FALSE]
+    gamma <- gamma[, reorderedPenGroupNames, drop = FALSE]
+    pV1 <- pV1[, reorderedPenGroupNames, drop = FALSE]
     colnames(tau) <- paste("tau.", colnames(tau), sep = "")
     colnames(gamma) <- paste("gamma.", colnames(gamma), sep = "")
     colnames(pV1) <- paste("p1.", colnames(pV1), sep = "")
-
 
     w <- matrix(res$wMat, mcmc$chainLength, 1)
     colnames(w) <- "w"
@@ -761,19 +848,34 @@ spikeAndSlab <- function(
 
     samples <- if (mcmc$reduceRet) {
       list(
-        beta = beta, gamma = gamma,
-        pV1 = pV1, w = w, sigma2 = sigma2, logLik = logLik, logPost = logPost
+        beta = beta,
+        gamma = gamma,
+        pV1 = pV1,
+        w = w,
+        sigma2 = sigma2,
+        logLik = logLik,
+        logPost = logPost
       )
     } else {
       list(
-        beta = beta, alpha = alpha,
-        ksi = ksi, tau = tau, gamma = gamma,
-        pV1 = pV1, w = w, sigma2 = sigma2, logLik = logLik, logPost = logPost
+        beta = beta,
+        alpha = alpha,
+        ksi = ksi,
+        tau = tau,
+        gamma = gamma,
+        pV1 = pV1,
+        w = w,
+        sigma2 = sigma2,
+        logLik = logLik,
+        logPost = logPost
       )
     }
-    samples <- lapply(samples, mcmc,
+    samples <- lapply(
+      samples,
+      mcmc,
       start = mcmc$burnin + 1,
-      end = mcmc$totalLength, thin = mcmc$thin
+      end = mcmc$totalLength,
+      thin = mcmc$thin
     )
 
     accept <- if (family != 0) {
@@ -787,18 +889,23 @@ spikeAndSlab <- function(
     posteriorPred <- if (mcmc$sampleY) {
       # if(mcmc$verbose) cat("\nsampling y from posterior predictive...\n")
       mu <- X %*% t(samples$beta) + model$offset
-      yPred <- switch(familystr,
-        gaussian = mu + t(as.vector(sqrt(samples$sigma2)) *
-          matrix(rnorm(n * mcmc$chainLength),
-            nrow = mcmc$chainLength
-          )),
-        binomial = t(matrix(rbinom(
-          n * mcmc$chainLength,
-          model$scale, plogis(mu)
-        ),
-        nrow = mcmc$chainLength
+      yPred <- switch(
+        familystr,
+        gaussian = mu +
+          t(
+            as.vector(sqrt(samples$sigma2)) *
+              matrix(rnorm(n * mcmc$chainLength), nrow = mcmc$chainLength)
+          ),
+        binomial = t(matrix(
+          rbinom(
+            n * mcmc$chainLength,
+            model$scale,
+            plogis(mu)
+          ),
+          nrow = mcmc$chainLength
         )),
-        poisson = t(matrix(rpois(n * mcmc$chainLength, exp(mu)),
+        poisson = t(matrix(
+          rpois(n * mcmc$chainLength, exp(mu)),
           nrow = mcmc$chainLength
         ))
       )
@@ -808,17 +915,18 @@ spikeAndSlab <- function(
     }
 
     restart <- list(
-      beta = beta[mcmc$chainLength, , drop = F],
-      tau = tau[mcmc$chainLength, , drop = F],
-      gamma = gamma[mcmc$chainLength, , drop = F],
-      w = w[mcmc$chainLength, , drop = F],
-      sigma2 = sigma2[mcmc$chainLength, , drop = F]
+      beta = beta[mcmc$chainLength, , drop = FALSE],
+      tau = tau[mcmc$chainLength, , drop = FALSE],
+      gamma = gamma[mcmc$chainLength, , drop = FALSE],
+      w = w[mcmc$chainLength, , drop = FALSE],
+      sigma2 = sigma2[mcmc$chainLength, , drop = FALSE]
     )
 
-
     return(list(
-      samples = samples, posteriorPred = posteriorPred,
-      accept = accept, restart = restart
+      samples = samples,
+      posteriorPred = posteriorPred,
+      accept = accept,
+      restart = restart
     ))
   }
 
@@ -835,11 +943,31 @@ spikeAndSlab <- function(
     clusterExportLocal(
       cl,
       c(
-        "hyperparameters", "model", "start", "mcmc", "y", "X",
-        "blocksAlpha", "alphaIndABegin", "alphaIndAEnd",
-        "blocksKsi", "ksiIndABegin", "ksiIndAEnd", "pcts", "family",
-        "betaMat", "alphaMat", "ksiMat", "gammaMat", "probV1Mat",
-        "tau2Mat", "sigma2Mat", "wMat", "likMat", "logPostMat", "unpen",
+        "hyperparameters",
+        "model",
+        "start",
+        "mcmc",
+        "y",
+        "X",
+        "blocksAlpha",
+        "alphaIndABegin",
+        "alphaIndAEnd",
+        "blocksKsi",
+        "ksiIndABegin",
+        "ksiIndAEnd",
+        "pcts",
+        "family",
+        "betaMat",
+        "alphaMat",
+        "ksiMat",
+        "gammaMat",
+        "probV1Mat",
+        "tau2Mat",
+        "sigma2Mat",
+        "wMat",
+        "likMat",
+        "logPostMat",
+        "unpen",
         "familystr"
       )
     )
@@ -857,19 +985,16 @@ spikeAndSlab <- function(
   }
 
   ## build the return object
-  ret <- mget(names(formals()),
-    envir = as.environment(-1)
-  )
+  ret <- mget(names(formals()), envir = as.environment(-1))
   if (family != 0) {
     acceptance <- list(
-      alpha = sapply(lapply(res, "[[", "accept"),
-        "[[", "alpha",
+      alpha = sapply(
+        lapply(res, "[[", "accept"),
+        "[[",
+        "alpha",
         simplify = TRUE
       ),
-      ksi = sapply(lapply(res, "[[", "accept"),
-        "[[", "ksi",
-        simplify = TRUE
-      )
+      ksi = sapply(lapply(res, "[[", "accept"), "[[", "ksi", simplify = TRUE)
     )
     acceptanceWarning <- .15
     if (any(unlist(acceptance) < acceptanceWarning)) {
@@ -902,7 +1027,6 @@ spikeAndSlab <- function(
   }
   rm(smpls)
 
-
   ret$postMeans <- if (mcmc$nChains > 1) {
     lapply(ret$samples, function(x) {
       tmp <- sapply(x, colMeans)
@@ -925,25 +1049,35 @@ spikeAndSlab <- function(
   ret$X <- ret$X[, model$reverseOrder]
 
   ret$fitted <- cbind(eta = ret$X %*% ret$postMeans$beta)
-  ret$fitted <- cbind(eta = ret$fitted, mu = switch(familystr,
-    gaussian = ret$fitted,
-    binomial = plogis(ret$fitted),
-    poisson = exp(ret$fitted)
-  ))
+  ret$fitted <- cbind(
+    eta = ret$fitted,
+    mu = switch(
+      familystr,
+      gaussian = ret$fitted,
+      binomial = plogis(ret$fitted),
+      poisson = exp(ret$fitted)
+    )
+  )
 
   ret$DIC <- {
-    Dbar <- -2 * mean(unlist(ret$samples$logLik), na.rm = T)
-    Dhat <- -2 * switch(familystr,
-      gaussian = sum(dnorm(y - ret$fitted[, 1],
-        mean = 0,
-        sd = sqrt(ret$postMeans$sigma2), log = T
-      )),
-      binomial = sum(dbinom(y * model$scale, model$scale,
-        ret$fitted[, 2],
-        log = T
-      )),
-      poisson = sum(dpois(y, ret$fitted[, 2], log = T))
-    )
+    Dbar <- -2 * mean(unlist(ret$samples$logLik), na.rm = TRUE)
+    Dhat <- -2 *
+      switch(
+        familystr,
+        gaussian = sum(dnorm(
+          y - ret$fitted[, 1],
+          mean = 0,
+          sd = sqrt(ret$postMeans$sigma2),
+          log = TRUE
+        )),
+        binomial = sum(dbinom(
+          y * model$scale,
+          model$scale,
+          ret$fitted[, 2],
+          log = TRUE
+        )),
+        poisson = sum(dpois(y, ret$fitted[, 2], log = TRUE))
+      )
     pD <- Dbar - Dhat
     DIC <- pD + Dbar
     c(DIC = DIC, pD = pD, Dbar = Dbar, Dhat = Dhat)

@@ -10,7 +10,7 @@ sm(
   spline.degree = 3,
   diff.ord = 2,
   rankZ = 0.999,
-  centerBase = T,
+  centerBase = TRUE,
   centerx = x,
   decomposition = c("ortho", "MM", "asIs"),
   tol = 1e-10

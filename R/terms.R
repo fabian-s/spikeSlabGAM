@@ -1,5 +1,6 @@
 #' @include utils.R
-{}
+{
+}
 
 # for R CMD CHECK
 utils::globalVariables(c("nc", "xu"))
@@ -44,23 +45,34 @@ utils::globalVariables(c("nc", "xu"))
 #' @importFrom splines  spline.des
 #' @importFrom MASS ginv
 #' @export
-sm <- function(x,
-               K = min(length(unique(x)), 20),
-               spline.degree = 3, diff.ord = 2, rankZ = .999,
-               centerBase = T, centerx = x, decomposition = c("ortho", "MM", "asIs"),
-               tol = 1e-10) {
+sm <- function(
+  x,
+  K = min(length(unique(x)), 20),
+  spline.degree = 3,
+  diff.ord = 2,
+  rankZ = .999,
+  centerBase = TRUE,
+  centerx = x,
+  decomposition = c("ortho", "MM", "asIs"),
+  tol = 1e-10
+) {
   base <- psBasis(
-    x = x, K = K, spline.degree = spline.degree,
+    x = x,
+    K = K,
+    spline.degree = spline.degree,
     diff.ord = diff.ord
   )
   if (centerBase) {
     base$X <- centerBase(base$X, x = centerx, degree = diff.ord - 1)
   }
 
-  B <- switch(match.arg(decomposition),
+  B <- switch(
+    match.arg(decomposition),
     ortho = {
       tmp <- orthoDesign(
-        B = base$X, Cov = ginv(base$P), tol = tol,
+        B = base$X,
+        Cov = ginv(base$P),
+        tol = tol,
         rankZ = rankZ
       )
       scaleMat(tmp)
@@ -90,8 +102,11 @@ sm <- function(x,
     })
     return(X)
   }
-  makeNewX <- customFunctionEnv(makeNewX,
-    xu = xu, Bu = Bu, rng = rng,
+  makeNewX <- customFunctionEnv(
+    makeNewX,
+    xu = xu,
+    Bu = Bu,
+    rng = rng,
     label = label
   )
   ret <- structure(B, label = label, predvars = list(makeNewX = makeNewX))
@@ -125,9 +140,14 @@ lin <- function(x, order = 1) {
     }
     t(scale * t(poly(xnew, degree = order, coefs = coefs)))
   }
-  makeNewX <- customFunctionEnv(makeNewX,
-    coefs = coefs, scale = scale,
-    order = order, rng = rng, label = label, xu = xu
+  makeNewX <- customFunctionEnv(
+    makeNewX,
+    coefs = coefs,
+    scale = scale,
+    order = order,
+    rng = rng,
+    label = label,
+    xu = xu
   )
 
   ret <- structure(B, label = label, predvars = list(makeNewX = makeNewX))
@@ -161,9 +181,13 @@ fct <- function(x, contr = "contr.sum") {
     X <- scale * model.matrix(~xnew)[, -1, drop = FALSE]
     return(X)
   }
-  makeNewX <- customFunctionEnv(makeNewX,
-    lvls = lvls, contr = contr,
-    scale = scale, label = label, xu = xu
+  makeNewX <- customFunctionEnv(
+    makeNewX,
+    lvls = lvls,
+    contr = contr,
+    scale = scale,
+    label = label,
+    xu = xu
   )
   return(structure(B, label = label, predvars = list(makeNewX = makeNewX)))
 }
@@ -179,7 +203,7 @@ fct <- function(x, contr = "contr.sum") {
 rnd <- function(x, C = NULL) {
   x <- factor(x, exclude = NULL)
   contrasts(x) <- contr.treatment(n = nlevels(x))
-  B <- model.matrix(~-1 + x)[, , drop = FALSE]
+  B <- model.matrix(~ -1 + x)[,, drop = FALSE]
   if (!is.null(C)) {
     cC <- chol(C)
     B <- B %*% t(cC)
@@ -196,17 +220,22 @@ rnd <- function(x, C = NULL) {
   nd <- !duplicated(x)
   lvlMap <- data.frame(lvl = x[nd], B[nd, ])
   makeNewX <- function(xnew) {
-    if (!all(xnew %in% lvls)) stop("unknown levels for random effect ", label, ".")
-    B <- model.matrix(~-1 + xnew)[, , drop = FALSE]
+    if (!all(xnew %in% lvls))
+      stop("unknown levels for random effect ", label, ".")
+    B <- model.matrix(~ -1 + xnew)[,, drop = FALSE]
     if (!is.null(cC)) {
       B <- B %*% t(cC)
     }
     B <- scale * B
     return(B)
   }
-  makeNewX <- customFunctionEnv(makeNewX,
-    lvls = lvls, cC = cC, xu = lvlMap$lvl,
-    scale = scale, label = label
+  makeNewX <- customFunctionEnv(
+    makeNewX,
+    lvls = lvls,
+    cC = cC,
+    xu = lvlMap$lvl,
+    scale = scale,
+    label = label
   )
   return(structure(B, label = label, predvars = list(makeNewX = makeNewX)))
 }
@@ -248,9 +277,12 @@ u <- function(x, ...) {
 
     return(model.matrix(~xnew)[, -1, drop = FALSE])
   }
-  makeNewX <- customFunctionEnv(makeNewX,
-    rng = rng, isFctr = isFctr,
-    label = label, xu = xu
+  makeNewX <- customFunctionEnv(
+    makeNewX,
+    rng = rng,
+    isFctr = isFctr,
+    label = label,
+    xu = xu
   )
   return(structure(B, label = label, predvars = list(makeNewX = makeNewX)))
 }
@@ -287,10 +319,18 @@ u <- function(x, ...) {
 #'   additive mixed models based on Markov random field priors. \emph{Applied
 #'   Statistics}, \bold{50}(2):201--220.
 #' @export
-mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
-                rankZ = .995) {
+mrf <- function(
+  x,
+  N,
+  decomposition = c("ortho", "MM"),
+  tol = 1e-10,
+  rankZ = .995
+) {
   stopifnot(
-    is.factor(x), all(N >= 0), isSymmetric(N), nlevels(x) == ncol(N),
+    is.factor(x),
+    all(N >= 0),
+    isSymmetric(N),
+    nlevels(x) == ncol(N),
     colnames(N) == rownames(N),
     all(levels(x) == colnames(N))
   )
@@ -300,21 +340,24 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
   n <- nlevels(x)
   contrasts(x) <- contr.treatment(n = n)
 
-
   K <- -N
   diag(K) <- 0
   diag(K) <- -rowSums(K)
   if (any(diag(K) == 0)) {
     warning(
-      "region(s) without neighbors found in ", label,
-      ", with names: ", paste(colnames(N)[which(diag(K) < 1)], collapse = ", "), "."
+      "region(s) without neighbors found in ",
+      label,
+      ", with names: ",
+      paste(colnames(N)[which(diag(K) < 1)], collapse = ", "),
+      "."
     )
     diag(K)[diag(K) == 0] <- .1
   }
 
-  B <- model.matrix(~-1 + x)
+  B <- model.matrix(~ -1 + x)
 
-  B <- switch(match.arg(decomposition),
+  B <- switch(
+    match.arg(decomposition),
     ortho = {
       tmp <- orthoDesign(B = B, Cov = ginv(K), tol = tol, rankZ = rankZ)
       scaleMat(tmp)
@@ -342,9 +385,13 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
     }
     return(B)
   }
-  makeNewX <- customFunctionEnv(makeNewX,
-    lvls = lvls, lvlMap = lvlMap,
-    xu = lvlMap$lvl, label = label, nc = NCOL(B)
+  makeNewX <- customFunctionEnv(
+    makeNewX,
+    lvls = lvls,
+    lvlMap = lvlMap,
+    xu = lvlMap$lvl,
+    label = label,
+    nc = NCOL(B)
   )
   return(structure(B, label = label, predvars = list(makeNewX = makeNewX)))
 }
@@ -369,9 +416,9 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
 #' by \code{\link[cluster]{clara}}) as suggested in Ruppert/Wand/Carroll, ch.
 #' 13.5. Since the thin plate penalty term penalizes deviations from a linear
 #' trend, it is recommended to add marginal linear trends and their interaction
-#' to the model if \code{baseType ="thinPlate"} to improve the fit.  
-#' 
-#' Note that predictions outside the convex hull (sometimes even just close its 
+#' to the model if \code{baseType ="thinPlate"} to improve the fit.
+#'
+#' Note that predictions outside the convex hull (sometimes even just close its
 #' border) of the original data tend to become rather unstable very quickly.
 #'
 #' @param coords a \code{data.frame} with two columns containing the coordinates
@@ -401,9 +448,15 @@ mrf <- function(x, N, decomposition = c("ortho", "MM"), tol = 1e-10,
 #' @importFrom cluster clara
 #' @importFrom interp interp
 #' @export
-srf <- function(coords, K = min(50, sum(nd) / 4), rankZ = .999, centerBase = TRUE,
-                baseType = c("B", "thinPlate"), decomposition = c("ortho", "MM", "asIs"),
-                tol = 1e-10) {
+srf <- function(
+  coords,
+  K = min(50, sum(nd) / 4),
+  rankZ = .999,
+  centerBase = TRUE,
+  baseType = c("B", "thinPlate"),
+  decomposition = c("ortho", "MM", "asIs"),
+  tol = 1e-10
+) {
   stopifnot(is.data.frame(coords), ncol(coords) == 2)
 
   nd <- !duplicated(coords)
@@ -420,21 +473,25 @@ srf <- function(coords, K = min(50, sum(nd) / 4), rankZ = .999, centerBase = TRU
     B1 <- psBasis(coords[, 1], K = K[1], spline.degree = 3, diff.ord = 0)$X
     B2 <- psBasis(coords[, 2], K = K[2], spline.degree = 3, diff.ord = 0)$X
     base <- list(X = NULL, P = diag(ncol(B1) * ncol(B2)))
-    base$X <- matrix(apply(B1, 2, function(x) {
-      x * B2
-    }),
-    nrow = nrow(B1), ncol = NCOL(B1) * NCOL(B2)
+    base$X <- matrix(
+      apply(B1, 2, function(x) {
+        x * B2
+      }),
+      nrow = nrow(B1),
+      ncol = NCOL(B1) * NCOL(B2)
     )
   }
   if (centerBase) {
     base$X <- centerBase(base$X, x = coords[1, ], degree = 0)
   }
 
-
-  B <- switch(match.arg(decomposition),
+  B <- switch(
+    match.arg(decomposition),
     ortho = {
       tmp <- orthoDesign(
-        B = base$X, Cov = ginv(base$P), tol = tol,
+        B = base$X,
+        Cov = ginv(base$P),
+        tol = tol,
         rankZ = rankZ
       )
       scaleMat(tmp)
@@ -455,24 +512,36 @@ srf <- function(coords, K = min(50, sum(nd) / 4), rankZ = .999, centerBase = TRU
     if (any(!insidePoly(xnew, rng))) {
       warning(
         "Prediction locations outside of convex hull of original observations for ",
-        label, "."
+        label,
+        "."
       )
     }
 
     X <- apply(Bu, 2, function(b) {
       interp(
-        x = xu[, 1], y = xu[, 2], z = b, xo = xnew[, 1], yo = xnew[, 2],
-        extrap = FALSE, method = "linear"
+        x = xu[, 1],
+        y = xu[, 2],
+        z = b,
+        xo = xnew[, 1],
+        yo = xnew[, 2],
+        extrap = FALSE,
+        method = "linear"
       )$z
     })
     return(X)
   }
-  makeNewX <- customFunctionEnv(makeNewX,
-    xu = coordsu, Bu = Bu, rng = rng,
-    label = label, insidePoly = insidePoly
+  makeNewX <- customFunctionEnv(
+    makeNewX,
+    xu = coordsu,
+    Bu = Bu,
+    rng = rng,
+    label = label,
+    insidePoly = insidePoly
   )
-  ret <- structure(B,
-    label = label, rng = rng,
+  ret <- structure(
+    B,
+    label = label,
+    rng = rng,
     predvars = list(makeNewX = makeNewX)
   )
   return(ret)

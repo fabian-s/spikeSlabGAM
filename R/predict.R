@@ -1,5 +1,6 @@
 #' @include spikeSlabGAM.R
-{}
+{
+}
 
 #' Get the posterior distribution of the linear predictor of a model term
 #'
@@ -23,11 +24,15 @@ getPosteriorTerm <- function(label = NULL, model, betaInd = NULL) {
 
   beta <- t(do.call(
     rbind,
-    lapply(model$samples$beta, "[",
-      i = 1:model$mcmc$chainLength, j = betaInd, drop = F
+    lapply(
+      model$samples$beta,
+      "[",
+      i = 1:model$mcmc$chainLength,
+      j = betaInd,
+      drop = FALSE
     )
   ))
-  return(structure(model$X[, betaInd, drop = F] %*% beta, "coef" = beta))
+  return(structure(model$X[, betaInd, drop = FALSE] %*% beta, "coef" = beta))
 }
 
 #' Get summaries of the posterior (predictive) distribution of the linear
@@ -49,8 +54,14 @@ getPosteriorTerm <- function(label = NULL, model, betaInd = NULL) {
 #'   requested \code{quantiles}.
 #' @author Fabian Scheipl
 #' @export
-evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
-                     quantiles = c(.1, .9), returnData = TRUE) {
+evalTerm <- function(
+  label,
+  model,
+  newdata = NULL,
+  aggregate = mean,
+  quantiles = c(.1, .9),
+  returnData = TRUE
+) {
   stopifnot(
     is.null(aggregate) | is.function(aggregate),
     is.null(quantiles) | all(quantiles >= 0 & quantiles <= 1),
@@ -59,10 +70,15 @@ evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
 
   # find main effect(s) and beta
   trms <- strsplit(label, ":")[[1]]
-  vars <- sapply(trms, function(x) gsub(
-      "\\)", "",
-      gsub("([[:graph:]]+\\()", "", x)
-    ))
+  vars <- sapply(
+    trms,
+    function(x)
+      gsub(
+        "\\)",
+        "",
+        gsub("([[:graph:]]+\\()", "", x)
+      )
+  )
   betaInd <- which(names(model$model$groupIndicatorsOrig) == label)
 
   # get posterior samples of term
@@ -81,10 +97,12 @@ evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
       # make interaction design
       X <- matrix(1, nrow = nrow(newX[[1]]))
       for (i in 1:length(newX)) {
-        X <- matrix(apply(X, 2, function(x) {
-          x * newX[[i]]
-        }),
-        nrow = nrow(X), ncol = NCOL(X) * NCOL(newX[[i]])
+        X <- matrix(
+          apply(X, 2, function(x) {
+            x * newX[[i]]
+          }),
+          nrow = nrow(X),
+          ncol = NCOL(X) * NCOL(newX[[i]])
         )
       }
     } else {
@@ -99,7 +117,8 @@ evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
       tmp <- try(qr.coef(model$predvars[[label]]$qrB, fhat), silent = TRUE)
       if (inherits(tmp, "try-error")) {
         tmp <- (ginv(qr.R(model$predvars[[label]]$qrB)) %*%
-          t(qr.Q(model$predvars[[label]]$qrB))) %*% fhat
+          t(qr.Q(model$predvars[[label]]$qrB))) %*%
+          fhat
         ## FIXME: use backsolve? or do we need ginv for stability
       }
       tmp
@@ -109,7 +128,8 @@ evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
     if (any(is.na(coef))) {
       ## FIXME
       warning(
-        "Recalculating original coefficients for ", label,
+        "Recalculating original coefficients for ",
+        label,
         " seems to be problematic. Predictions may be unstable."
       )
       rm <- is.na(coef[, 1])
@@ -119,9 +139,9 @@ evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
     }
     # posterior of term evaluated on newdata:
     fhat <- X %*% coef
-    data <- newdata[, vars, drop = F]
+    data <- newdata[, vars, drop = FALSE]
   } else {
-    data <- model$data[, vars, drop = F]
+    data <- model$data[, vars, drop = FALSE]
   }
   pred <- summarizeF(fhat, aggregate, quantiles)
   if (returnData) {
@@ -163,14 +183,22 @@ evalTerm <- function(label, model, newdata = NULL, aggregate = mean,
 #'   (\code{type ="response"}) is returned.
 #' @export
 #' @author Fabian Scheipl
-predict.spikeSlabGAM <- function(object, newdata = NULL,
-                                 type = c("response", "link", "terms"), terms = NULL,
-                                 aggregate = mean, quantiles = NULL, addIntercept = is.null(terms), ...) {
+predict.spikeSlabGAM <- function(
+  object,
+  newdata = NULL,
+  type = c("response", "link", "terms"),
+  terms = NULL,
+  aggregate = mean,
+  quantiles = NULL,
+  addIntercept = is.null(terms),
+  ...
+) {
   addIntercept <- eval(addIntercept)
   type <- match.arg(type)
 
   if (!is.null(terms)) type <- "terms"
-  linkinv <- switch(as.character(object$family),
+  linkinv <- switch(
+    as.character(object$family),
     "0" = I,
     "1" = plogis,
     "2" = exp
@@ -191,14 +219,19 @@ predict.spikeSlabGAM <- function(object, newdata = NULL,
         # check for special terms
         specials <- sapply(
           terms,
-          function(x) any(mapply(grepl,
+          function(x)
+            any(mapply(
+              grepl,
               x = x,
               pattern = environment(object$formula)$specials
             ))
         )
         # find out terms that involve variables mentioned in non-special "terms"
-        which <- unique(unlist(sapply(terms[!specials], grep,
-          x = names(object$predvars), fixed = TRUE
+        which <- unique(unlist(sapply(
+          terms[!specials],
+          grep,
+          x = names(object$predvars),
+          fixed = TRUE
         )))
         unique(c(terms[specials], names(object$predvars)[sort(which)]))
       }
@@ -221,29 +254,41 @@ predict.spikeSlabGAM <- function(object, newdata = NULL,
       # check for special terms
       specials <- sapply(
         terms,
-        function(x) any(mapply(grepl,
+        function(x)
+          any(mapply(
+            grepl,
             x = x,
             pattern = environment(object$formula)$specials
           ))
       )
       # find out terms that involve variables mentioned in non-special "terms"
-      which <- unique(unlist(sapply(terms, grep,
-        x = names(object$predvars), fixed = TRUE
+      which <- unique(unlist(sapply(
+        terms,
+        grep,
+        x = names(object$predvars),
+        fixed = TRUE
       )))
       names(object$predvars)[sort(which)]
     }
-    res <- lapply(terms, evalTerm,
-      model = object, newdata = newdata,
-      aggregate = aggregate, quantiles = quantiles, returnData = FALSE
+    res <- lapply(
+      terms,
+      evalTerm,
+      model = object,
+      newdata = newdata,
+      aggregate = aggregate,
+      quantiles = quantiles,
+      returnData = FALSE
     )
     if (type == "terms") {
       names(res) <- terms
       if (attr(terms(object$formula), "intercept") != 0 & addIntercept) {
         int <- getPosteriorTerm(model = object, betaInd = 1)
         int <- summarizeF(int, aggregate = aggregate, quantiles = quantiles)
-        res[["(Intercept)"]] <- suppressWarnings(matrix(int,
+        res[["(Intercept)"]] <- suppressWarnings(matrix(
+          int,
           nrow = nrow(newdata),
-          ncol = ncol(int), byrow = T
+          ncol = ncol(int),
+          byrow = TRUE
         ))
       }
       return(res)
@@ -251,9 +296,11 @@ predict.spikeSlabGAM <- function(object, newdata = NULL,
       if (attr(terms(object$formula), "intercept") != 0 & addIntercept) {
         int <- getPosteriorTerm(model = object, betaInd = 1)
         int <- summarizeF(int, aggregate = aggregate, quantiles = quantiles)
-        res[["(Intercept)"]] <- suppressWarnings(matrix(int,
+        res[["(Intercept)"]] <- suppressWarnings(matrix(
+          int,
           nrow = nrow(newdata),
-          ncol = ncol(int), byrow = T
+          ncol = ncol(int),
+          byrow = TRUE
         ))
       }
       res <- Reduce("+", res)
