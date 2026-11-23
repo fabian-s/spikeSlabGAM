@@ -1,3 +1,15 @@
+spikeSlabGAM 1.1-21 (2026-11-23) ----------------------------------------
+
+* C entry point `sampler()` now declared with its true argument types and a
+  `void` return in the routine registration (thx, Michael Chirico, PR #5);
+  fixes a function-type mismatch flagged by clang's -fsanitize=kcfi
+* fix author names of the JASA (2012) reference in CITATION, use DOI field
+
+spikeSlabGAM 1.1-20 (2024-10-22) ----------------------------------------
+
+* update for keeping up with CRAN checks: C code compiles with
+  STRICT_R_HEADERS (R_Free etc.), CITATION uses bibentry()
+
 spikeSlabGAM 1.1-19 (2022-06-10) ----------------------------------------
 
 * BDR told us to use interp instead of akima to avoid its restrictive license
