@@ -19,9 +19,9 @@ An R-package for Bayesian variable selection, model choice, and regularized esti
 
 Short & applied intro (also the vignette that comes with the package, with some minor modifications...):
 
-> Fabian Scheipl. (2011) `spikeSlabGAM`: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in R. *Journal of Statistical Software*, 43(14). [[pdf]](http://www.jstatsoft.org/v43/i14)
+> Fabian Scheipl. (2011) `spikeSlabGAM`: Bayesian Variable Selection, Model Choice and Regularization for Generalized Additive Mixed Models in R. *Journal of Statistical Software*, 43(14). [[pdf]](https://www.jstatsoft.org/v43/i14)
 
 More theory, simulation studies and real-world case studies:
 
-> Fabian Scheipl, Ludwig Fahrmeir, Thomas Kneib (2012). Spike-and-Slab Priors for Function Selection in Structured Additive Regression Models. *Journal of the American Statistical Association*, 107(500), 1518-1532. [[pdf on arXiv]](http://arxiv.org/abs/1105.5250)
+> Fabian Scheipl, Ludwig Fahrmeir, Thomas Kneib (2012). Spike-and-Slab Priors for Function Selection in Structured Additive Regression Models. *Journal of the American Statistical Association*, 107(500), 1518-1532. [[pdf on arXiv]](https://arxiv.org/abs/1105.5250)
 
