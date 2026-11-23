@@ -23,6 +23,12 @@ on:
         description: 'Unique ID. You can leave this empty now.'
         type: string
 
+# The vignette is a precompiled PDF wrapped via LaTeX 'pdfpages', which the
+# R-hub runners lack; skip rebuilding it there (built in R-CMD-check.yaml).
+env:
+  BUILD_ARGS: "--no-build-vignettes"
+  CHECK_ARGS: "--ignore-vignettes"
+
 jobs:
 
   setup:
